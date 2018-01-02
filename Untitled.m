@@ -20,8 +20,8 @@ Electrodes.numOfBins = 10;
 Electrodes.numOfElec = 10; %TODO: init from gui
 Electrodes.updateTime = 5;%TODO: update by all histogram or every 100ms?
 Electrodes.elecArray = cell(Electrodes.numOfElec, 4);
-Electrodes.n = cell(Electrodes.numOfElec,1);
-Electrodes.xout = cell(Electrodes.numOfElec,1);
+Electrodes.n = cell(Electrodes.numOfElec,1); %creates a cell array of the n parameter for each electrodes
+Electrodes.xout = cell(Electrodes.numOfElec,1); %creates a cell array of the xout parameter for each electrodes
 
 %init cell array to read data in from buffer -> input for histograms
 spikesTimeStamps = cell(Electrodes.numOfElec, 3);
@@ -92,7 +92,7 @@ if(inputSystem == 1)
             end
         end
         for indexForHist = 1:Electrodes.numOfElec
-            [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 2}, Electrodes.numOfBins);
+            [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 2}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
             figure(Electrodes.elecArray{indexForHist, 1})
             bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
             linkdata on
