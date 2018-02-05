@@ -33,10 +33,14 @@ end
 %create cyclic time stemps vectors for each electrode
 index = ones(Electrodes.numOfElec, 1);
 
+%create the linkdata cell
+Electrodes.linkobj = cell(Electrodes.numOfElec,1);
+
 %create array of histograms - one for each active electrod.
 for ii = 1:Electrodes.numOfElec
    
     Electrodes.elecArray{ii, 1} = figure;
+    Electrodes.linkobj{ii} = linkdata(Electrodes.elecArray{ii, 1});
     histogram(spikesTimeStamps{ii, 1}, Electrodes.numOfBins);
     xlabel('Time', 'FontSize', 12);
     ylabel('number of spikes', 'FontSize', 12);
@@ -88,15 +92,16 @@ if(inputSystem == 1)
                     index(jj) = index(jj)+1;
             end
         end
-        
         for indexForHist = 1:Electrodes.numOfElec
+            linkdata(Electrodes.elecArray{indexForHist, 1});
             [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
-            figure(Electrodes.elecArray{indexForHist, 1})
+            %figure(Electrodes.elecArray{indexForHist, 1})
             bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
-            linkdata on
+            linkdata on;
             xlabel('Time', 'FontSize', 12);
             ylabel('number of spikes', 'FontSize', 12);
             title('spikes per 100 ms', 'FontSize', 18);
+            drawnow limitrate nocallbacks;
         end
     end
 end
