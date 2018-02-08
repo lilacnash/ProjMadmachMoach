@@ -1,6 +1,6 @@
 %Conect to the neurolink system and plot grapph for each electorde
 %connected in real time. replot every k seconds.
-
+%password **Cervello1**
 %%
 %constant
 %NEUROPORT = 0;
@@ -14,11 +14,11 @@ clear variables;
 %%
 %initialize system
 
-inputSystem = 1; %TODO: read from gui
+inputSystem = 1; 
 
 Electrodes.numOfBins = 10;
-Electrodes.numOfElec = 10; %TODO: init from gui
-Electrodes.updateTime = 5;%TODO: update by all histogram or every 100ms?
+Electrodes.numOfElec = 10; 
+Electrodes.updateTime = 5;
 Electrodes.elecArray = cell(Electrodes.numOfElec, 1);
 Electrodes.n = cell(Electrodes.numOfElec,1); %creates a cell array of the n parameter for each electrodes
 Electrodes.xout = cell(Electrodes.numOfElec,1); %creates a cell array of the xout parameter for each electrodes
@@ -33,14 +33,10 @@ end
 %create cyclic time stemps vectors for each electrode
 index = ones(Electrodes.numOfElec, 1);
 
-%create the linkdata cell
-Electrodes.linkobj = cell(Electrodes.numOfElec,1);
-
 %create array of histograms - one for each active electrod.
 for ii = 1:Electrodes.numOfElec
    
     Electrodes.elecArray{ii, 1} = figure;
-    Electrodes.linkobj{ii} = linkdata(Electrodes.elecArray{ii, 1});
     histogram(spikesTimeStamps{ii, 1}, Electrodes.numOfBins);
     xlabel('Time', 'FontSize', 12);
     ylabel('number of spikes', 'FontSize', 12);
@@ -53,57 +49,82 @@ if(inputSystem == 0)
     recordingsFileName = ''; %TODO: where to record to
     comments = ''; %TODO what is this for?
     interface = 0; %TODO: what value should it get?
-%    [connection, instrument] = ConnectToNeuroport(interface, recordingsFileName, comments);
+    [connection, instrument] = ConnectToNeuroport(interface, recordingsFileName, comments);
     %TODO: check if connection and instrument are as expected
 end
 
 %%
-%read and display (read by function)(main loop)
+%read and display
 
 %read from neuroport
 if(inputSystem == 0)
-    cbmex('trialconfig', 1);
+    
+    [activeState, configVectorOut] = cbmex('trialconfig', 1, 'double');
+    
     for ii = 1:5 %TODO: change to true while(TRUE)
+        
         pause(Electrodes.updateTime);%TODO: change to other thread?
-        spikesTimeStamps = cbmex('trialdata', 1);%TODO: what returns for non active channels?
-        for his = 1:Electrodes.numOfElec
-            figure(Electrodes.elecArray{his, 1})
-            histogram(spikesTimeStamps{his, 1}, Electrodes.numOfBins);
+        eventData = cbmex('trialdata', 1);
+        
+        for jj = 1:Electrodes.numOfElec 
+           for indexFromTempVector = 1:length(eventData{jj, 1})
+                
+                index(jj) = mod(index(jj)-1,numOfStamps)+1;
+                spikesTimeStamps{jj,1}(index(jj)) = eventData{jj, 1}(indexFromTempVector); 
+                index(jj) = index(jj)+1;
+                    
+           end
+        end
+        
+        for indexForHist = 1:Electrodes.numOfElec
+            
+            [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
+            figure(Electrodes.elecArray{indexForHist, 1})
+            bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
+            linkdata on
             xlabel('Time', 'FontSize', 12);
             ylabel('number of spikes', 'FontSize', 12);
             title('spikes per 100 ms', 'FontSize', 18);
+        
         end
-        %TODO: should be stoped by gui
-        %if()
-        %    break;
     end
 end
 
 %%
 %read from trail
-if(inputSystem == 1)
-    for ii = 1:5 %TODO: change to true while(TRUE)
-        pause(Electrodes.updateTime);%TODO: change to other thread?
-        for jj = 1:Electrodes.numOfElec
-            tempVectorFromElectrode = rand(6,1)*1000;
-            for indexFromTempVector = 1:length(tempVectorFromElectrode)
-                index(jj) = mod(index(jj)-1,numOfStamps)+1;
-                spikesTimeStamps{jj,1}(index(jj)) = tempVectorFromElectrode(indexFromTempVector); 
-                    index(jj) = index(jj)+1;
+
+s = 'Ready to conect?';
+output = input(s, 's');
+if strcmp(output,'y') 
+    t = tcpip('10.0.0.2', 55000, 'NetworkRole', 'client');
+    set(t, 'InputBufferSize', 7688);
+    set(t, 'Timeout', 30);
+    fopen(t);
+
+    if(inputSystem == 1)
+        for ii = 1:5 %TODO: change to true while(TRUE)
+            pause(Electrodes.updateTime);%TODO: change to other thread?
+            for jj = 1:Electrodes.numOfElec
+                tempVectorFromElectrode = fread(t , 961, 'double');
+                for indexFromTempVector = 1:length(tempVectorFromElectrode)
+                    index(jj) = mod(index(jj)-1,numOfStamps)+1;
+                    spikesTimeStamps{jj,1}(index(jj)) = tempVectorFromElectrode(indexFromTempVector); 
+                        index(jj) = index(jj)+1;
+                end
+            end
+
+            for indexForHist = 1:Electrodes.numOfElec
+                [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
+                figure(Electrodes.elecArray{indexForHist, 1})
+                bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
+                linkdata on
+                xlabel('Time', 'FontSize', 12);
+                ylabel('number of spikes', 'FontSize', 12);
+                title('spikes per 100 ms', 'FontSize', 18);
             end
         end
-        for indexForHist = 1:Electrodes.numOfElec
-            linkdata(Electrodes.elecArray{indexForHist, 1});
-            [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
-            %figure(Electrodes.elecArray{indexForHist, 1})
-            bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
-            linkdata on;
-            xlabel('Time', 'FontSize', 12);
-            ylabel('number of spikes', 'FontSize', 12);
-            title('spikes per 100 ms', 'FontSize', 18);
-            drawnow limitrate nocallbacks;
-        end
     end
+    fclose(t);
 end
 
 %%
