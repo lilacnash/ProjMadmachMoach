@@ -14,7 +14,7 @@ clear variables;
 %%
 %initialize system
 
-inputSystem = 1; 
+inputSystem = 0; 
 
 Electrodes.numOfBins = 10;
 Electrodes.numOfElec = 10; 
@@ -46,9 +46,9 @@ end
 %%
 %conect to nueroport
 if(inputSystem == 0)
-    recordingsFileName = ''; %TODO: where to record to
-    comments = ''; %TODO what is this for?
-    interface = 0; %TODO: what value should it get?
+    recordingsFileName = 'D:\Neuroport\BMI\test3'; %TODO: where to record to
+    comments = 'third'; %TODO what is this for?
+    interface = 2; %TODO: what value should it get?
     [connection, instrument] = ConnectToNeuroport(interface, recordingsFileName, comments);
     %TODO: check if connection and instrument are as expected
 end
@@ -92,40 +92,40 @@ end
 
 %%
 %read from trail
-
-s = 'Ready to conect?';
-output = input(s, 's');
-if strcmp(output,'y') 
-    t = tcpip('10.0.0.2', 55000, 'NetworkRole', 'client');
-    set(t, 'InputBufferSize', 7688);
-    set(t, 'Timeout', 30);
-    fopen(t);
-
-    if(inputSystem == 1)
-        for ii = 1:5 %TODO: change to true while(TRUE)
-            pause(Electrodes.updateTime);%TODO: change to other thread?
-            for jj = 1:Electrodes.numOfElec
-                tempVectorFromElectrode = fread(t , 961, 'double');
-                for indexFromTempVector = 1:length(tempVectorFromElectrode)
-                    index(jj) = mod(index(jj)-1,numOfStamps)+1;
-                    spikesTimeStamps{jj,1}(index(jj)) = tempVectorFromElectrode(indexFromTempVector); 
-                        index(jj) = index(jj)+1;
-                end
-            end
-
-            for indexForHist = 1:Electrodes.numOfElec
-                [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
-                figure(Electrodes.elecArray{indexForHist, 1})
-                bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
-                linkdata on
-                xlabel('Time', 'FontSize', 12);
-                ylabel('number of spikes', 'FontSize', 12);
-                title('spikes per 100 ms', 'FontSize', 18);
-            end
-        end
-    end
-    fclose(t);
-end
+% 
+% s = 'Ready to conect?';
+% output = input(s, 's');
+% if strcmp(output,'y') 
+%     t = tcpip('10.0.0.2', 55000, 'NetworkRole', 'client');
+%     set(t, 'InputBufferSize', 7688);
+%     set(t, 'Timeout', 30);
+%     fopen(t);
+% 
+%     if(inputSystem == 1)
+%         for ii = 1:5 %TODO: change to true while(TRUE)
+%             pause(Electrodes.updateTime);%TODO: change to other thread?
+%             for jj = 1:Electrodes.numOfElec
+%                 tempVectorFromElectrode = fread(t , 961, 'double');
+%                 for indexFromTempVector = 1:length(tempVectorFromElectrode)
+%                     index(jj) = mod(index(jj)-1,numOfStamps)+1;
+%                     spikesTimeStamps{jj,1}(index(jj)) = tempVectorFromElectrode(indexFromTempVector); 
+%                         index(jj) = index(jj)+1;
+%                 end
+%             end
+% 
+%             for indexForHist = 1:Electrodes.numOfElec
+%                 [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
+%                 figure(Electrodes.elecArray{indexForHist, 1})
+%                 bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
+%                 linkdata on
+%                 xlabel('Time', 'FontSize', 12);
+%                 ylabel('number of spikes', 'FontSize', 12);
+%                 title('spikes per 100 ms', 'FontSize', 18);
+%             end
+%         end
+%     end
+%     fclose(t);
+% end
 
 %%
 %read from server
