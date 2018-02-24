@@ -145,20 +145,20 @@ if strcmp(output,'y')
     fclose(t);
 end
 
-% %read from server
-% if(inputSystem == 2)
-%     t = tcpip('localhost', 30000, 'NetworkRole', 'client');
-%     fopen(t);
-%     while(data(1) ~= -1) %read from server until server end connection by sending -1
-%         pause(Electrodes.updateTime);%TODO: change to other thread?
-%         data = read(t,100, 'double'); %reads 100 doubles vector from server
-%         figure(Electrodes.elecArray{his, 1})
-%         histogram(spikesTimeStamps{his, 1}, Electrodes.numOfBins);
-%         xlabel('Time', 'FontSize', 12);
-%         ylabel('number of spikes', 'FontSize', 12);
-%         title('spikes per 100 ms', 'FontSize', 18);
-%     end
-% end
+%read from server
+if(inputSystem == 2)
+    t = tcpip('localhost', 30000, 'NetworkRole', 'client');
+    fopen(t);
+    while(data(1) ~= -1) %read from server until server end connection by sending -1
+        pause(Electrodes.updateTime);%TODO: change to other thread?
+        data = read(t,100, 'double'); %reads 100 doubles vector from server
+        figure(Electrodes.elecArray{his, 1})
+        histogram(spikesTimeStamps{his, 1}, Electrodes.numOfBins);
+        xlabel('Time', 'FontSize', 12);
+        ylabel('number of spikes', 'FontSize', 12);
+        title('spikes per 100 ms', 'FontSize', 18);
+    end
+end
     
 %%
 %close operation
