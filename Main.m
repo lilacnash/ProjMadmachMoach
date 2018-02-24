@@ -76,16 +76,24 @@ if(inputSystem == 0)
            end
         end
         
-        for indexForHist = 1:Electrodes.numOfElec
-            
-            [Electrodes.n{indexForHist},Electrodes.xout{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, Electrodes.numOfBins); %takes n and xout parameters for each electrode
-            figure(Electrodes.elecArray{indexForHist, 1})
-            bar(Electrodes.xout{indexForHist},Electrodes.n{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
+        %creating cell from struct
+        cellOfStruct = struct2cell(Electrodes);
+            cellOfStructNOB = cellOfStruct{1};
+            cellOfStructNOE = cellOfStruct{2};
+            cellOfStructUT = cellOfStruct{3};
+            cellOfStructEA = cellOfStruct{4};
+            cellOfStructN = cellOfStruct{5};
+            cellOfStructX = cellOfStruct{6};
+        
+        %multi threads to the hist section
+        parfor indexForHist = 1:Electrodes.numOfElec
+            [ElectrodesN{indexForHist},ElectrodesX{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, ElectrodesNOB); %takes n and xout parameters for each electrode
+            figure(ElectrodesEA{indexForHist, 1})
+            bar(ElectrodesX{indexForHist},ElectrodesN{indexForHist},'YDataSource','Electrodes.n(indexForHist)');
             linkdata on
             xlabel('Time', 'FontSize', 12);
             ylabel('number of spikes', 'FontSize', 12);
             title('spikes per 100 ms', 'FontSize', 18);
-        
         end
     end
 end
@@ -112,6 +120,8 @@ if strcmp(output,'y')
                         index(jj) = index(jj)+1;
                 end
             end
+            
+            %creating cell from struct
             cellOfStruct = struct2cell(Electrodes);
             cellOfStructNOB = cellOfStruct{1};
             cellOfStructNOE = cellOfStruct{2};
@@ -120,6 +130,7 @@ if strcmp(output,'y')
             cellOfStructN = cellOfStruct{5};
             cellOfStructX = cellOfStruct{6};
             
+            %multi threads to the hist section
             parfor indexForHist = 1:cellOfStruct{2}
                 [cellOfStructN{indexForHist},cellOfStructX{indexForHist}] = hist(spikesTimeStamps{indexForHist, 1}, cellOfStructNOB); %takes n and xout parameters for each electrode
                 figure(cellOfStructEA{indexForHist, 1})
@@ -134,20 +145,20 @@ if strcmp(output,'y')
     fclose(t);
 end
 
-%read from server
-if(inputSystem == 2)
-    t = tcpip('localhost', 30000, 'NetworkRole', 'client');
-    fopen(t);
-    while(data(1) ~= -1) %read from server until server end connection by sending -1
-        pause(Electrodes.updateTime);%TODO: change to other thread?
-        data = read(t,100, 'double'); %reads 100 doubles vector from server
-        figure(Electrodes.elecArray{his, 1})
-        histogram(spikesTimeStamps{his, 1}, Electrodes.numOfBins);
-        xlabel('Time', 'FontSize', 12);
-        ylabel('number of spikes', 'FontSize', 12);
-        title('spikes per 100 ms', 'FontSize', 18);
-    end
-end
+% %read from server
+% if(inputSystem == 2)
+%     t = tcpip('localhost', 30000, 'NetworkRole', 'client');
+%     fopen(t);
+%     while(data(1) ~= -1) %read from server until server end connection by sending -1
+%         pause(Electrodes.updateTime);%TODO: change to other thread?
+%         data = read(t,100, 'double'); %reads 100 doubles vector from server
+%         figure(Electrodes.elecArray{his, 1})
+%         histogram(spikesTimeStamps{his, 1}, Electrodes.numOfBins);
+%         xlabel('Time', 'FontSize', 12);
+%         ylabel('number of spikes', 'FontSize', 12);
+%         title('spikes per 100 ms', 'FontSize', 18);
+%     end
+% end
     
 %%
 %close operation
