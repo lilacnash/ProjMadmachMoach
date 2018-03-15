@@ -151,19 +151,30 @@ function Random_Callback(hObject, eventdata, handles)
                 [cellOfStructN{indexForHist},cellOfStructX{indexForHist}] = hist(myData, cellOfStructNOB); %takes n and xout parameters for each electrode
                 MyXsource = cellOfStructX{indexForHist};
                 MyYsource = cellOfStructN{indexForHist};
+<<<<<<< HEAD
                 cla;
                 drawnow;
                 bar(MyXsource,MyYsource, 'YDataSource','myData');
+=======
+                bar(MyXsource,MyYsource, 'YDataSource','myData');
+
+                % 
+>>>>>>> a7568c3daa2d76f3d4764f66130b7d5e650c8258
 %                 
 %                 set(myBar,'XDataSource', 'MyXsource');
 %                 set(myBar,'YDataSource', 'MyYsource');
 %                 linkdata(handleTemp);
+<<<<<<< HEAD
 %                 linkdata on;
+=======
+                linkdata on;
+>>>>>>> a7568c3daa2d76f3d4764f66130b7d5e650c8258
                 flagFirst = false;
             else
                 myIndex = strcmp(fieldnames(handles), ['axes',num2str(indexForHist)]);
                 axes(handlesCell{myIndex});
                 myData = cell2mat(spikesTimeStamps(indexForHist, :));
+<<<<<<< HEAD
 %                 set(myBar,'YDataSource','myData');
                 [cellOfStructN{indexForHist},cellOfStructX{indexForHist}] = hist(myData, cellOfStructNOB); %takes n and xout parameters for each electrode
                 MyXsource = cellOfStructX{indexForHist};
@@ -179,6 +190,11 @@ function Random_Callback(hObject, eventdata, handles)
 
 %                 waitfor(myBar,'YDataSource','myData');
                 
+=======
+                [cellOfStructN{indexForHist},cellOfStructX{indexForHist}] = hist(myData, cellOfStructNOB); %takes n and xout parameters for each electrode
+                drawnow;
+                pause(0.5);
+>>>>>>> a7568c3daa2d76f3d4764f66130b7d5e650c8258
 %                 MyXsource = cellOfStructX{indexForHist};
 %                 MyYsource = cellOfStructN{indexForHist};
 %                 drawnow;
