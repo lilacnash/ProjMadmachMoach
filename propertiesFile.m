@@ -1,8 +1,8 @@
 classdef propertiesFile
-   %permanent properties (set before the experiment and do not change)
+   %all but the last one are permanent properties (set before the experiment and do not change)
    %properties (SetAccess = private)
    properties (Constant)
-      NumOfElec
+      numOfElec = 80
       numOfTrials
       numOfBins
       binSize = 100/300 %how do we convert to milliseconds?
@@ -10,10 +10,5 @@ classdef propertiesFile
       FiringRate %not sure we need this
       slowUpdateTime
       fastUpdateTime
-   end
-   %properties that we change according to the experiment data
-   properties
-      numOfElecToPres
-      %neuronTimeStamps - do we want the timestamps matrix in here too?
    end
 end
