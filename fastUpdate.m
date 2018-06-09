@@ -1,60 +1,36 @@
-function [] = fastUpdate(numOfElecToPresent, fastUpdateTime)
-
-freq_disp = 0:0.1:15; %for entire spectrum use []
-
-collect_time = 0.1;
-display_period = fastUpdateTime;
+function [] = fastUpdate(neuronTimeStamps, numOfElecToPresent, neuronMap, fast_fig)
 
 nGraphs = numOfElecToPresent; %number of electrodes to present
+nBins = propertiesFile.numOfBins; %number of bins for histogram
 
-%%cbmex should be open by now if not use: cbmex('open');
+data = getAllTimeStamps(); 
 
-proc_fig = figure; %main display
-set(proc_fig, 'Name', 'Close this figure to stop');
-xlabel('frequency (Hz) ');
-ylabel('magnitude (dB) ');
+[n,xout] = hist(y,x);
+set(0,'CurrentFigure',fast_fig) % you say to Matlab to make hFig thecurrent figure 
+fast_fig = subplot(4,1,1);
+bar(xout,n(:,1),'YDataSource','n(:,1)')
+fast_fig = subplot(4,1,2);
+bar(xout,n(:,2),'YDataSource','n(:,2)')
+fast_fig = subplot(4,1,3);
+bar(xout,n(:,3),'YDataSource','n(:,3)')
+fast_fig = subplot(4,1,4);
+bar(xout,n(:,4),'YDataSource','n(:,4)')
 
-cbmex('trialconfig', 1) %should be 1? when should we use this here and before??
-
-t_disp0 = tic; %display time
-t_clo0 = tic; %collection time
-bCollect = true; %do we need to collect
-
-%while the figure is open
-while(ishandle(proc_fig))
-   
-    if(bCollect)
-       et_col = toc(t_co0); %elapsed time of collection
-       if(et_col >= collect_time)
-          [spike_data, t_buf1, continuous_data] = cbmex('trialdata', 1); %read some data
-          elecToPresent = getElecToPresent();
-          %if the figure is open
-          if(ishandle(proc_fig))
-              %graph relevant chanels
-              for ii=1:nGraphs
-                  fs0 = continuous_data{elecToPresent(ii), 2}; %TODO: should be changed to metrix index for spike sorting??
-                  %get the ii'th channel data
-                  data = continuous_data{elecToPresent(ii), 3}; %TODO: should be changed to metrix index for spike sorting?? to read from timestamps_cell_array??
-                  % number of samples to run through fft
-                  collect_size = min(size(data), collect_time * fs0);
-                  x = data(1:collect_size);
-                  if isempty(f_disp)
-                      
-                      [psd, f] = periodogram(double(x), [], 'onesided', 512, fs0);
-                  else
-                      [psd, f] = periodogram(double(x), [], f_disp, fs0);
-                  end
-                  subplot(nGraphs, 1, ii, 'Parent', proc_fig);
-                  plot(f, 10*log10(psd), 'b');
-                  title(sprintf('fs = %d t = %f', fs0, t_buf1));
-                  xlabel('frequency (hZ)');
-                  ylabel('magnitude (db)');
-              end
-              drawnow;
-          end
-          bCollect = false;
-       end
+if(propertiesFile.fastUpdateFlag)
+    for jj=1:nGraphs
+        set(0,'CurrentFigure',fast_fig)
+        fast_fig = subplot(2,1,jj);
+        bar(xout{jj},n{jj}(:,1),'YDataSource','n(:,1)')
     end
+    propertiesFile.fastUpdateFlag = 0;
+end
+    
+for ii=1:nGraphs
+    
+    %turn on datalinking
+    linkdata on
+    
+    [n{ii},xout{ii}] = hist(data, nBins);
     
     et_disp = toc(t_disp0);  % elapsed time since last display
     if(et_disp >= display_period)
@@ -63,6 +39,5 @@ while(ishandle(proc_fig))
         bCollect = true; % start collection
     end
 end
-cbmex('close');
 
-end
+
