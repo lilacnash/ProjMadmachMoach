@@ -8,9 +8,9 @@ function [numOfElecToPres, booleanMaskedChannelsVector] = getNumOfElecToPres()
     tempNum = propertiesFile.numOfElec;
     tempVector = ones(propertiesFile.numOfElec,1);
     
-    connection = cbmex('open'); %Try default, return assigned connection type
+    connection = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
     % Start recording the specified file with the comment
-    cbmex('fileconfig', properties.recordingsFileName, 'spontaneous', 1);
+    cbmex('fileconfig', propertiesFile.recordingsFileName, 'spontaneous', 1);
     % Activate all the channels
     cbmex('mask', 0, 1);
     
@@ -20,7 +20,7 @@ function [numOfElecToPres, booleanMaskedChannelsVector] = getNumOfElecToPres()
     [neuronTimeStamps, t, continuous_data] = cbmex('trialdata',1); %read data
 
     % Deactivate (mask) irrelevant channels
-    for ii = 1:properties.NumOfElec
+    for ii = 1:propertiesFile.numOfElec
         unclassified_timestamps_vector = neuronTimeStamps{ii,2};
         for jj = 1:length(unclassified_timestamps_vector)
             if unclassified_timestamps_vector(jj) ~= 0
@@ -34,7 +34,7 @@ function [numOfElecToPres, booleanMaskedChannelsVector] = getNumOfElecToPres()
         end
     end
     % Stop recording
-    cbmex('fileconfig', properties.recordingsFileName, '', 0);
+    cbmex('fileconfig', propertiesFile.recordingsFileName, '', 0);
     cbmex('close');
     numOfElecToPres = tempNum;
     booleanMaskedChannelsVector = tempVector;
