@@ -1,4 +1,4 @@
-function [ fds ] = createDataStoreFromDir( dirPath )
+function [ fds ] = createDataStoreFromFolder( dirPath )
 % This finction created a new dataStore of .mat files.
 % You can use this dataStore by using the output argument like this:
 % Usage:
@@ -7,6 +7,6 @@ function [ fds ] = createDataStoreFromDir( dirPath )
 % >> dataX = read(fds);
 % The designed read function iterated through the .mat files
 % in this folder and reads it one by one.
-    fds = fileDatastore(dirPath, 'ReadFcn', @readFnc, 'FileExtensions', '.mat');
+    fds = fileDatastore(dirPath, 'ReadFcn', @readFnc, 'FileExtensions', propertiesFile.fileType);
 end
 

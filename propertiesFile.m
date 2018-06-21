@@ -11,5 +11,6 @@ classdef propertiesFile
       FiringRate %not sure we need this
       slowUpdateTime
       fastUpdateTime
+	  fileType = '.mat'
    end
 end
