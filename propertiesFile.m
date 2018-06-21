@@ -12,5 +12,15 @@ classdef propertiesFile
       slowUpdateTime
       fastUpdateTime
 	  fileType = '.mat'
+      
+      % CONFIGURATIONS enum to num
+      LABEL_SHOWING = 1
+      BEEP_SOUND = 2
+      END_OF_LABEL = 3
+      
+      % Beep configurations
+      beepFrequency = 'high' % 'low', 'med', 'high'
+      beepVolume = 0.4 % Between 0 to 1
+      beepDurationSec = 0.4
    end
 end

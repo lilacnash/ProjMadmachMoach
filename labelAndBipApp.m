@@ -22,7 +22,7 @@ function varargout = labelAndBipApp(varargin)
 
 % Edit the above text to modify the response to help labelAndBipApp
 
-% Last Modified by GUIDE v2.5 04-Jun-2018 22:09:55
+% Last Modified by GUIDE v2.5 21-Jun-2018 21:59:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -57,10 +57,18 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-load('labelsList.mat')
+
 % set up data
-setappdata(handles.nextLabel,'labelsList',labelsList);
-setappdata(handles.nextLabel,'labelsIndex',1);
+load('labelsList.mat')
+labelsAndBipsTime = zeros(length(labelsList),2);
+setappdata(handles.nextLabel, 'labelsList', labelsList);
+setappdata(handles.nextLabel, 'labelsIndex', 1);
+setappdata(handles.nextLabel, 'labelsAndBipsTime', labelsAndBipsTime);
+setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
+setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
+setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
+
+
 
 % UIWAIT makes labelAndBipApp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -82,16 +90,47 @@ function nextLabel_Callback(hObject, eventdata, handles)
 % hObject    handle to nextLabel (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-labelsList = getappdata(handles.nextLabel,'labelsList');
-labelsIndex = getappdata(handles.nextLabel,'labelsIndex');
-if labelsIndex <= length(labelsList)
+labelsList = getappdata(handles.nextLabel, 'labelsList');
+labelsIndex = getappdata(handles.nextLabel, 'labelsIndex');
+labelsAndBipsTime = getappdata(handles.nextLabel, 'labelsAndBipsTime');
+labelsAndBipsTimeIndex = getappdata(handles.nextLabel, 'labelsAndBipsTimeIndex');
+if labelsIndex == 1
     set(handles.labelText, 'String', labelsList(labelsIndex));
+    labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
+    setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
+    setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
     setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+elseif labelsIndex <= length(labelsList)
+    labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
+    set(handles.labelText, 'String', labelsList(labelsIndex));
+    labelsAndBipsTime(labelsAndBipsTimeIndex+1, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
+    setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
+    setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
+    setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+else
+    labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
+    setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+    save('labelsAndBipsTime.mat', 'labelsAndBipsTime');
 end
 
 
-% --- Executes on button press in pushbutton2.
+% --- Executes on button press in startRecording.
 function startRecording_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
+% hObject    handle to startRecording (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+labelsAndBipsTime = getappdata(handles.startRecording, 'labelsAndBipsTime');
+labelsAndBipsTimeIndex = getappdata(handles.startRecording, 'labelsAndBipsTimeIndex');
+if labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
+    labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.BEEP_SOUND, GetSecs];
+    Beeper(propertiesFile.beepFrequency, propertiesFile.beepVolume, propertiesFile.beepDurationSec);
+    setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
+    setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+    setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);    
+end
