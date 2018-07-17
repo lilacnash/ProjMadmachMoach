@@ -4,7 +4,7 @@ classdef propertiesFile
    properties (Constant)
       numOfElec = 200
       numOfTrials = 200
-      numOfBins
+      numOfBins = 10
       numOfStamps = 100 %number of time stamps to save from electrode
       binSize = 100/300 %how do we convert to milliseconds?
       recordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'

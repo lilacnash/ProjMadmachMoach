@@ -1,5 +1,3 @@
-%return timestamps matrix(cell array for Guy's RT_Exp) after spike sorting
-%caller should pass allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
 %caller should pass index = ones(propertiesFile.numOfElec, 1);
 
 function neuronTimeStamps = getAllTimestamps(allTimestampsMatrix, index)
@@ -9,7 +7,7 @@ function neuronTimeStamps = getAllTimestamps(allTimestampsMatrix, index)
     %%
     allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
     index = ones(propertiesFile.numOfElec, 1);
-    connection = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+    %connection = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
     %Try default, return assigned connection type
     % Start recording the specified file with the comment
     cbmex('fileconfig', propertiesFile.recordingsFileName, 'label', 1); %from labels: A E I O U
