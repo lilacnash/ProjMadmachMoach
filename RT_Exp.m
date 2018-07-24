@@ -6,7 +6,7 @@ clear variables;
 %===============PRE-PROCESING===============
 %===========================================
 
-propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
+% propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
 %open neuroport
 %[connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
 connection = 1; %TODO: delete
@@ -22,11 +22,11 @@ numOfElecToPres = 4; %TODO: delete
 %===============TRAINING====================
 %===========================================
 
-collect_time = propertiesFile.collectTime;
+collect_time = propertiesFile.collectTime; %propertiesFile.collectTime;
 fast_update_time = propertiesFile.fastUpdateTime;
 slow_update_time = propertiesFile.slowUpdateTime;
 nGraphs = propertiesFile.numOfFastHist;
-Syllables = propertiesFile.Syllables;
+Syllables = []; % ADD propertiesFile.Syllables;
 allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
 index = ones(propertiesFile.numOfElec, 1);
 
@@ -78,7 +78,7 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
                 fastUpdate(neuronTimeStamps, elecToPresent, fast_fig) %plto the choosen fast histograms 
             end
             et_disp = toc(t_Fdisp0);  % elapsed time since last display
-            
+
             if(et_disp >= display_period)
                 t_col0 = tic; % collection time
                 t_disp0 = tic; % restart the period
@@ -87,7 +87,7 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
         end
     end
 end
-    
+
 
 
 

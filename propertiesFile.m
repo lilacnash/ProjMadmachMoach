@@ -2,15 +2,23 @@ classdef propertiesFile
    %all but the last one are permanent properties (set before the experiment and do not change)
    %properties (SetAccess = private)
    properties (Constant)
-      numOfElec = 200
+      numOfElec = 80
       numOfTrials = 200
-      numOfBins
+      numOfBins = 2
+      collectTime = 1
+      interface = 0 
       numOfStamps = 100 %number of time stamps to save from electrode
-      binSize = 100/300 %how do we convert to milliseconds?
+      binSize = (100/300) %how do we convert to milliseconds?
       recordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'
-      FiringRate %not sure we need this
-      slowUpdateTime
-      fastUpdateTime
+      FiringRate = 0 %not sure we need this
+      slowUpdateTime = 1
+      fastUpdateTime = 0.1
+      fastUpdateFlag = true
+      slowUpdateFlag = true
+      numOfFastHist = 4;
+
+      
+      %Data store configurations
 	  fileType = '.mat'
       
       % CONFIGURATIONS enum to num
@@ -21,6 +29,8 @@ classdef propertiesFile
       % Beep configurations
       beepFrequency = 'high' % 'low', 'med', 'high'
       beepVolume = 0.4 % Between 0 to 1
-      beepDurationSec = 0.4
-   end
+      beepDurationSec = 0.4 
+    end
+    
 end
+
