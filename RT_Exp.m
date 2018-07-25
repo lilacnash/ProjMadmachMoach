@@ -22,14 +22,15 @@ numOfElecToPres = 4; %TODO: delete
 %===============TRAINING====================
 %===========================================
 numberOfHistograms = 80; %TODO: get this from function
-
 collect_time = propertiesFile.collectTime; %propertiesFile.collectTime;
 fast_update_time = propertiesFile.fastUpdateTime;
 slow_update_time = propertiesFile.slowUpdateTime;
-nGraphs = propertiesFile.numOfFastHist;
+nGraphs = propertiesFile.numOfElec;
 Syllables = []; % ADD propertiesFile.Syllables;
 allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
 index = ones(propertiesFile.numOfElec, 1);
+fastUpdateFlag = propertiesFile.fastUpdateFlag;
+slowUpdateFlag = propertiesFile.slowUpdateFlag;
 
 %cyclic arrays for time stamps - one for each neuron
 spikesTimeStamps = cell(numOfElecToPres, 1);
