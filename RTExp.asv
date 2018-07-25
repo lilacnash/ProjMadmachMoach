@@ -230,7 +230,7 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp('slowUpdateButton_Callback');
-slowUpdateGui;
+slowUpdatePlots;
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over slowUpdateButton.
@@ -342,7 +342,7 @@ while(ishandle(handles.figure1))
                         barParam = sprintf(format, jj);
                         bar(listOfFastHandles(jj),xout,n(:,jj),'YDataSource',barParam);
                         title(listOfFastHandles(jj), 'Fast update electrode number:');
-                        set(findobj('Tag',['numOfElecForPlot',num2str(jj)]), 'String', elecToPresent(jj));
+                        set(handles.numOfElecForPlot4, 'String', );
                         xlabel(listOfFastHandles(jj), 'time bins (sec) ');
                         ylabel(listOfFastHandles(jj), 'count ');
                         ylim(listOfFastHandles(jj), [0 20]);
@@ -350,11 +350,7 @@ while(ishandle(handles.figure1))
                     fastUpdateFlag = 0;
                 end
                 %turn on datalinking
-                if ishandle(handles.figure1)
-                    linkdata on
-                else
-                    linkdata off
-                end
+                linkdata on
 %                 set(0,'CurrentFigure',handles.fastPlot1); % make hFig thecurrent figure 
                 [n,xout] = hist(data,nBins);
                 refreshdata(handles.figure1,'caller');
@@ -378,7 +374,6 @@ while(ishandle(handles.figure1))
 %             end
 %         end
 end
-linkdata off;
 % time = time + 0.5; %TODO: delete this
 
 
