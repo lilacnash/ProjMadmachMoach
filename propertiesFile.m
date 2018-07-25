@@ -4,7 +4,7 @@ classdef propertiesFile
    properties (Constant)
       numOfElec = 80
       numOfTrials = 200
-      numOfBins = 2
+      numOfBins = 10
       numOfStamps = 100 %number of time stamps to save from electrode
       binSize = (100/300) %how do we convert to milliseconds?
       recordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'
@@ -14,6 +14,7 @@ classdef propertiesFile
       collectTime = 1
       fastUpdateFlag = true
       slowUpdateFlag = true
+      numOfRasterRows = 5
 
       
       %Data store configurations

@@ -58,6 +58,8 @@ fast_fig = figure; %fast update display
 
 slow_fig = figure; %slow update display
 
+raster_fig = figure; %raster plot display
+
 syl_index = 0;
 Syl_fig = figure; %used to move between syllables
 title('A - close this window to move to the next Syllable')
@@ -85,7 +87,7 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
         end
         if(et_col >= slow_update_time)
             if(ishandle(slow_fig))
-                slowUpdateFlag = slowUpdate(numberOfHistograms, slow_fig, neuronTimeStamps, slowUpdateFlag); %plot all active histograms and rasterplots 
+                slowUpdateFlag = slowUpdate(numberOfHistograms, slow_fig, raster_fig, neuronTimeStamps, slowUpdateFlag); %plot all active histograms and rasterplots 
             end
         end
     end
