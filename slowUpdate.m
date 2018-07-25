@@ -15,7 +15,7 @@ if(slowUpdateFlag)
         barParam = sprintf(format, jj);
         bar(xout,n(:,jj),'YDataSource',barParam);
         
-        ttle = sprintf('Slow update electrode number: %d', jj);
+        ttle = sprintf('Online electrode: %d', jj);
         title(ttle);
         xlabel('time bins (sec) ');
         ylabel('count ');

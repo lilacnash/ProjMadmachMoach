@@ -5,7 +5,8 @@ clear variables;
 %%
 %===============PRE-PROCESING===============
 %===========================================
-propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
+
+% propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
 %open neuroport
 %[connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
 connection = 1; %TODO: delete
@@ -20,16 +21,21 @@ numOfElecToPres = 4; %TODO: delete
 %%
 %===============TRAINING====================
 %===========================================
-
-collect_time = 1; %propertiesFile.collectTime; %TODO: CHANGE
-fast_update_time = 0.1; %propertiesFile.fastUpdateTime; %TODO: CHANGE
-slow_update_time = 1; %propertiesFile.slowUpdateTime; %TODO: CHANGE
-Syllables = []; %propertiesFile.Syllables; %TODO: CHANGE
-allTimestampsMatrix = NaN(80, 200); %TODO: CHANGE first param to propertiesFile.numOfElec
-index = ones(80, 1); %TODO: CHANGE first param to propertiesFile.numOfElec
-fastUpdateFlag = true; %TODO: change to property and delete
-slowUpdateFlag = true; %TODO: change to property and delete
 numberOfHistograms = 80; %TODO: get this from function
+
+collect_time = propertiesFile.collectTime; %propertiesFile.collectTime;
+fast_update_time = propertiesFile.fastUpdateTime;
+slow_update_time = propertiesFile.slowUpdateTime;
+nGraphs = propertiesFile.numOfFastHist;
+Syllables = []; % ADD propertiesFile.Syllables;
+allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
+index = ones(propertiesFile.numOfElec, 1);
+
+%cyclic arrays for time stamps - one for each neuron
+spikesTimeStamps = cell(numOfElecToPres, 1);
+for ii = 1:numOfElecToPres
+    spikesTimeStamps{ii, 1} = NaN(1, propertiesFile.numOfStamps);
+end
 
 prompt = 'press ENTRR to start training\n';
 input(prompt);
@@ -84,4 +90,3 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
     end
     time = time + 0.5; %TODO: delete this
 end
-    

@@ -1,41 +1,59 @@
 %compute the number of relevant electrodes to present (numOfElecToPres),
 %and return a boolean vector specifying which channels are relevant(1)
-function [numOfElecToPres, booleanMaskedChannelsVector] = getNumOfElecToPres()
+function [numOfElecToPres, neuronMap] = getNumOfElecToPres()
     %
     close all;
     clear variables;
     
     tempNum = propertiesFile.numOfElec;
-    tempVector = ones(propertiesFile.numOfElec,1);
+    tempMap = ones(propertiesFile.numOfElec,2);
+    currNeuronID = 0;
+    for nn = 1:propertiesFile.numOfElec
+        tempMap{nn,2} = zeros(1,5); %at most 5 active neurons on every channel
     
-    connection = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+    %open/close cbmex in RT_Exp
+    %connection = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+    
     % Start recording the specified file with the comment
     cbmex('fileconfig', propertiesFile.recordingsFileName, 'spontaneous', 1);
     % Activate all the channels
     cbmex('mask', 0, 1);
     
     %check spontaneous activity
-    [active_state, config_vector_out] = cbmex('trialconfig', 1,'double');
-    %flush by calling cbmex('trialconfig', 1) every how many seconds??? 
-    [neuronTimeStamps, t, continuous_data] = cbmex('trialdata',1); %read data
+    [active_state, config_vector_out] = cbmex('trialconfig', 1,'double'); 
+    [neuronTimeStamps, t, continuous_data] = cbmex('trialdata',1); %read data into buffer
 
     % Deactivate (mask) irrelevant channels
     for ii = 1:propertiesFile.numOfElec
         unclassified_timestamps_vector = neuronTimeStamps{ii,2};
         for jj = 1:length(unclassified_timestamps_vector)
-            if unclassified_timestamps_vector(jj) ~= 0
-                break;
+            if unclassified_timestamps_vector(jj) ~= 0 %there are active neurons in this channel
+                for kk = 3:7
+                    currNeuronID = currNeuronID + 1;
+                    currNeuronTimestamps = neuronTimeStamps{ii,kk};
+                    for tt = 1:length(currNeuronTimestamps)
+                        if currNeuronTimestamps(tt) ~= 0
+                            tempMap{ii,2}(mod(currNeuronID,5)) = currNeuronID; %add active neuronID to the mapping
+                            break;
+                        end
+                    end
+                end
+                break; %break and move on to next electrode(break out of forloop in line 29)
             end
             if jj == length(unclassified_timestamps_vector) %if entire vector is 0
                 cmbex('mask', ii, 0); %mask removes the irrelevant channels from the matrix
                 tempNum = tempNum - 1; %decrement number of electrodes to present
-                tempVector(ii) = 0; %the channel ii is irrelevant (all 0 - no spikes)
+                %tempVector(ii,1) = 0; %the channel ii is irrelevant (all 0 - no spikes)
+                %tempVector(ii,2) = 0; %the channel ii is irrelevant
             end
         end
     end
+      
     % Stop recording
     cbmex('fileconfig', propertiesFile.recordingsFileName, '', 0);
-    cbmex('close');
+    
+    %open/close cbmex in RT_Exp
+    %cbmex('close');
     numOfElecToPres = tempNum;
-    booleanMaskedChannelsVector = tempVector;
+    neuronMap = tempMap;
 end

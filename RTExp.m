@@ -1,35 +1,35 @@
-function varargout = labelAndBipApp(varargin)
-% LABELANDBIPAPP MATLAB code for labelAndBipApp.fig
-%      LABELANDBIPAPP, by itself, creates a new LABELANDBIPAPP or raises the existing
+function varargout = RTExp(varargin)
+% RTEXP MATLAB code for RTExp.fig
+%      RTEXP, by itself, creates a new RTEXP or raises the existing
 %      singleton*.
 %
-%      H = LABELANDBIPAPP returns the handle to a new LABELANDBIPAPP or the handle to
+%      H = RTEXP returns the handle to a new RTEXP or the handle to
 %      the existing singleton*.
 %
-%      LABELANDBIPAPP('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in LABELANDBIPAPP.M with the given input arguments.
+%      RTEXP('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in RTEXP.M with the given input arguments.
 %
-%      LABELANDBIPAPP('Property','Value',...) creates a new LABELANDBIPAPP or raises the
+%      RTEXP('Property','Value',...) creates a new RTEXP or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before labelAndBipApp_OpeningFcn gets called.  An
+%      applied to the GUI before RTExp_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to labelAndBipApp_OpeningFcn via varargin.
+%      stop.  All inputs are passed to RTExp_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help labelAndBipApp
+% Edit the above text to modify the response to help RTExp
 
-% Last Modified by GUIDE v2.5 24-Jul-2018 15:53:10
+% Last Modified by GUIDE v2.5 24-Jul-2018 17:44:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @labelAndBipApp_OpeningFcn, ...
-                   'gui_OutputFcn',  @labelAndBipApp_OutputFcn, ...
+                   'gui_OpeningFcn', @RTExp_OpeningFcn, ...
+                   'gui_OutputFcn',  @RTExp_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,15 +44,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before labelAndBipApp is made visible.
-function labelAndBipApp_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before RTExp is made visible.
+function RTExp_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to labelAndBipApp (see VARARGIN)
+% varargin   command line arguments to RTExp (see VARARGIN)
 
-% Choose default command line output for labelAndBipApp
+% Choose default command line output for RTExp
 handles.output = hObject;
 
 % Update handles structure
@@ -70,12 +70,12 @@ setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
 
 
 
-% UIWAIT makes labelAndBipApp wait for user response (see UIRESUME)
+% UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = labelAndBipApp_OutputFcn(hObject, eventdata, handles) 
+function varargout = RTExp_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -230,6 +230,7 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp('slowUpdateButton_Callback');
+slowUpdatePlots;
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over slowUpdateButton.
