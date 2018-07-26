@@ -67,7 +67,7 @@ setappdata(handles.nextLabel, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
-
+setappdata(handles.figure1,'slowUpdateFlag',false);
 
 
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
@@ -230,7 +230,8 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 disp('slowUpdateButton_Callback');
-slowUpdateGui;
+% slowUpdateGui;
+setappdata(handles.figure1,'slowUpdateFlag',true);
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over slowUpdateButton.
@@ -276,6 +277,7 @@ allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
 index = ones(propertiesFile.numOfElec, 1);
 fastUpdateFlag = propertiesFile.fastUpdateFlag;
 slowUpdateFlag = propertiesFile.slowUpdateFlag;
+firstUpdate = true;
 
 %cyclic arrays for time stamps - one for each neuron
 spikesTimeStamps = cell(numOfElecToPres, 1);
@@ -324,7 +326,7 @@ while(ishandle(handles.figure1))
         if(et_col >= collect_time)
             neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
             % neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
-            elecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
+            elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
             %if the gui is open
             if(ishandle(handles.figure1))
                 % update fast
@@ -352,12 +354,13 @@ while(ishandle(handles.figure1))
                 %turn on datalinking
                 if ishandle(handles.figure1)
                     linkdata on
+                    [n,xout] = hist(data,nBins);
+                    refreshdata(handles.figure1,'caller');
                 else
                     linkdata off
                 end
 %                 set(0,'CurrentFigure',handles.fastPlot1); % make hFig thecurrent figure 
-                [n,xout] = hist(data,nBins);
-                refreshdata(handles.figure1,'caller');
+                
                 %et_disp = toc(t_disp0);  % elapsed time since last display
                 %if(et_disp >= display_period)
                 %    t_col0 = tic; % collection time
@@ -372,12 +375,79 @@ while(ishandle(handles.figure1))
         %    bCollect = true; % start collection
         %end
     end
-%         if(et_col >= slow_update_time)
-%             if(ishandle(slow_fig))
-%                 slowUpdateFlag = slowUpdate(numberOfHistograms, slow_fig, neuronTimeStamps, slowUpdateFlag); %plot all active histograms and rasterplots 
-%             end
-%         end
+    if(et_col >= slow_update_time)
+        if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
+            slowUpdateGuiFig = slowUpdateGui;
+            setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
+            firstUpdate = false;
+            slowUpdateFlag = true;
+        end
+        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig'))
+%             round(get(hObject, 'Value')/10,1)*10+1);
+            %             slowUpdateFlag = slowUpdate(numberOfHistograms, slow_fig, neuronTimeStamps, slowUpdateFlag); %plot all active histograms and rasterplots 
+            slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
+            elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/10,1)*10+1); %ask which neurons to present in fast update
+            nGraphs = numberOfHistograms; %number of electrodes to present
+            nBins = 10; %TODO: change to - propertiesFile.numOfBins; %number of bins for histogram
+            data = neuronTimeStamps;
+            if(slowUpdateFlag)
+                [n,xout] = hist(data,nBins);
+%               set(0,'CurrentFigure',slow_fig) % make slow_fig thecurrent figure
+                for jj = 1:10 
+%         slow_fig = scrollsubplot(nGraphs/4, 4, jj);
+                    format = 'n(:,%d)';
+                    barParam = sprintf(format, jj);
+                    currFig = findobj('Tag',['slowUpdatePlot',num2str(jj)]);
+                    bar(currFig,xout,n(:,jj),'YDataSource',barParam);
+                    ttle = sprintf('Online electrode:');
+                    title(currFig, ttle);
+                    currText = findobj('Tag',['slowPlotLabel',num2str(jj)]);
+                    set(currText, 'string', elecToPresent(jj));
+                    xlabel(currFig, 'time bins (sec) ');
+                    ylabel(currFig, 'count ');
+                    ylim(currFig, [0 20]);
+                    %create a raster plot for every slow histogram
+%                    set(0,'CurrentFigure',raster_fig) % make raster_fig the current figure
+                    %for kk = 1:propertiesFile.numOfTrials %there should be one row for every 0.5sec(or for every update of slow_fig?)
+%                     for kk = 1:propertiesFile.numOfRasterRows %TODO: ask Tankus
+%                         %numOfSpikes = propertiesFile.numOfStamps; %# of timestamps for every electrode
+%                         numOfSpikes = data(:, jj);
+%                         %x axis should be 0.5sec before the beep and 0.5sec after the beep
+%                         for tt = 1:size(numOfSpikes,1)
+%                         %don't plot (break to next row in raster) if timestamp value is greater than rasterRowStartTime+0.5sec
+%                         %creates a scatter plot (dot per spike)
+%                             plot([numOfSpikes(tt) numOfSpikes(tt)], [kk-0.5 kk+0.5], 'Color', 'k');
+%                         end
+%                     end
+%                     ttle = sprintf('Raster Plot: %d', jj);
+%                     title(ttle);
+%                     ylim([0 propertiesFile.numOfRasterRows+1]);
+%                     xlabel('time bins (sec) ');
+%                     ylabel('0.5sec-long time periods ');
+                end
+                slowUpdateFlag = 0;
+            end   
+            %turn on datalinking (in order to update slow_fig)
+            if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig'))
+                linkdata on
+                [n,xout] = hist(data,nBins);
+                refreshdata(slowGuiObject,'caller');
+            else
+                linkdata off
+            end
+            %update raster plot for relevant slow_fig
+            % linkdata on
+            % set(0,'CurrentFigure',raster_fig); % make raster_fig the current figure
+            % refreshdata(raster_fig,'caller'); 
+            %et_disp = toc(t_disp0);  % elapsed time since last display
+            %if(et_disp >= display_period)
+            %    t_col0 = tic; % collection time
+            %    t_disp0 = tic; % restart the period
+            %    bCollect = true; % start collection
+        end
+    end
 end
+
 linkdata off;
 % time = time + 0.5; %TODO: delete this
 
@@ -390,7 +460,7 @@ function listboxFastPlot1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns listboxFastPlot1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listboxFastPlot1
-listElecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
+listElecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
     get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
     get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
     get(handles.listboxFastPlot4,'Value'), length(get(handles.listboxFastPlot4,'string')));

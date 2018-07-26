@@ -22,7 +22,7 @@ function varargout = slowUpdateGui(varargin)
 
 % Edit the above text to modify the response to help slowUpdateGui
 
-% Last Modified by GUIDE v2.5 25-Jul-2018 19:45:21
+% Last Modified by GUIDE v2.5 26-Jul-2018 12:36:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -73,6 +73,7 @@ function varargout = slowUpdateGui_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
+
 % --- Executes on slider movement.
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
 % hObject    handle to sliderForSlowUpdate (see GCBO)
@@ -82,6 +83,12 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 disp('sliderForSlowUpdate_Callback');
+currChoise = round(get(hObject, 'Value')/10,1)*10+1;
+set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
+for inti = 1:10
+    currText = findobj('Tag',['slowPlotLabel',num2str(inti)]);
+    set(currText, 'string', ((currChoise-1)*10)+inti);
+end
 
 % --- Executes during object creation, after setting all properties.
 function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
@@ -94,3 +101,28 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 disp('sliderForSlowUpdate_CreateFcn');
+set(hObject, 'Max', 9, 'Min', 0);
+
+
+
+function slowPlotsSliderResultLabel_Callback(hObject, eventdata, handles)
+% hObject    handle to slowPlotsSliderResultLabel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of slowPlotsSliderResultLabel as text
+%        str2double(get(hObject,'String')) returns contents of slowPlotsSliderResultLabel as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function slowPlotsSliderResultLabel_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slowPlotsSliderResultLabel (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+set(hObject, 'String', '1');
