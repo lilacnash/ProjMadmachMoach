@@ -73,6 +73,7 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
             neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
             %neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
             elecToPresent = getElecToPresent();%ask which neurons to present in fast update
+            %elecToPresent = [1,2,3,4]; %%TODO: remove! just for checking slowUpdate
             %if the figure is open
             if(ishandle(fast_fig))
                 fastUpdateFlag = fastUpdate(elecToPresent, fast_fig, neuronTimeStamps, fastUpdateFlag); %plot the choosen fast histograms 
