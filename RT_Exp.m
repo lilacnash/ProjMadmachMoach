@@ -50,7 +50,7 @@ t_Sdisp0 = tic; %slow display time
 t_SYLdisp = tic; %Syllables change time
 t_col0 = tic; %collection time
 bCollect = true; %do we need to collect
-time = 0; %TODO: delete this
+fakeTime = 0; %TODO: delete this
 
 %%
 %init figures
@@ -60,20 +60,17 @@ slow_fig = figure; %slow update display
 
 raster_fig = figure; %raster plot display
 
-syl_index = 0;
-Syl_fig = figure; %used to move between syllables
-title('A - close this window to move to the next Syllable')
-
 %%
 %while slow and fast figures are open
 while(or(ishandle(slow_fig), ishandle(fast_fig)))
     if(bCollect)
         et_col = toc(t_col0); %elapsed time of collection
         if(et_col >= collect_time)
-            neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
+            neuronTimeStamps = getAllTimestampsSim(fakeTime); %TODO: delete this
             %neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
             elecToPresent = getElecToPresent();%ask which neurons to present in fast update
             %elecToPresent = [1,2,3,4]; %%TODO: remove! just for checking slowUpdate
+            
             %if the figure is open
             if(ishandle(fast_fig))
                 fastUpdateFlag = fastUpdate(elecToPresent, fast_fig, neuronTimeStamps, fastUpdateFlag); %plot the choosen fast histograms 
@@ -92,5 +89,5 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
             end
         end
     end
-    time = time + 0.5; %TODO: delete this
+    fakeTime = fakeTime + 0.5; %TODO: delete this
 end

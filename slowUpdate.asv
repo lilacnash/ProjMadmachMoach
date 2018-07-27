@@ -13,7 +13,6 @@ if(slowUpdateFlag)
     set(0,'CurrentFigure',slow_fig) % make slow_fig thecurrent figure
     
     for jj = 1:12
-        %create slowUpdate Histograms
         slow_fig = scrollsubplot(nGraphs/4, 4, jj);
         format = 'n(:,%d)';
         barParam = sprintf(format, jj);
@@ -24,11 +23,9 @@ if(slowUpdateFlag)
         xlabel('time bins (sec) ');
         ylabel('count ');
         ylim([0 20]);
-    end
-    
-    set(0,'CurrentFigure',raster_fig)
-    for jj = 1:12
-        %create raster plots 
+        
+        %create a raster plot for every slow histogram(every electrode)
+        set(0,'CurrentFigure',raster_fig) % make raster_fig the current figure
         %xlim([0 60+1]); %TODO:what is the xlim?
         %ylim([0 propertiesFile.numOfRasterRows]);
         hold on; %TODO: need this? otherwise raster will only have one row that will be changed over and over again
@@ -41,6 +38,7 @@ if(slowUpdateFlag)
             end %this creates the first raster row for everyyy electrode(creates 12 rasters-each with one row)
             
             %removed previous forinsidefor
+       
         ttle = sprintf('Raster Plot: %d', jj);
         title(ttle);
         ylim([0 propertiesFile.numOfRasterRows+1]);
@@ -70,6 +68,11 @@ set(0,'CurrentFigure',raster_fig); % make raster_fig the current figure
 %end %this adds another row to everyyy one of the 12 raster plots
 refreshdata(raster_fig,'caller');
 
+%et_disp = toc(t_disp0);  % elapsed time since last display
+%if(et_disp >= display_period)
+%    t_col0 = tic; % collection time
+%    t_disp0 = tic; % restart the period
+%    bCollect = true; % start collection
 end
 
 
