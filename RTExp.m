@@ -231,7 +231,12 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 disp('slowUpdateButton_Callback');
 % slowUpdateGui;
-setappdata(handles.figure1,'slowUpdateFlag',true);
+if get(handles.startExpButton, 'Value') == 1
+    setappdata(handles.figure1,'slowUpdateFlag',true);
+else
+    errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
+end
+
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over slowUpdateButton.
@@ -258,7 +263,7 @@ disp('startExpButton_Callback');
 connection = 1; %TODO: delete
 instrument = 1; %TODO: delete
 %print connection details
-sprintf('>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
+fprintf('>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
 
 %get number of electrode to present  
 %TODO: this should return a map of active neurons (not channels) and their index.
@@ -288,7 +293,7 @@ end
 % prompt = 'press ENTRR to start training\n';
 % input(prompt);
 
-sprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
+fprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
 
 %%
 %init clocks
@@ -298,6 +303,10 @@ t_SYLdisp = tic; %Syllables change time
 t_col0 = tic; %collection time
 bCollect = true; %do we need to collect
 time = 0; %TODO: delete this
+neuronTimeStamps = NaN(200, 80);
+lastSample = 0;
+last_col = 0;
+last_updated_slow = 0;
 
 %%
 %init figures
@@ -324,8 +333,9 @@ while(ishandle(handles.figure1))
     if(bCollect)
         et_col = toc(t_col0); %elapsed time of collection
         if(et_col >= collect_time)
-            neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
+%             neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
             % neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
+            [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
             elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
             %if the gui is open
             if(ishandle(handles.figure1))
@@ -356,6 +366,7 @@ while(ishandle(handles.figure1))
                     linkdata on
                     [n,xout] = hist(data,nBins);
                     refreshdata(handles.figure1,'caller');
+                    collect_time = et_col + 0.5;
                 else
                     linkdata off
                 end
@@ -390,6 +401,7 @@ while(ishandle(handles.figure1))
             nGraphs = numberOfHistograms; %number of electrodes to present
             nBins = 10; %TODO: change to - propertiesFile.numOfBins; %number of bins for histogram
             data = neuronTimeStamps;
+%             updateNum = 1;
             if(slowUpdateFlag)
                 [n,xout] = hist(data,nBins);
 %               set(0,'CurrentFigure',slow_fig) % make slow_fig thecurrent figure
@@ -406,32 +418,44 @@ while(ishandle(handles.figure1))
                     xlabel(currFig, 'time bins (sec) ');
                     ylabel(currFig, 'count ');
                     ylim(currFig, [0 20]);
-                    %create a raster plot for every slow histogram
-%                    set(0,'CurrentFigure',raster_fig) % make raster_fig the current figure
-                    %for kk = 1:propertiesFile.numOfTrials %there should be one row for every 0.5sec(or for every update of slow_fig?)
-%                     for kk = 1:propertiesFile.numOfRasterRows %TODO: ask Tankus
-%                         %numOfSpikes = propertiesFile.numOfStamps; %# of timestamps for every electrode
-%                         numOfSpikes = data(:, jj);
-%                         %x axis should be 0.5sec before the beep and 0.5sec after the beep
-%                         for tt = 1:size(numOfSpikes,1)
+%                     % Creates the raster plot
+%                     currFig = findobj('Tag',['rasterPlot',num2str(jj)]);
+%                     numOfSpikes = data(:, jj);
+%                     %x axis should be 0.5sec before the beep and 0.5sec after the beep
+%                     for tt = 1:size(numOfSpikes,1)
 %                         %don't plot (break to next row in raster) if timestamp value is greater than rasterRowStartTime+0.5sec
 %                         %creates a scatter plot (dot per spike)
-%                             plot([numOfSpikes(tt) numOfSpikes(tt)], [kk-0.5 kk+0.5], 'Color', 'k');
-%                         end
-%                     end
-%                     ttle = sprintf('Raster Plot: %d', jj);
-%                     title(ttle);
-%                     ylim([0 propertiesFile.numOfRasterRows+1]);
-%                     xlabel('time bins (sec) ');
-%                     ylabel('0.5sec-long time periods ');
+%                         plot(currFig, [numOfSpikes(tt) numOfSpikes(tt)], [updateNum-0.1 updateNum+0.1], 'Color', 'k');
+%                     end %this creates the first raster row for everyyy electrode(creates 12 rasters-each with one row)
+%                     %removed previous forinsidefor
+% %                     ttle = sprintf('Raster Plot: %d', jj);
+% %                     title(ttle);
+%                     ylim(currFig, [0 propertiesFile.numOfRasterRows+1]);
+%                     xlabel(currFig, 'time bins (sec) ');
+%                     ylabel(currFig, '0.5sec-long time periods ');
+%                     %hold off;
                 end
                 slowUpdateFlag = 0;
-            end   
+            end
+%             updateNum = updateNum + 1;
             %turn on datalinking (in order to update slow_fig)
             if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig'))
                 linkdata on
-                [n,xout] = hist(data,nBins);
-                refreshdata(slowGuiObject,'caller');
+% %                 timerData.slow_update_time = slow_update_time;
+% %                 timerData.et_col = et_col;
+% %                 timerData.handles = handles;
+%                 timerData.data = data;
+%                 timerData.nBins = nBins;
+%                 timer.slowGuiObject = slowGuiObject;
+% %                 timerData.firstUpdate = firstUpdate;
+% %                 timerData.slowUpdateFlag = slowUpdateFlag;
+%                 timerData.neuronTimeStamps = neuronTimeStamps;
+%                 timerObj = timer('TimerFcn', @slowUpdateForGui_tmp, 'ExecutionMode','fixedRate', 'Period',1, 'UserData', timerData);
+                 [n,xout] = hist(data,nBins);
+                 refreshdata(slowGuiObject,'caller');
+%                 n = timerObj.n;
+%                 xout = timerObj.xout;
+                slow_update_time = et_col + 2;
             else
                 linkdata off
             end
