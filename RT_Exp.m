@@ -12,7 +12,7 @@ clear variables;
 connection = 1; %TODO: delete
 instrument = 1; %TODO: delete
 %print connection details
-sprintf('>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
+fprintf('>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
 
 %get number of electrode to present  
 %TODO: this should return a map of active neurons (not channels) and their index.
@@ -41,7 +41,7 @@ end
 prompt = 'press ENTRR to start training\n';
 input(prompt);
 
-sprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
+fprintf('>>>>>>>>>>> in RT_Exp: TRAINING started\n');
 
 %%
 %init clocks
@@ -50,7 +50,10 @@ t_Sdisp0 = tic; %slow display time
 t_SYLdisp = tic; %Syllables change time
 t_col0 = tic; %collection time
 bCollect = true; %do we need to collect
-fakeTime = 0; %TODO: delete this
+neuronTimeStamps = NaN(200, 80);
+lastSample = 0;
+last_col = 0;
+last_updated_slow = 0;
 
 %%
 %init figures
@@ -65,17 +68,18 @@ raster_fig = figure; %raster plot display
 while(or(ishandle(slow_fig), ishandle(fast_fig)))
     if(bCollect)
         et_col = toc(t_col0); %elapsed time of collection
-        if(et_col >= collect_time)
-            neuronTimeStamps = getAllTimestampsSim(fakeTime); %TODO: delete this
+        
+        if(et_col >= collect_time + last_col)
+            [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
             %neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
-            elecToPresent = getElecToPresent();%ask which neurons to present in fast update
-            %elecToPresent = [1,2,3,4]; %%TODO: remove! just for checking slowUpdate
-            
+            elecToPresent = getElecToPresent();%ask which neurons to present in fast update            
             %if the figure is open
             if(ishandle(fast_fig))
                 fastUpdateFlag = fastUpdate(elecToPresent, fast_fig, neuronTimeStamps, fastUpdateFlag); %plot the choosen fast histograms 
             end
+            
             et_disp = toc(t_Fdisp0);  % elapsed time since last display
+            last_col = et_col;
             
             %if(et_disp >= display_period)
             %    t_col0 = tic; % collection time
@@ -83,11 +87,12 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
             %    bCollect = true; % start collection
             %end
         end
-        if(et_col >= slow_update_time)
+        
+        if(et_col >= slow_update_time + last_updated_slow)
             if(ishandle(slow_fig))
                 slowUpdateFlag = slowUpdate(numberOfHistograms, slow_fig, raster_fig, neuronTimeStamps, slowUpdateFlag); %plot all active histograms and rasterplots 
+                last_updated_slow = et_col;
             end
         end
     end
-    fakeTime = fakeTime + 0.5; %TODO: delete this
 end

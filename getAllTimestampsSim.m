@@ -1,31 +1,23 @@
-function neuronTimeStamps = getAllTimestampsSim(fakeTime) %(allTimestampsMatrix, index)
-   
-    samplePeriod = 0.5;
+function [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(fakeTime, neuronTimeStamps, index, lastSample)
+
     numOfElec = 80;
-    index = ones(numOfElec, 1);
-    
-    tempNeuronTimeStamps = NaN(200, numOfElec);
-    %for ii = 1:numOfElec
-    %    tempNeuronTimeStamps{ii, 1} = NaN(1, 200);
-    %end
-    
-    min = 0.001;
-    max = samplePeriod;
+        
+    min = lastSample;
+    max = fakeTime;
     
     for i = 1:numOfElec
         numberOfTimeStamps = randi([0 100],1,1);
-        neuronTimeStampsVector = (max-min).*rand(numberOfTimeStamps,1) + min + fakeTime;
+        neuronTimeStampsVector = (max-min).*rand(numberOfTimeStamps,1) + min;
         
         for j = 1:size(neuronTimeStampsVector)
             index(i) = mod(index(i)-1, 200) + 1;
-            tempNeuronTimeStamps(j, i) = neuronTimeStampsVector(j);
+            neuronTimeStamps(index, i) = neuronTimeStampsVector(j);
             index(i) = index(i)+1;
             
         end
-    end
-    
-    neuronTimeStamps = tempNeuronTimeStamps;
-    
+    end   
+    lastSample = fakeTime;
+end
 
     
     
