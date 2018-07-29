@@ -8,7 +8,7 @@ clear variables;
 
 % propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
 %open neuroport
-%[connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+[connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
 connection = 1; %TODO: delete
 instrument = 1; %TODO: delete
 %print connection details
@@ -70,8 +70,8 @@ while(or(ishandle(slow_fig), ishandle(fast_fig)))
         et_col = toc(t_col0); %elapsed time of collection
         
         if(et_col >= collect_time + last_col)
-            [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
-            %neuronTimeStamps = getAllTimeStamps(allTimestampsMatrix, index); %read some data - the data should retern in cyclic arrays
+%             [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
+            neuronTimeStamps = getAllTimestamps(neuronTimeStamps, index); %read some data - the data should retern in cyclic arrays
             elecToPresent = getElecToPresent();%ask which neurons to present in fast update            
             %if the figure is open
             if(ishandle(fast_fig))
