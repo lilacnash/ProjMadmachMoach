@@ -22,7 +22,7 @@ function varargout = RTExp(varargin)
 
 % Edit the above text to modify the response to help RTExp
 
-% Last Modified by GUIDE v2.5 25-Jul-2018 18:23:19
+% Last Modified by GUIDE v2.5 29-Jul-2018 15:11:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -68,7 +68,7 @@ setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
-
+setappdata(handles.figure1, 'useCBMEX', false);
 
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -257,9 +257,13 @@ function startExpButton_Callback(hObject, eventdata, handles)
 %===========================================
 
 % propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
-%open neuroport
-cbmex('close');
-[connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+if getappdata(handles.figure1, 'useCBMEX') == true
+    % open neuroport
+    cbmex('close');
+    [connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+end
+
+%%
 disp('startExpButton_Callback');
 connection = 1; %TODO: delete
 instrument = 1; %TODO: delete
@@ -334,9 +338,13 @@ while(ishandle(handles.figure1))
         et_col = toc(t_col0); %elapsed time of collection
         if(et_col >= collect_time)
 %             neuronTimeStamps = getAllTimestampsSim(time); %TODO: delete this
-            neuronTimeStamps = getAllTimestamps(neuronTimeStamps, index); %read some data - the data should retern in cyclic arrays
-%             [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
-            elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
+            if getappdata(handles.figure1, 'useCBMEX') == true
+                neuronTimeStamps = getAllTimestamps(neuronTimeStamps, index); %read some data - the data should retern in cyclic arrays
+                elecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
+            else
+                [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
+                elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
+            end
             %if the gui is open
             if(ishandle(handles.figure1))
                 % update fast
@@ -352,7 +360,7 @@ while(ishandle(handles.figure1))
 %                    figure1 = subplot(nGraphs/2,2,jj);
                         format = 'n(:,%d)';
                         barParam = sprintf(format, jj);
-                        bar(listOfFastHandles(jj),xout,n(:,jj),'YDataSource',barParam);
+                        bar(listOfFastHandles(jj),xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
                         title(listOfFastHandles(jj), 'Fast update electrode number:');
                         set(findobj('Tag',['numOfElecForPlot',num2str(jj)]), 'String', elecToPresent(jj));
                         xlabel(listOfFastHandles(jj), 'time bins (sec) ');
@@ -609,3 +617,13 @@ end
 disp('listboxFastPlot4_CreateFcn');
 indexesList = {'4'};
 set(hObject , 'string' ,indexesList);
+
+
+% --- Executes on button press in useCBMEX.
+function useCBMEX_Callback(hObject, eventdata, handles)
+% hObject    handle to useCBMEX (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of useCBMEX
+setappdata(handles.figure1, 'useCBMEX', true);
