@@ -11,7 +11,7 @@ classdef propertiesFile
       FiringRate = 0 %not sure we need this
       slowUpdateTime = 1
       fastUpdateTime = 0.1
-      collectTime = 1
+      collectTime = 0.1
       fastUpdateFlag = true
       slowUpdateFlag = true
       numOfRasterRows = 5

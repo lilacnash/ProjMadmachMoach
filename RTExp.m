@@ -39,6 +39,7 @@ setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
 setappdata(handles.figure1, 'useCBMEX', false);
+setappdata(handles.figure1, 'closeFlagOn', false);
 
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -179,7 +180,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===============TRAINING====================
     %===========================================
     numberOfHistograms = 80; %TODO: get this from function
-    collect_time = propertiesFile.collectTime; %propertiesFile.collectTime;
+    collect_time = 0; %propertiesFile.collectTime;
     fast_update_time = propertiesFile.fastUpdateTime;
     slow_update_time = propertiesFile.slowUpdateTime;
     nGraphs = propertiesFile.numOfElec;
@@ -224,10 +225,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.listboxFastPlot2, 'string', listBox2);
     set(handles.listboxFastPlot3, 'string', listBox3);
     set(handles.listboxFastPlot4, 'string', listBox4);
-
+    
+    dataToSaveIndex = 0;
     %%
     %while slow and fast figures are open
-    while(ishandle(handles.figure1))
+    while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false)
         if(bCollect)
             et_col = toc(t_col0); %elapsed time of collection
             if(et_col >= collect_time)
@@ -265,7 +267,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                         linkdata on
                         [n,xout] = hist(data,nBins);
                         refreshdata(handles.figure1,'caller');
-                        collect_time = et_col + 0.5;
+                        collect_time = et_col + propertiesFile.collectTime;
                     else
                         linkdata off
                     end                
@@ -303,7 +305,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                         format = 'nSlow(:,%d)';
                         barParam = sprintf(format, elecToPresent(jj));
                         currFig = findobj('Tag',['slowUpdatePlot',num2str(jj)]);
-                        bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam);
+                        bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
                         ttle = sprintf('Online electrode:');
                         title(currFig, ttle);
                         currText = findobj('Tag',['slowPlotLabel',num2str(jj)]);
@@ -328,8 +330,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 end
             end
         end
+        dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
+        dataToSaveIndex = length(dataToSave(:,1));
     end
-
+    cbmex('close');
+    save(['output\dataFrom_',date,'.mat'],'dataToSave');
     linkdata off;
     % time = time + 0.5; %TODO: delete this
 
@@ -406,3 +411,8 @@ function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
 
 function useCBMEX_Callback(hObject, eventdata, handles)
     setappdata(handles.figure1, 'useCBMEX', true);
+
+
+% --- Executes on button press in closeButton.
+function closeButton_Callback(hObject, eventdata, handles)
+setappdata(handles.figure1, 'closeFlagOn', true);

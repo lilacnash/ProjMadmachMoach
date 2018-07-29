@@ -11,7 +11,7 @@ function [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(fakeTime, n
         
         for j = 1:size(neuronTimeStampsVector)
             index(i) = mod(index(i)-1, 200) + 1;
-            neuronTimeStamps(index, i) = neuronTimeStampsVector(j);
+            neuronTimeStamps(index(i), i) = neuronTimeStampsVector(j);
             index(i) = index(i)+1;
             
         end
