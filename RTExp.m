@@ -336,6 +336,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     cbmex('close');
     save(['output\dataFrom_',date,'.mat'],'dataToSave');
     linkdata off;
+    delete(handles.figure1);
     % time = time + 0.5; %TODO: delete this
 
 
@@ -357,7 +358,7 @@ function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
     set(hObject , 'string' , indexesList);
 
 
-    function listboxFastPlot2_Callback(hObject, eventdata, handles)
+function listboxFastPlot2_Callback(hObject, eventdata, handles)
     listElecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
         get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
         get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
