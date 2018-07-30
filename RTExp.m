@@ -40,6 +40,7 @@ setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
 setappdata(handles.figure1, 'useCBMEX', false);
 setappdata(handles.figure1, 'closeFlagOn', false);
+setappdata(handles.figure1, 'stopButtonPressed', false);
 
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -229,7 +230,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     dataToSaveIndex = 0;
     %%
     %while slow and fast figures are open
-    while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false)
+    while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
         if(bCollect)
             et_col = toc(t_col0); %elapsed time of collection
             if(et_col >= collect_time)
@@ -288,11 +289,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
         if(et_col >= slow_update_time)
             if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
                 slowUpdateGuiFig = slowUpdateGui;
+                slowUpdateGuiFig.UserData.closeFlag = false;
                 setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
                 firstUpdate = false;
                 slowUpdateFlag = true;
             end
-            if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) 
+            if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
                 slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
                 elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/10,1)*10+1); %ask which neurons to present in fast update
                 nGraphs = numberOfHistograms; %number of electrodes to present
@@ -319,7 +321,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     slowUpdateFlag = 0;
                 end
                 %turn on datalinking (in order to update slow_fig)
-                if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig'))
+                if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
                     linkdata on
                     [nSlow,xoutSlow] = hist(data,nBins);
                     refreshdata(slowGuiObject,'caller');
@@ -329,14 +331,32 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     linkdata off
                 end
             end
+            % If slowUpdateGui is close setup all slow variables and delete the Gui fig
+            if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
+                linkdata off;
+                slowUpdateFlag = true;
+                firstUpdate = true;
+                setappdata(handles.figure1, 'slowUpdateFlag', false);
+                delete(slowUpdateGuiFig);
+            end
         end
         dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
         dataToSaveIndex = length(dataToSave(:,1));
     end
-    cbmex('close');
-    save(['output\dataFrom_',date,'.mat'],'dataToSave');
-    linkdata off;
-    delete(handles.figure1);
+    % stoping the recording and save the data
+    if getappdata(handles.figure1, 'useCBMEX') == true 
+        cbmex('close');
+    end
+    if ~(isempty(dataToSave))
+        currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
+        save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');
+    end
+     linkdata off;
+     setappdata(handles.figure1, 'stopButtonPressed', false);
+     % When closing the main GUI exit nicely
+     if getappdata(handles.figure1, 'closeFlagOn') == true
+        delete(handles.figure1);
+     end
     % time = time + 0.5; %TODO: delete this
 
 
@@ -411,9 +431,22 @@ function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
 
 
 function useCBMEX_Callback(hObject, eventdata, handles)
+    disp('useCBMEX_Callback');
     setappdata(handles.figure1, 'useCBMEX', true);
 
 
-% --- Executes on button press in closeButton.
 function closeButton_Callback(hObject, eventdata, handles)
-setappdata(handles.figure1, 'closeFlagOn', true);
+    disp('closeButton_Callback');
+    setappdata(handles.figure1, 'closeFlagOn', true);
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+    disp('figure1_CloseRequestFcn');
+    setappdata(handles.figure1, 'closeFlagOn', true);
+
+
+% --- Executes on button press in stopButton.
+function stopButton_Callback(hObject, eventdata, handles)
+    disp('stopButton_Callback');
+    setappdata(handles.figure1, 'stopButtonPressed', true);
