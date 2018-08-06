@@ -41,6 +41,7 @@ setappdata(handles.figure1,'slowUpdateFlag',false);
 setappdata(handles.figure1, 'useCBMEX', false);
 setappdata(handles.figure1, 'closeFlagOn', false);
 setappdata(handles.figure1, 'stopButtonPressed', false);
+setappdata(handles.figure1, 'startExpButtonPressed', false);
 
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -165,7 +166,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         cbmex('close');
         [connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
     end
-
+    setappdata(handles.figure1, 'startExpButtonPressed', true);
     %%
     disp('startExpButton_Callback');
     connection = 1; %TODO: delete
@@ -353,6 +354,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     end
      linkdata off;
      setappdata(handles.figure1, 'stopButtonPressed', false);
+     setappdata(handles.figure1, 'startExpButtonPressed', false);
      % When closing the main GUI exit nicely
      if getappdata(handles.figure1, 'closeFlagOn') == true
         delete(handles.figure1);
@@ -444,9 +446,13 @@ function closeButton_Callback(hObject, eventdata, handles)
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
     disp('figure1_CloseRequestFcn');
     setappdata(handles.figure1, 'closeFlagOn', true);
+    if getappdata(handles.figure1, 'startExpButtonPressed') == false
+        delete(handles.figure1);
+    end
 
 
 % --- Executes on button press in stopButton.
 function stopButton_Callback(hObject, eventdata, handles)
     disp('stopButton_Callback');
     setappdata(handles.figure1, 'stopButtonPressed', true);
+
