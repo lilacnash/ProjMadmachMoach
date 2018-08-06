@@ -221,7 +221,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
     %%
     %set the listboxes with relevant values
-    [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPres();
+    else
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    end
+           
     [listBox1, listBox2, listBox3, listBox4] = getListBoxes(numOfActiveElectrodes);
     set(handles.listboxFastPlot1, 'string', listBox1);
     set(handles.listboxFastPlot2, 'string', listBox2);
