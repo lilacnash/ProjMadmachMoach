@@ -355,14 +355,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
     end
     if ~(isempty(dataToSave))
         currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
-        save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');
+        if ~(exist('output', 'Dir') > 0)
+             mkdir('output');
+        end
+        save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');    
     end
      linkdata off;
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      % When closing the main GUI exit nicely
      if getappdata(handles.figure1, 'closeFlagOn') == true
-         if ishandle(slowUpdateGuiFig)
+         if getappdata(handles.figure1, 'slowUpdateFlag') == 1
             delete(slowUpdateGuiFig);
          end
         delete(handles.figure1);
