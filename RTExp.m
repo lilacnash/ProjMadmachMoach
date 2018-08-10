@@ -362,6 +362,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      % When closing the main GUI exit nicely
      if getappdata(handles.figure1, 'closeFlagOn') == true
+         if ishandle(slowUpdateGuiFig)
+            delete(slowUpdateGuiFig);
+         end
         delete(handles.figure1);
      end
     % time = time + 0.5; %TODO: delete this
