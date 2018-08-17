@@ -451,3 +451,15 @@ function stopButton_Callback(hObject, eventdata, handles)
     disp('stopButton_Callback');
     setappdata(handles.figure1, 'stopButtonPressed', true);
 
+
+
+% --- Executes on button press in forceCloseButton.
+function forceCloseButton_Callback(hObject, eventdata, handles)
+% hObject    handle to forceCloseButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if getappdata(handles.figure1, 'slowUpdateFlag') == 1
+    slowUpdateGuiFig = getappdata(handles.figure1, 'slowUpdateGuiFig');
+    delete(slowUpdateGuiFig);
+end
+delete(handles.figure1);
