@@ -375,12 +375,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
 % --- Executes on selection change in listboxFastPlot1.
 function listboxFastPlot1_Callback(hObject, eventdata, handles)
-    listElecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
-        get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
-        get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
-        get(handles.listboxFastPlot4,'Value'), length(get(handles.listboxFastPlot4,'string')));
-    set(handles.numOfElecForPlot1, 'String', listElecToPresent(1));
-
+[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
+set(handles.listboxFastPlot1, 'string', listBox1);
 
 function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -392,12 +388,8 @@ function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
 
 
 function listboxFastPlot2_Callback(hObject, eventdata, handles)
-    listElecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
-        get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
-        get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
-        get(handles.listboxFastPlot4,'Value'), length(get(handles.listboxFastPlot4,'string')));
-    set(handles.numOfElecForPlot2, 'String', listElecToPresent(2));
-
+[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
+set(handles.listboxFastPlot2, 'string', listBox2);
 
 function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -409,12 +401,8 @@ function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
 
 
 function listboxFastPlot3_Callback(hObject, eventdata, handles)
-    listElecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
-        get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
-        get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
-        get(handles.listboxFastPlot4,'Value'), length(get(handles.listboxFastPlot4,'string')));
-    set(handles.numOfElecForPlot3, 'String', listElecToPresent(3));
-
+[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
+set(handles.listboxFastPlot3, 'string', listBox3);
 
 function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -427,12 +415,8 @@ function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
 
 function listboxFastPlot4_Callback(hObject, eventdata, handles)
     disp('listboxFastPlot4_Callback');
-    listElecToPresent = getElecToPresent(get(handles.listboxFastPlot1,'Value'), length(get(handles.listboxFastPlot1, 'string')), ...
-        get(handles.listboxFastPlot2,'Value'), length(get(handles.listboxFastPlot2, 'string')), ...
-        get(handles.listboxFastPlot3,'Value'), length(get(handles.listboxFastPlot3,'string')), ...
-        get(handles.listboxFastPlot4,'Value'), length(get(handles.listboxFastPlot4,'string')));
-    set(handles.numOfElecForPlot4, 'String', listElecToPresent(4));
-
+[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
+set(handles.listboxFastPlot4, 'string', listBox4);
 
 function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
