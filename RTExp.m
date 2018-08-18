@@ -1,3 +1,6 @@
+%%
+%===============INIT-GUI===============
+%======================================
 function varargout = RTExp(varargin)
 % RTEXP MATLAB code for RTExp.fig
 % Begin initialization code - DO NOT EDIT
@@ -18,10 +21,11 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
+end
 
-
-% --- Executes just before RTExp is made visible.
+% Executes just before RTExp is made visible.
 function RTExp_OpeningFcn(hObject, eventdata, handles, varargin)
+
 % Choose default command line output for RTExp
 handles.output = hObject;
 
@@ -33,6 +37,8 @@ load('labelsList.mat')
 labelsAndBipsTime = zeros(length(labelsList),2);
 setappdata(handles.nextLabel, 'labelsList', labelsList);
 setappdata(handles.nextLabel, 'labelsIndex', 1);
+%TODO::add next line
+%setappdata(handles.nextLabel, 'trialIndex', 1);
 setappdata(handles.nextLabel, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
@@ -46,17 +52,100 @@ setappdata(handles.figure1, 'startExpButtonPressed', false);
 % UIWAIT makes RTExp wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+end
 
-% --- Outputs from this function are returned to the command line.
+
+% Outputs from this function are returned to the command line.
 function varargout = RTExp_OutputFcn(hObject, eventdata, handles) 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+end
 
 
+%%
+%===========GUI-CREATE-FUNCTIONS========
+%=======================================
+function fastPlotsSlider1_CreateFcn(hObject, eventdata, handles)
+    disp('fastPlotsSlider1_CreateFcn');
+    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor',[.9 .9 .9]);
+    end
+end
+
+
+function fastPlotsSlider2_CreateFcn(hObject, eventdata, handles)
+    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor',[.9 .9 .9]);
+    end
+    disp('fastPlotsSlider2_CreateFcn');
+end
+
+
+function fastPlotsSlider3_CreateFcn(hObject, eventdata, handles)
+    disp('fastPlotsSlider3_CreateFcn');
+    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor',[.9 .9 .9]);
+    end
+end
+
+
+function fastPlotsSlider4_CreateFcn(hObject, eventdata, handles)
+    disp('fastPlotsSlider4_CreateFcn');
+    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor',[.9 .9 .9]);
+    end
+end
+
+
+function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot1_CreateFcn');
+    indexesList = {'1'};
+    set(hObject , 'string' , indexesList);
+end
+
+
+function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot2_CreateFcn');
+    indexesList = {'2'};
+    set(hObject , 'string' ,indexesList);
+end
+
+
+function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot3_CreateFcn');
+    indexesList = {'3'};
+    set(hObject , 'string' ,indexesList);
+end
+
+
+function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot4_CreateFcn');
+    indexesList = {'4'};
+    set(hObject , 'string' ,indexesList);
+end
+
+
+%%
+%===============GUI-CALLBACKS===========
+%=======================================
 function nextLabel_Callback(hObject, eventdata, handles)
     disp('nextLabel_Callback');
     labelsList = getappdata(handles.nextLabel, 'labelsList');
     labelsIndex = getappdata(handles.nextLabel, 'labelsIndex');
+    %TODO:: add next line
+    %trialIndex = getappdata(handles.nextLabel, 'trialIndex');
     labelsAndBipsTime = getappdata(handles.nextLabel, 'labelsAndBipsTime');
     labelsAndBipsTimeIndex = getappdata(handles.nextLabel, 'labelsAndBipsTimeIndex');
     if labelsIndex == 1
@@ -76,11 +165,16 @@ function nextLabel_Callback(hObject, eventdata, handles)
         setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
         setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+        %TODO:: add next line
+        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3); %TODO:1,3,1,3(no2=bip) in labelAndBipsTime
     else
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
         setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+        %TODO:: add next line
+        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3);
         save('labelsAndBipsTime.mat', 'labelsAndBipsTime');
     end
+end
 
 
 function startRecording_Callback(hObject, eventdata, handles)
@@ -94,51 +188,27 @@ function startRecording_Callback(hObject, eventdata, handles)
         setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
         setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);    
-     end
-
+    end
+end
 
 function fastPlotsSlider1_Callback(hObject, eventdata, handles)
     disp('fastPlotsSlider1_Callback');
+end
 
-    
-function fastPlotsSlider1_CreateFcn(hObject, eventdata, handles)
-    disp('fastPlotsSlider1_CreateFcn');
-    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor',[.9 .9 .9]);
-    end
-
-    
+      
 function fastPlotsSlider2_Callback(hObject, eventdata, handles)
     disp('fastPlotsSlider2_Callback');
+end
 
-    
-function fastPlotsSlider2_CreateFcn(hObject, eventdata, handles)
-    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor',[.9 .9 .9]);
-    end
-    disp('fastPlotsSlider2_CreateFcn');
 
-    
-function fastPlotsSlider4_Callback(hObject, eventdata, handles)
-    disp('fastPlotsSlider4_Callback');
-
-    
-function fastPlotsSlider4_CreateFcn(hObject, eventdata, handles)
-    disp('fastPlotsSlider4_CreateFcn');
-    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor',[.9 .9 .9]);
-    end
-
-    
 function fastPlotsSlider3_Callback(hObject, eventdata, handles)
     disp('fastPlotsSlider3_Callback');
+end
 
-
-function fastPlotsSlider3_CreateFcn(hObject, eventdata, handles)
-    disp('fastPlotsSlider3_CreateFcn');
-    if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor',[.9 .9 .9]);
-    end
+   
+function fastPlotsSlider4_Callback(hObject, eventdata, handles)
+    disp('fastPlotsSlider4_Callback');
+end
 
 
 function slowUpdateButton_Callback(hObject, eventdata, handles)
@@ -149,10 +219,7 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
     else
         errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
     end
-
-
-function slowUpdateButton_ButtonDownFcn(hObject, eventdata, handles)
-    disp('slowUpdateButton_ButtonDownFcn');
+end
 
 
 function startExpButton_Callback(hObject, eventdata, handles)
@@ -208,6 +275,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     t_SYLdisp = tic; %Syllables change time
     t_col0 = tic; %collection time
     bCollect = true; %do we need to collect
+    firstGetTimestamps = true;
     time = 0; %TODO: delete this
     neuronTimeStamps = NaN(200, 80);
     lastSample = 0;
@@ -245,6 +313,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     
     
     dataToSaveIndex = 0;
+    trialNum = 0;
     %%
     %while slow and fast figures are open
     while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
@@ -253,9 +322,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
             if(et_col >= collect_time)
                 if getappdata(handles.figure1, 'useCBMEX') == true
                     neuronTimeStamps = getAllTimestamps(neuronTimeStamps, index); %read some data - the data should retern in cyclic arrays
+                    if firstGetTimestamps == true
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        firstGetTimestamps = false;
+                    end
                     elecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
                 else
                     [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
+                    if firstGetTimestamps == true
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        firstGetTimestamps = false;
+                    end
                     elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
                 end
                 %if the gui is open
@@ -291,19 +368,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     else
                         linkdata off
                     end                
-                    %et_disp = toc(t_disp0);  % elapsed time since last display
-                    %if(et_disp >= display_period)
-                    %    t_col0 = tic; % collection time
-                    %    t_disp0 = tic; % restart the period
-                    %    bCollect = true; % start collection
                 end
             end
-            et_disp = toc(t_Fdisp0);  % elapsed time since last display    
-            %if(et_disp >= display_period)
-            %    t_col0 = tic; % collection time
-            %    t_disp0 = tic; % restart the period
-            %    bCollect = true; % start collection
-            %end
         end
         if(et_col >= slow_update_time)
             if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
@@ -384,7 +450,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         delete(handles.figure1);
      end
     % time = time + 0.5; %TODO: delete this
-
+end
 
 % --- Executes on selection change in listboxFastPlot1.
 function listboxFastPlot1_Callback(hObject, eventdata, handles)
@@ -395,15 +461,7 @@ function listboxFastPlot1_Callback(hObject, eventdata, handles)
     end
     [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
     set(handles.numOfElecForPlot1, 'String', listBox1(get(hObject, 'Value')));
-
-function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot1_CreateFcn');
-    indexesList = {'1'};
-    set(hObject , 'string' , indexesList);
-
+end
 
 function listboxFastPlot2_Callback(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'useCBMEX') == true
@@ -413,15 +471,7 @@ function listboxFastPlot2_Callback(hObject, eventdata, handles)
     end
     [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
     set(handles.numOfElecForPlot2, 'String', listBox2(get(hObject, 'Value')));
-
-function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot2_CreateFcn');
-    indexesList = {'2'};
-    set(hObject , 'string' ,indexesList);
-
+end
 
 function listboxFastPlot3_Callback(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'useCBMEX') == true
@@ -431,15 +481,7 @@ function listboxFastPlot3_Callback(hObject, eventdata, handles)
     end
     [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
     set(handles.numOfElecForPlot3, 'String', listBox3(get(hObject, 'Value')));
-
-function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot3_CreateFcn');
-    indexesList = {'3'};
-    set(hObject , 'string' ,indexesList);
-
+end
 
 function listboxFastPlot4_Callback(hObject, eventdata, handles)
     disp('listboxFastPlot4_Callback');
@@ -450,25 +492,46 @@ function listboxFastPlot4_Callback(hObject, eventdata, handles)
     end
     [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
     set(handles.numOfElecForPlot4, 'String', listBox4(get(hObject, 'Value')));
-
-
-function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot4_CreateFcn');
-    indexesList = {'4'};
-    set(hObject , 'string' ,indexesList);
-
+end
 
 function useCBMEX_Callback(hObject, eventdata, handles)
     disp('useCBMEX_Callback');
     setappdata(handles.figure1, 'useCBMEX', true);
+end
 
 
 function closeButton_Callback(hObject, eventdata, handles)
     disp('closeButton_Callback');
     setappdata(handles.figure1, 'closeFlagOn', true);
+end
+
+
+% --- Executes on button press in stopButton.
+function stopButton_Callback(hObject, eventdata, handles)
+    disp('stopButton_Callback');
+    setappdata(handles.figure1, 'stopButtonPressed', true);
+end
+
+
+% --- Executes on button press in forceCloseButton.
+function forceCloseButton_Callback(hObject, eventdata, handles)
+    % hObject    handle to forceCloseButton (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    if getappdata(handles.figure1, 'slowUpdateFlag') == 1
+        slowUpdateGuiFig = getappdata(handles.figure1, 'slowUpdateGuiFig');
+        delete(slowUpdateGuiFig);
+    end
+    delete(handles.figure1);
+end
+
+
+%%
+%===============GUI-OTHER===========
+%===================================
+function slowUpdateButton_ButtonDownFcn(hObject, eventdata, handles)
+    disp('slowUpdateButton_ButtonDownFcn');
+end
 
 
 % --- Executes when user attempts to close figure1.
@@ -478,22 +541,4 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'startExpButtonPressed') == false
         delete(handles.figure1);
     end
-
-
-% --- Executes on button press in stopButton.
-function stopButton_Callback(hObject, eventdata, handles)
-    disp('stopButton_Callback');
-    setappdata(handles.figure1, 'stopButtonPressed', true);
-
-
-
-% --- Executes on button press in forceCloseButton.
-function forceCloseButton_Callback(hObject, eventdata, handles)
-% hObject    handle to forceCloseButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-if getappdata(handles.figure1, 'slowUpdateFlag') == 1
-    slowUpdateGuiFig = getappdata(handles.figure1, 'slowUpdateGuiFig');
-    delete(slowUpdateGuiFig);
 end
-delete(handles.figure1);
