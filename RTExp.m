@@ -87,14 +87,14 @@ function startRecording_Callback(hObject, eventdata, handles)
     disp('startRecording_Callback');
     labelsAndBipsTime = getappdata(handles.startRecording, 'labelsAndBipsTime');
     labelsAndBipsTimeIndex = getappdata(handles.startRecording, 'labelsAndBipsTimeIndex');
-    if labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
+    if labelsAndBipsTimeIndex ~= 1 && labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.BEEP_SOUND, GetSecs];
         Beeper(propertiesFile.beepFrequency, propertiesFile.beepVolume, propertiesFile.beepDurationSec);
         setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
         setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);    
-    end
+     end
 
 
 function fastPlotsSlider1_Callback(hObject, eventdata, handles)
@@ -226,12 +226,23 @@ function startExpButton_Callback(hObject, eventdata, handles)
     else
         [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
     end
-           
-    [listBox1, listBox2, listBox3, listBox4] = getListBoxes(numOfActiveElectrodes);
+    [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
     set(handles.listboxFastPlot1, 'string', listBox1);
     set(handles.listboxFastPlot2, 'string', listBox2);
     set(handles.listboxFastPlot3, 'string', listBox3);
     set(handles.listboxFastPlot4, 'string', listBox4);
+    set(handles.listboxFastPlot1, 'Value', 1);
+    set(handles.listboxFastPlot2, 'Value', 1);
+    set(handles.listboxFastPlot3, 'Value', 1);
+    set(handles.listboxFastPlot4, 'Value', 1);
+    set(handles.numOfElecForPlot3, 'String', listBox3(1), 'Visible', 'off');
+    set(handles.numOfElecForPlot4, 'String', listBox4(1), 'Visible', 'off');
+    set(handles.numOfElecForPlot2, 'String', listBox2(1), 'Visible', 'off');
+    set(handles.numOfElecForPlot1, 'String', listBox1(1), 'Visible', 'off');
+    
+    set(handles.labelText, 'String', 'Started, press next to continue');
+
+    
     
     dataToSaveIndex = 0;
     %%
@@ -257,15 +268,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     data = neuronTimeStamps(:, [elecToPresent(1) elecToPresent(2) elecToPresent(3) elecToPresent(4)]);
                     if(fastUpdateFlag)
                         [n,xout] = hist(data,nBins);
+                        indexForTitles = 1;
                         for jj = 1:nGraphs
                             format = 'n(:,%d)';
                             barParam = sprintf(format, jj);
                             bar(listOfFastHandles(jj),xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
                             title(listOfFastHandles(jj), 'Fast update electrode number:');
-                            set(findobj('Tag',['numOfElecForPlot',num2str(jj)]), 'String', elecToPresent(jj));
+                            set(handles.(['numOfElecForPlot',num2str(indexForTitles)]), 'Visible', 'on');
                             xlabel(listOfFastHandles(jj), 'time bins (sec) ');
                             ylabel(listOfFastHandles(jj), 'count ');
                             ylim(listOfFastHandles(jj), [0 20]);
+                            indexForTitles = indexForTitles + 1;
                         end
                         fastUpdateFlag = 0;
                     end
@@ -375,8 +388,13 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
 % --- Executes on selection change in listboxFastPlot1.
 function listboxFastPlot1_Callback(hObject, eventdata, handles)
-[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
-set(handles.listboxFastPlot1, 'string', listBox1);
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPres();
+    else
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    end
+    [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
+    set(handles.numOfElecForPlot1, 'String', listBox1(get(hObject, 'Value')));
 
 function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -388,8 +406,13 @@ function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
 
 
 function listboxFastPlot2_Callback(hObject, eventdata, handles)
-[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
-set(handles.listboxFastPlot2, 'string', listBox2);
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPres();
+    else
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    end
+    [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
+    set(handles.numOfElecForPlot2, 'String', listBox2(get(hObject, 'Value')));
 
 function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -401,8 +424,13 @@ function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
 
 
 function listboxFastPlot3_Callback(hObject, eventdata, handles)
-[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
-set(handles.listboxFastPlot3, 'string', listBox3);
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPres();
+    else
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    end
+    [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
+    set(handles.numOfElecForPlot3, 'String', listBox3(get(hObject, 'Value')));
 
 function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -415,8 +443,14 @@ function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
 
 function listboxFastPlot4_Callback(hObject, eventdata, handles)
     disp('listboxFastPlot4_Callback');
-[listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
-set(handles.listboxFastPlot4, 'string', listBox4);
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPres();
+    else
+        [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
+    end
+    [listBox3, listBox4, listBox1, listBox2] = getListBoxes(numOfActiveElectrodes);
+    set(handles.numOfElecForPlot4, 'String', listBox4(get(hObject, 'Value')));
+
 
 function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
