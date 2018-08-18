@@ -37,6 +37,8 @@ load('labelsList.mat')
 labelsAndBipsTime = zeros(length(labelsList),2);
 setappdata(handles.nextLabel, 'labelsList', labelsList);
 setappdata(handles.nextLabel, 'labelsIndex', 1);
+%TODO::add next line
+%setappdata(handles.nextLabel, 'trialIndex', 1);
 setappdata(handles.nextLabel, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
@@ -142,6 +144,8 @@ function nextLabel_Callback(hObject, eventdata, handles)
     disp('nextLabel_Callback');
     labelsList = getappdata(handles.nextLabel, 'labelsList');
     labelsIndex = getappdata(handles.nextLabel, 'labelsIndex');
+    %TODO:: add next line
+    %trialIndex = getappdata(handles.nextLabel, 'trialIndex');
     labelsAndBipsTime = getappdata(handles.nextLabel, 'labelsAndBipsTime');
     labelsAndBipsTimeIndex = getappdata(handles.nextLabel, 'labelsAndBipsTimeIndex');
     if labelsIndex == 1
@@ -161,9 +165,13 @@ function nextLabel_Callback(hObject, eventdata, handles)
         setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
         setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+        %TODO:: add next line
+        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3); %TODO:1,3,1,3(no2=bip) in labelAndBipsTime
     else
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
         setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+        %TODO:: add next line
+        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3);
         save('labelsAndBipsTime.mat', 'labelsAndBipsTime');
     end
 end
@@ -268,6 +276,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     t_SYLdisp = tic; %Syllables change time
     t_col0 = tic; %collection time
     bCollect = true; %do we need to collect
+    firstGetTimestamps = true;
     time = 0; %TODO: delete this
     neuronTimeStamps = NaN(200, 80);
     lastSample = 0;
@@ -294,6 +303,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.listboxFastPlot4, 'string', listBox4);
     
     dataToSaveIndex = 0;
+    trialNum = 0;
     %%
     %while slow and fast figures are open
     while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
@@ -302,9 +312,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
             if(et_col >= collect_time)
                 if getappdata(handles.figure1, 'useCBMEX') == true
                     neuronTimeStamps = getAllTimestamps(neuronTimeStamps, index); %read some data - the data should retern in cyclic arrays
+                    if firstGetTimestamps == true
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        firstGetTimestamps = false;
+                    end
                     elecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
                 else
                     [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
+                    if firstGetTimestamps == true
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        firstGetTimestamps = false;
+                    end
                     elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
                 end
                 %if the gui is open
