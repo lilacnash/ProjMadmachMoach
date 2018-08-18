@@ -95,46 +95,6 @@ function fastPlotsSlider4_CreateFcn(hObject, eventdata, handles)
 end
 
 
-function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot1_CreateFcn');
-    indexesList = {'1'};
-    set(hObject , 'string' , indexesList);
-end
-
-
-function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot2_CreateFcn');
-    indexesList = {'2'};
-    set(hObject , 'string' ,indexesList);
-end
-
-
-function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot3_CreateFcn');
-    indexesList = {'3'};
-    set(hObject , 'string' ,indexesList);
-end
-
-
-function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
-    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-        set(hObject,'BackgroundColor','white');
-    end
-    disp('listboxFastPlot4_CreateFcn');
-    indexesList = {'4'};
-    set(hObject , 'string' ,indexesList);
-end
-
-
 %%
 %===============GUI-CALLBACKS===========
 %=======================================
@@ -212,6 +172,11 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
     else
         errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
     end
+end
+
+
+function slowUpdateButton_ButtonDownFcn(hObject, eventdata, handles)
+    disp('slowUpdateButton_ButtonDownFcn');
 end
 
 
@@ -430,9 +395,29 @@ function listboxFastPlot1_Callback(hObject, eventdata, handles)
 end
 
 
+function listboxFastPlot1_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot1_CreateFcn');
+    indexesList = {'1'};
+    set(hObject , 'string' , indexesList);
+end
+
+
 function listboxFastPlot2_Callback(hObject, eventdata, handles)
     [listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
     set(handles.listboxFastPlot2, 'string', listBox2);
+end
+
+
+function listboxFastPlot2_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot2_CreateFcn');
+    indexesList = {'2'};
+    set(hObject , 'string' ,indexesList);
 end
 
 
@@ -441,11 +426,30 @@ function listboxFastPlot3_Callback(hObject, eventdata, handles)
     set(handles.listboxFastPlot3, 'string', listBox3);
 end
 
+function listboxFastPlot3_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot3_CreateFcn');
+    indexesList = {'3'};
+    set(hObject , 'string' ,indexesList);
+end
+
 
 function listboxFastPlot4_Callback(hObject, eventdata, handles)
     disp('listboxFastPlot4_Callback');
     [listBox1, listBox2, listBox3, listBox4] = getListBoxes(propertiesFile.numOfElec);
     set(handles.listboxFastPlot4, 'string', listBox4);
+end
+
+
+function listboxFastPlot4_CreateFcn(hObject, eventdata, handles)
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+    disp('listboxFastPlot4_CreateFcn');
+    indexesList = {'4'};
+    set(hObject , 'string' ,indexesList);
 end
 
 
@@ -461,6 +465,16 @@ function closeButton_Callback(hObject, eventdata, handles)
 end
 
 
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+    disp('figure1_CloseRequestFcn');
+    setappdata(handles.figure1, 'closeFlagOn', true);
+    if getappdata(handles.figure1, 'startExpButtonPressed') == false
+        delete(handles.figure1);
+    end
+end
+
+
 % --- Executes on button press in stopButton.
 function stopButton_Callback(hObject, eventdata, handles)
     disp('stopButton_Callback');
@@ -470,30 +484,12 @@ end
 
 % --- Executes on button press in forceCloseButton.
 function forceCloseButton_Callback(hObject, eventdata, handles)
-    % hObject    handle to forceCloseButton (see GCBO)
-    % eventdata  reserved - to be defined in a future version of MATLAB
-    % handles    structure with handles and user data (see GUIDATA)
-    if getappdata(handles.figure1, 'slowUpdateFlag') == 1
-        slowUpdateGuiFig = getappdata(handles.figure1, 'slowUpdateGuiFig');
-        delete(slowUpdateGuiFig);
-    end
-    delete(handles.figure1);
+% hObject    handle to forceCloseButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if getappdata(handles.figure1, 'slowUpdateFlag') == 1
+    slowUpdateGuiFig = getappdata(handles.figure1, 'slowUpdateGuiFig');
+    delete(slowUpdateGuiFig);
 end
-
-
-%%
-%===============GUI-OTHER===========
-%===================================
-function slowUpdateButton_ButtonDownFcn(hObject, eventdata, handles)
-    disp('slowUpdateButton_ButtonDownFcn');
-end
-
-
-% --- Executes when user attempts to close figure1.
-function figure1_CloseRequestFcn(hObject, eventdata, handles)
-    disp('figure1_CloseRequestFcn');
-    setappdata(handles.figure1, 'closeFlagOn', true);
-    if getappdata(handles.figure1, 'startExpButtonPressed') == false
-        delete(handles.figure1);
-    end
+delete(handles.figure1);
 end
