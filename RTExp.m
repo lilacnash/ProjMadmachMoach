@@ -151,6 +151,7 @@ function nextLabel_Callback(hObject, eventdata, handles)
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
         setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
+        setappdata(handles.figure1,'currLabel',labelsList(labelsIndex));
         setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
     elseif labelsIndex <= length(labelsList)
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
@@ -158,6 +159,7 @@ function nextLabel_Callback(hObject, eventdata, handles)
         labelsAndBipsTime(labelsAndBipsTimeIndex+1, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
         setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
         setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
+        setappdata(handles.figure1,'currLabel',labelsList(labelsIndex));
         setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
         %TODO:: add next line
         %setappdata(handles.nextLabel,'trialIndex',trialIndex+3); %TODO:1,3,1,3(no2=bip) in labelAndBipsTime
@@ -393,9 +395,46 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %                     ylabel(currFig, 'count ');
                         ylim(currFig, [0 20]);
                     end
-                        % Creates the raster plot
-    %                     currFig = findobj('Tag',['rasterPlot',num2str(jj)]);
-                    slowUpdateFlag = 0;
+                    % Creates the raster plots
+                    myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
+                    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
+                    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
+                    trialNum = trialNum + 1;
+                    for rr = 1:10
+                        currFig = findobj('Tag', ['rasterPlot', num2str(rr)]);
+                        %hold on;
+                        currElecSpikes = data(:, rr);
+                        for tt = 1:size(currElecSpikes,1)
+                            %don't plot (break) if timestamp value is after END_OF_LABEL (trial finished)
+                            %check that labelsAndBipsTime(labelsAndBipsTimeIndex-2, 1) == propertiesFile.END_OF_LABEL
+                            labelsAndBipsTime(labelsAndBipsTimeIndex, 2) = (13.02 + myOffset); %TODO::remove after testing
+                            if (currElecSpikes(tt) > (labelsAndBipsTime(labelsAndBipsTimeIndex, 2) - myOffset))
+                                break;
+                            else
+                                hold(currFig, 'on');
+                                %plot([currElecSpikes(tt) currElecSpikes(tt)], [trialNum-0.1 trialNum+0.1], 'Color', 'k');
+                                plot(currFig, [currElecSpikes(tt) currElecSpikes(tt)], [trialNum-0.1 trialNum+0.1], 'Color', 'k');
+                            end
+                        end
+                        ttle = sprintf('Raster Plot: %d', rr);
+                        title(currFig, ttle);
+                        %ylim([0 propertiesFile.numOfRasterRows+1]); %change to numOfTrials
+                        xlim(currFig, [0 3]);
+                        ylim(currFig, [0 3]);
+                        %xticks([(labelsAndBipsTime(labelsAndBipsTimeIndex-4, 2) - myOffset) (labelsAndBipsTime(labelsAndBipsTimeIndex-3, 2) - myOffset) (labelsAndBipsTime(labelsAndBipsTimeIndex-2, 2) - myOffset)]);
+                        %xt = get(gca, 'XTickLabel');
+                        %set(gca, 'XTickLabel', xt, 'FontSize', 6);
+                        xticks([0 1.5 3]);
+                        xticklabels(currFig, {'LABEL_SHOWING', 'BEEP_SOUND', 'END_OF_LABEL'});
+                        labelName = getappdata(handles.nextLabel, 'currLabel');
+                        labelName = 'a'; %TODO::remove after testing
+                        format = '%s trials';
+                        txtForY = sprintf(format, labelName);
+                        %ylabel(currFig, txtForY);
+                        yticks(currFig, [2]);
+                        yticklabels(currFig, {txtForY});
+                        slowUpdateFlag = 0;
+                    end
                 end
                 %turn on datalinking (in order to update slow_fig)
                 if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
@@ -415,8 +454,18 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 firstUpdate = true;
                 setappdata(handles.figure1, 'slowUpdateFlag', false);
                 delete(slowUpdateGuiFig);
+                %delete(rasterGuiFig); %TODO:: add
             end
         end
+        %%
+        %if trial is finished && slowUpdateGui is still open
+        if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && slowUpdateGuiFig.UserData.closeFlag == false
+            
+            %create a raster per electrode
+            for rr = 1:12
+            end
+        end
+        %%
         dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
         dataToSaveIndex = length(dataToSave(:,1));
     end
