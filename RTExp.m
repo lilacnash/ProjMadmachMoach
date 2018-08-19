@@ -35,14 +35,12 @@ guidata(hObject, handles);
 % set up data
 load('labelsList.mat')
 labelsAndBipsTime = zeros(length(labelsList),2);
-setappdata(handles.nextLabel, 'labelsList', labelsList);
-setappdata(handles.nextLabel, 'labelsIndex', 1);
+setappdata(handles.figure1, 'labelsList', labelsList);
+setappdata(handles.figure1, 'labelsIndex', 1);
 %TODO::add next line
 %setappdata(handles.nextLabel, 'trialIndex', 1);
-setappdata(handles.nextLabel, 'labelsAndBipsTime', labelsAndBipsTime);
-setappdata(handles.nextLabel, 'labelsAndBipsTimeIndex', 1);
-setappdata(handles.startRecording, 'labelsAndBipsTime', labelsAndBipsTime);
-setappdata(handles.startRecording, 'labelsAndBipsTimeIndex', 1);
+setappdata(handles.figure1, 'labelsAndBipsTime', labelsAndBipsTime);
+setappdata(handles.figure1, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
 setappdata(handles.figure1, 'useCBMEX', false);
 setappdata(handles.figure1, 'closeFlagOn', false);
@@ -142,34 +140,30 @@ end
 %=======================================
 function nextLabel_Callback(hObject, eventdata, handles)
     disp('nextLabel_Callback');
-    labelsList = getappdata(handles.nextLabel, 'labelsList');
-    labelsIndex = getappdata(handles.nextLabel, 'labelsIndex');
+    labelsList = getappdata(handles.figure1, 'labelsList');
+    labelsIndex = getappdata(handles.figure1, 'labelsIndex');
     %TODO:: add next line
     %trialIndex = getappdata(handles.nextLabel, 'trialIndex');
-    labelsAndBipsTime = getappdata(handles.nextLabel, 'labelsAndBipsTime');
-    labelsAndBipsTimeIndex = getappdata(handles.nextLabel, 'labelsAndBipsTimeIndex');
+    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
+    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
     if labelsIndex == 1
         set(handles.labelText, 'String', labelsList(labelsIndex));
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
-        setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
-        setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
-        setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
+        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
+        setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
     elseif labelsIndex <= length(labelsList)
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
         set(handles.labelText, 'String', labelsList(labelsIndex));
         labelsAndBipsTime(labelsAndBipsTimeIndex+1, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
-        setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
-        setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
-        setappdata(handles.nextLabel,'labelsIndex',labelsIndex+1);
+        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
+        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
+        setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
         %TODO:: add next line
         %setappdata(handles.nextLabel,'trialIndex',trialIndex+3); %TODO:1,3,1,3(no2=bip) in labelAndBipsTime
     else
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
-        setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
+        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
         %TODO:: add next line
         %setappdata(handles.nextLabel,'trialIndex',trialIndex+3);
         save('labelsAndBipsTime.mat', 'labelsAndBipsTime');
@@ -179,15 +173,13 @@ end
 
 function startRecording_Callback(hObject, eventdata, handles)
     disp('startRecording_Callback');
-    labelsAndBipsTime = getappdata(handles.startRecording, 'labelsAndBipsTime');
-    labelsAndBipsTimeIndex = getappdata(handles.startRecording, 'labelsAndBipsTimeIndex');
+    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
+    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
     if labelsAndBipsTimeIndex ~= 1 && labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
         labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.BEEP_SOUND, GetSecs];
         Beeper(propertiesFile.beepFrequency, propertiesFile.beepVolume, propertiesFile.beepDurationSec);
-        setappdata(handles.startRecording,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.startRecording,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
-        setappdata(handles.nextLabel,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.nextLabel,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);    
+        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
+        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
     end
 end
 
