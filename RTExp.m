@@ -1,4 +1,7 @@
 %%
+global cfg;
+
+%%
 %===============INIT-GUI===============
 %======================================
 function varargout = RTExp(varargin)
@@ -226,7 +229,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %%
     %===============PRE-PROCESING===============
     %===========================================
-
+    
+    connection = -1;
+    instrument = -1;
     % propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
     if getappdata(handles.figure1, 'useCBMEX') == true
         % open neuroport
@@ -236,10 +241,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
     setappdata(handles.figure1, 'startExpButtonPressed', true);
     %%
     disp('startExpButton_Callback');
-    connection = 1; %TODO: delete
-    instrument = 1; %TODO: delete
     %print connection details
-    fprintf('>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
+    fprintf(cfg.logfile, '>>>>>>>>>>> in openNeuroport: connection: %d, instrument: %d\n', connection, instrument);
 
     %get number of electrode to present  
     %TODO: this should return a map of active neurons (not channels) and their index.
@@ -253,39 +256,20 @@ function startExpButton_Callback(hObject, eventdata, handles)
     fast_update_time = propertiesFile.fastUpdateTime;
     slow_update_time = propertiesFile.slowUpdateTime;
     nGraphs = propertiesFile.numOfElec;
-    Syllables = []; % ADD propertiesFile.Syllables;
-    allTimestampsMatrix = NaN(propertiesFile.numOfElec,200);
     index = ones(propertiesFile.numOfElec, 1);
+    neuronTimeStamps = NaN(200, 80);
     fastUpdateFlag = propertiesFile.fastUpdateFlag;
     slowUpdateFlag = propertiesFile.slowUpdateFlag;
     firstUpdate = true;
 
-    %cyclic arrays for time stamps - one for each neuron
-    spikesTimeStamps = cell(numOfElecToPres, 1);
-    for ii = 1:numOfElecToPres
-        spikesTimeStamps{ii, 1} = NaN(1, propertiesFile.numOfStamps);
-    end
-
-    fprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
+    fprintf(cfg.logfile, '>>>>>>>>>>> in RT_Exp:TRAINING started\n');
 
     %%
     %init clocks
-    t_Fdisp0 = tic; %fast display time
-    t_Sdisp0 = tic; %slow display time
-    t_SYLdisp = tic; %Syllables change time
     t_col0 = tic; %collection time
     bCollect = true; %do we need to collect
     firstGetTimestamps = true;
-    time = 0; %TODO: delete this
-    neuronTimeStamps = NaN(200, 80);
     lastSample = 0;
-    last_col = 0;
-    last_updated_slow = 0;
-
-    %%
-    syl_index = 0;
-    % Syl_fig = figure; %used to move between syllables
-    % title('A - close this window to move to the next Syllable')
 
     %%
     %set the listboxes with relevant values
@@ -309,11 +293,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.numOfElecForPlot1, 'String', listBox1(1), 'Visible', 'off');
     
     set(handles.labelText, 'String', 'Started, press next to continue');
-
-    
-    
+  
     dataToSaveIndex = 0;
     trialNum = 0;
+    
     %%
     %while slow and fast figures are open
     while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
@@ -449,7 +432,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
          end
         delete(handles.figure1);
      end
-    % time = time + 0.5; %TODO: delete this
 end
 
 % --- Executes on selection change in listboxFastPlot1.

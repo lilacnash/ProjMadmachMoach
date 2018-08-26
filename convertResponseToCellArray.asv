@@ -1,0 +1,10 @@
+function [logArray] = convertResponseToCellArray(response)
+    
+    logArray = NaN(200,3);
+    beepsAndsyllables = find(response == 36 | response == 42);
+    
+    
+    
+
+
+end

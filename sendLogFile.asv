@@ -1,0 +1,8 @@
+function sendLogFile()
+
+    global cfg;
+    
+    logFileAsChar = fileread(cfg.LOG_PREFIX);
+    fwrite(cfg.client_data_socket, logFileAsChar);
+   
+end
