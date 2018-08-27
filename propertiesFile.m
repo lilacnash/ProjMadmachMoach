@@ -15,6 +15,10 @@ classdef propertiesFile
       fastUpdateFlag = true
       slowUpdateFlag = true
       numOfRasterRows = 5
+      numOfHistogramsToPresent = 4
+      fastHistogramsTitle = 'Fast update electrode number: '
+      numOfRows = 0
+      numOfCols = 0
 
       
       %Data store configurations
