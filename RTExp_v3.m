@@ -69,21 +69,22 @@ end
 
 
 
-
 %%
 %===============GUI-CALLBACKS===========
 %=======================================
 
-function listboxData_Callback (handles, handler)
-    disp('listboxData_Callback');
-    elecToPresent = getappdata(handles.figure1, 'elecToPresent');
-    elecNumRegex = regexp(get(handler, 'Tag'), '\d+', 'match');
+function popupmanueData_Callback (hObject, eventdata)
+    disp('popupmanueData_Callback');
+    RTExpObject = hObject.Parent;
+    elecToPresent = getappdata(RTExpObject, 'elecToPresent');
+    elecNumRegex = regexp(get(hObject, 'Tag'), '\d+', 'match');
     elecNum = str2num(elecNumRegex{1});
-    newChoise = get(handler, 'Value');
-    listboxString = getappdata(handles.figure1, 'listboxString');
-    elecToPresent(elecNum) = listboxString{newChoise};
-    setappdata(handles.figure1, 'elecToPresent', elecToPresent);
-    set(handels.([fastPlotTitle, num2str(elecNum)]), 'String', [propertiesFile.fastHistogramsTitle, num2str(elecNum)]);
+    newChoise = get(hObject, 'Value');
+    listboxString = getappdata(RTExpObject, 'listboxString');
+    elecToPresent(elecNum) = str2num(listboxString{newChoise});
+    setappdata(RTExpObject, 'elecToPresent', elecToPresent);
+    titleObj = findobj('Tag', ['fastPlotTitle', num2str(elecNum)]);
+    set(titleObj, 'String', [propertiesFile.fastHistogramsTitle, num2str(newChoise)]);
 end
 
 
@@ -167,7 +168,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
     if propertiesFile.numOfCols <= 0 || propertiesFile.numOfRows <= 0
         [numOfRows, numOfCols] = getOptimalRowsAndColsNum(propertiesFile.numOfHistogramsToPresent);
     end
-    generatePlots();
+    fastPlotsPanel = findobj('Tag', 'fastPlotsPanel');
+    containerPosition = [0.0079    0.0078    0.8540    0.8717];
+    GUI_object = findobj('Name', 'RTExp_v3');
+    generatePlots(GUI_object, propertiesFile.numOfHistogramsToPresent, numOfRows, numOfCols, containerPosition);
   
     
     % Insert data into Listboxes and titles
@@ -176,15 +180,16 @@ function startExpButton_Callback(hObject, eventdata, handles)
     else
         [numOfActiveElectrodes, matrix] = getNumOfElecToPresent_Temp(); % change to the real function
     end
-    listboxString = cellfun(@num2str, num2cell(1:numOfActiveElectrodes), 'UniformOutput', false);
+    listboxString = arrayfun(@num2str, (1:numOfActiveElectrodes), 'UniformOutput', false);
     for inti = 1:propertiesFile.numOfHistogramsToPresent
         % Insert data to listboxes
-        currHandler = findobj('Tag',handles.(['fastPlotListbox', inti]));
+        currHandler = findobj('Tag',['fastPlotPopupmenu', num2str(inti)]);
         set(currHandler, 'Value', inti);
         set(currHandler, 'String', listboxString);
+        set(currHandler, 'Callback', @popupmanueData_Callback);
         % Insert data into titles
-        currHandler = findobj('Tag',handles.(['fastPlotTitle', inti]));
-        set(currHandler, 'String', [fastHistogramsTitle, inti]);
+        currHandler = findobj('Tag',['fastPlotTitle', num2str(inti)]);
+        set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti)]);
         setappdata(handles.figure1, 'listboxString', listboxString);
         elecToPresent(inti) = inti;
     end
@@ -278,23 +283,20 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 if(ishandle(handles.figure1))
                     % update fast
                     nGraphs = size(elecToPresent, 2); %number of electrodes to present
-                    listOfFastHandles = findobj('Type', 'Axes');
-                    listOfFastHandles = flip(listOfFastHandles);
+%                     listOfFastHandles = findobj('Type', 'Axes');
+%                     listOfFastHandles = flip(listOfFastHandles);
                     nBins = propertiesFile.numOfBins; %TODO: change to - propertiesFile.numOfBins; %number of bins for histogram   
                     data = neuronTimeStamps(:, elecToPresent);
                     if(fastUpdateFlag)
                         [n,xout] = hist(data,nBins);
-                        indexForTitles = 1;
                         for jj = 1:nGraphs
+                            currFig = findobj('Tag',['fastPlot',num2str(jj)]);
                             format = 'n(:,%d)';
                             barParam = sprintf(format, jj);
-                            bar(listOfFastHandles(jj),xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
-                            title(listOfFastHandles(jj), 'Fast update electrode number:');
-                            set(handles.(['numOfElecForPlot',num2str(indexForTitles)]), 'Visible', 'on');
-                            xlabel(listOfFastHandles(jj), 'time bins (sec) ');
-                            ylabel(listOfFastHandles(jj), 'count ');
-                            ylim(listOfFastHandles(jj), [0 20]);
-                            indexForTitles = indexForTitles + 1;
+                            bar(currFig,xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
+                            xlabel(currFig, 'time bins (sec) ');
+                            ylabel(currFig, 'count ');
+                            ylim(currFig, [0 20]);
                         end
                         fastUpdateFlag = 0;
                     end
