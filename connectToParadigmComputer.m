@@ -4,7 +4,7 @@ function connectToParadigmComputer()
     
     %% SERVER SOCKET
     cfg.server_data_socket = tcpip(cfg.DATA_COMPUTER_IP,cfg.DATA_COMPUTER_PORT, 'NetworkRole', 'server');
-    fopen(cfg.data_socket);
+    fopen(cfg.server_data_socket);
     cfg.data_computer.Timeout = cfg.DATA_COMPUTER_TIMEOUT;
     fprintf(cfg.logfile, '>>>>>>>>>>> %f in connectToParadigmComputer: SERVER_SOCKET_CONNECTED PORT:%d\n', GetSecs, cfg.DATA_COMPUTER_PORT);
 

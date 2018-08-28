@@ -6,7 +6,11 @@ function [] = RunRTExp()
     
     cfg = exp_specs();
     createExpLogFile();
-    connectToParadigmComputer();
+    
+    if cfg.useParadigm
+        connectToParadigmComputer();
+    end
+    
     RTExp();
    
 
