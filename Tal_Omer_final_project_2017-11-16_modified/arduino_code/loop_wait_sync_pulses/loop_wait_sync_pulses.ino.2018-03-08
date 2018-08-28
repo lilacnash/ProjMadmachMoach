@@ -1,0 +1,32 @@
+int byteRead;
+void setup() {
+// Turn the Serial Protocol ON
+  pinMode(LED_BUILTIN, OUTPUT);
+//Serial.begin(9600);
+Serial.begin(115200);
+  pinMode(7, OUTPUT);
+}
+void loop() {
+    /* check if data has been sent from the computer: */
+    if (Serial.available() > 0) {
+        /* read the most recent byte */
+        byteRead = Serial.read();
+        
+        /*ECHO the value that was read, back to the serial port. */
+        /*Serial.println(byteRead);
+        Serial.print(" The Arduino received: ");
+        Serial.println(byteRead, BIN);*/
+        
+        /*If received 1 (49 = ascii value of one) from serial port then set the output pin 7 to 5v */
+        if (byteRead == 49) {
+            digitalWrite(7, HIGH);
+            digitalWrite(LED_BUILTIN, HIGH);
+        }
+        
+        /*If received 0 (48 = ascii value of zero) from serial port then set the output pin 7 to 0v */
+        if (byteRead == 48) {
+            digitalWrite(7, LOW);
+            digitalWrite(LED_BUILTIN, LOW);
+        }
+    }
+}

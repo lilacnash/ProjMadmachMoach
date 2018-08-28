@@ -1,0 +1,46 @@
+% Author: Ariel Tankus.
+% Created: 2018-01-12.
+% Derived from RunBasic() by Tal & Omer.
+
+function sync_pulse_loop()
+global cfg;
+global sleep_timer;
+    
+sleep_timer = timer('TimerFcn', @timer_callback, 'StartDelay', 0.5 + rand);
+
+%% initilize params 
+openArduinoPort();
+
+cfg.LOG_PREFIX = 'sync_pulse_loop';
+create_log_file();
+%%
+cfg.SYNC_INTERVAL_MIN = 0.5;
+cfg.SYNC_INTERVAL_MAX = 1;
+
+fprintf(cfg.logfile,'%f EVENT: START\n',GetSecs);
+start(sleep_timer);
+while true
+    
+    wait(sleep_timer);
+
+end
+    
+function timer_callback(this_event, dummy)
+global sleep_timer;
+global cfg;
+    
+%% sending pulses
+fprintf('timer_callback\n');
+%arduino_control();
+        Send_pulse_to_ard(cfg.Pulse.state,cfg.arduino);
+        fprintf(cfg.logfile,'%f EVENT: CHEETAH_SIGNAL %d %d\n',GetSecs,cfg.Pulse.Counter,cfg.Pulse.state);
+        cfg.Pulse.Counter = cfg.Pulse.Counter + 1; 
+        cfg.Pulse.state = 1 - cfg.Pulse.state;
+        cfg.Pulse.TimerStarted = 0;
+
+fprintf('after arduino_control\n');
+next_rand = 0.5 + rand;
+fprintf('Sync sent: %d. %d Going to sleep for %.2s sec.\n', ...
+        cfg.Pulse.Counter, cfg.Pulse.state, next_rand);
+sleep_timer = timer('TimerFcn', @timer_callback, 'StartDelay', next_rand);
+start(sleep_timer);

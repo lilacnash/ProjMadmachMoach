@@ -1,0 +1,22 @@
+function openArduinoPort()
+    global cfg;
+    priorPorts = instrfind ;% finds any existing Serial Ports in MATLAB
+    delete(priorPorts) ;% and deletes them
+    hw_info = instrhwinfo ('serial');   % check for available serial ports.
+    if (isempty(hw_info.AvailableSerialPorts{1}))
+        error('No available serial ports found.');
+    end
+    cur_port = hw_info.AvailableSerialPorts{1};  % 1st avail. port.
+    cfg.arduino = serial(cur_port);
+%    cfg.arduino = serial('COM3');
+%    cfg.arduino = serial('/dev/ttyACM0');
+    set(cfg.arduino, 'BaudRate', 115200);  % max supported on Arduino.
+    
+    cfg.Pulse.state = 0;
+    cfg.Pulse.TimerStarted = 0;
+    cfg.Pulse.PeriodStarted = 0 ;
+    cfg.Pulse.Counter = 0;
+    fopen(cfg.arduino);
+end
+
+

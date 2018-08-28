@@ -5,7 +5,12 @@ function [] = RunRTExp()
     global cfg;
     
     cfg = exp_specs();
-    connectToParadigmComputer();
+    createExpLogFile();
+    
+    if cfg.useParadigm
+        connectToParadigmComputer();
+    end
+    
     RTExp();
    
 
