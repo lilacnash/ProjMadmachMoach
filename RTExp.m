@@ -377,27 +377,14 @@ function startExpButton_Callback(hObject, eventdata, handles)
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             %save relevant timestamps from current trial
             for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
-                currentElecTimestampsVector = dataToSave(:,ee) - myOffset; %in order to compare to normalized currentBipTime
+                %currentElecTimestampsVector = dataToSave(:,ee) - myOffset; %in order to compare to normalized currentBipTime
+                currentElecTimestampsVector = dataToSave(:,ee);
                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
                 numOfRelevant = length(relevantTimestamps);
                 padding = ((propertiesFile.numOfTrials - numOfRelevant)/2);
-                inserted = 0;
-                finalToSave = zeros(propertiesFile.numOfTrials,1);
-                for ff = 1:floor(padding)
-                    finalToSave(ff) = 0;
-                    inserted = inserted + 1;
-                end
-                for oo = 1:numOfRelevant
-                    finalToSave(inserted + 1) = relevantTimestamps(oo);
-                    inserted = inserted + 1;
-                end
-                for zz = 1:ceil(padding)
-                    finalToSave(ff) = 0;
-                    inserted = inserted + 1;
-                end
-                %tmpToSave = padarray(relevantTimestamps,floor(padding),'pre');
-                %finalToSave = padarray(tmpToSave,ceil(padding),'post');
+                tmpToSave = padarray(relevantTimestamps,floor(padding),'pre');
+                finalToSave = padarray(tmpToSave,ceil(padding),'post');
                 dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = finalToSave;
             end
             if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
