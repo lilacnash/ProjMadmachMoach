@@ -40,8 +40,6 @@ load('labelsList.mat')
 labelsAndBipsTime = zeros(length(labelsList),2);
 setappdata(handles.figure1, 'labelsList', labelsList);
 setappdata(handles.figure1, 'labelsIndex', 1);
-%TODO::add next line
-%setappdata(handles.nextLabel, 'trialIndex', 1);
 setappdata(handles.figure1, 'labelsAndBipsTime', labelsAndBipsTime);
 setappdata(handles.figure1, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
@@ -287,10 +285,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.numOfElecForPlot1, 'String', listBox1(1), 'Visible', 'off');
     
     set(handles.labelText, 'String', 'Started, press next to continue');
-  
+    
+    dataToSaveForHistAndRaster = NaN(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
     dataToSaveIndex = 0;
     trialNum = 0;
-    
+    numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
     %%
     %while slow and fast figures are open
     while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
@@ -348,109 +347,104 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 end
             end
         end
-        if(et_col >= slow_update_time)
-            if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
-                slowUpdateGuiFig = slowUpdateGui;
-                slowUpdateGuiFig.UserData.closeFlag = false;
-                setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
-                firstUpdate = false;
-                slowUpdateFlag = true;
-            end
-            if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
-                slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
-                elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/10,1)*10+1); %ask which neurons to present in fast update
-                nGraphs = numberOfHistograms; %number of electrodes to present
-                nBins = 10; %TODO: change to - propertiesFile.numOfBins; %number of bins for histogram
-                data = neuronTimeStamps;
-                updateNum = 1;
-                if(slowUpdateFlag)
-                    [nSlow,xoutSlow] = hist(data,nBins);
-                    for jj = 1:10 
-                        format = 'nSlow(:,%d)';
-                        barParam = sprintf(format, elecToPresent(jj));
-                        currFig = findobj('Tag',['slowUpdatePlot',num2str(jj)]);
-                        bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
-                        ttle = sprintf('Online electrode:');
-                        title(currFig, ttle);
-                        currText = findobj('Tag',['slowPlotLabel',num2str(jj)]);
-                        set(currText, 'string', elecToPresent(jj));
-    %                     xlabel(currFig, 'time bins (sec) ');
-    %                     ylabel(currFig, 'count ');
-                        ylim(currFig, [0 20]);
-                    end
-                    % Creates the raster plots
-                    myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
-                    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
-                    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
-                    trialNum = trialNum + 1;
-                    for rr = 1:10
-                        currFig = findobj('Tag', ['rasterPlot', num2str(rr)]);
-                        %hold on;
-                        currElecSpikes = data(:, rr);
-                        for tt = 1:size(currElecSpikes,1)
-                            %don't plot (break) if timestamp value is after END_OF_LABEL (trial finished)
-                            %check that labelsAndBipsTime(labelsAndBipsTimeIndex-2, 1) == propertiesFile.END_OF_LABEL
-                            labelsAndBipsTime(labelsAndBipsTimeIndex, 2) = (13.02 + myOffset); %TODO::remove after testing
-                            if (currElecSpikes(tt) > (labelsAndBipsTime(labelsAndBipsTimeIndex, 2) - myOffset))
-                                break;
-                            else
-                                hold(currFig, 'on');
-                                %plot([currElecSpikes(tt) currElecSpikes(tt)], [trialNum-0.1 trialNum+0.1], 'Color', 'k');
-                                plot(currFig, [currElecSpikes(tt) currElecSpikes(tt)], [trialNum-0.1 trialNum+0.1], 'Color', 'k');
-                            end
-                        end
-                        ttle = sprintf('Raster Plot: %d', rr);
-                        title(currFig, ttle);
-                        %ylim([0 propertiesFile.numOfRasterRows+1]); %change to numOfTrials
-                        xlim(currFig, [0 3]);
-                        ylim(currFig, [0 3]);
-                        %xticks([(labelsAndBipsTime(labelsAndBipsTimeIndex-4, 2) - myOffset) (labelsAndBipsTime(labelsAndBipsTimeIndex-3, 2) - myOffset) (labelsAndBipsTime(labelsAndBipsTimeIndex-2, 2) - myOffset)]);
-                        %xt = get(gca, 'XTickLabel');
-                        %set(gca, 'XTickLabel', xt, 'FontSize', 6);
-                        xticks([0 1.5 3]);
-                        xticklabels(currFig, {'LABEL_SHOWING', 'BEEP_SOUND', 'END_OF_LABEL'});
-                        labelName = getappdata(handles.nextLabel, 'currLabel');
-                        labelName = 'a'; %TODO::remove after testing
-                        format = '%s trials';
-                        txtForY = sprintf(format, labelName);
-                        %ylabel(currFig, txtForY);
-                        yticks(currFig, [2]);
-                        yticklabels(currFig, {txtForY});
-                        slowUpdateFlag = 0;
-                    end
-                end
-                %turn on datalinking (in order to update slow_fig)
-                if ishandle(handles.figure1) && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
-                    linkdata on
-                    [nSlow,xoutSlow] = hist(data,nBins);
-                    refreshdata(slowGuiObject,'caller');
-                    slow_update_time = et_col + 2;
-                    updateNum = updateNum + 1;
-                else
-                    linkdata off
-                end
-            end
-            % If slowUpdateGui is close setup all slow variables and delete the Gui fig
-            if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
-                linkdata off;
-                slowUpdateFlag = true;
-                firstUpdate = true;
-                setappdata(handles.figure1, 'slowUpdateFlag', false);
-                delete(slowUpdateGuiFig);
-                %delete(rasterGuiFig); %TODO:: add
-            end
-        end
-        %%
-        %if trial is finished && slowUpdateGui is still open
-        if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && slowUpdateGuiFig.UserData.closeFlag == false
-            
-            %create a raster per electrode
-            for rr = 1:12
-            end
-        end
-        %%
         dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
         dataToSaveIndex = length(dataToSave(:,1));
+        myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
+        newLabelAndBipTimeVector = {'a', 5.02}; %TODO::call Guy's func instead
+        letterOfCurrLabel = newLabelAndBipTimeVector{1,1};
+        currentBipTime = newLabelAndBipTimeVector{1,2} - myOffset;
+        switch (letterOfCurrLabel)
+            case 'a'
+                currentLabel = 1;
+            case 'e'
+                currentLabel = 2;
+            case 'u' %TODO:: a e i o u (change order i=3,u=5)
+                currentLabel = 3;
+            case 'o'
+                currentLabel = 4;
+            case 'i'
+                currentLabel = 5;
+        end
+        numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
+        %save relevant timestamps from current trial
+        for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
+            currentElecTimestampsVector = dataToSave(:,ee) - myOffset; %in order to compare to normalized currentBipTime
+            relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
+            relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
+            dataToSaveForHistAndRaster(ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)) = relevantTimestamps;
+        end
+        if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
+            %slowUpdateGuiFig = slowUpdateGui;
+            slowUpdateGuiFig = slowUpdateGui2;
+            slowUpdateGuiFig.UserData.closeFlag = false;
+            setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
+            firstUpdate = false;
+            slowUpdateFlag = true;
+        end
+        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
+            slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
+            %elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/10,1)*10+1); %ask which neurons to present in fast update
+            elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/4,1)*4+1); %4 per page for now
+            %nGraphs = numberOfHistograms; %number of electrodes to present
+            nBins = propertiesFile.numOfBins; %number of bins for histogram
+            %data = neuronTimeStamps;
+            if(slowUpdateFlag)
+                for aa = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
+                    summedVector = NaN(size(dataToSaveForHistAndRaster(1,1)),1);
+                    %create raster for electrode aa
+                    currFig = findobj('Tag', ['rasterPlot',num2str(aa),'_',num2str(currentLabel)]);
+                    for tt = 1:numOfTrialsPerLabel(currentLabel)
+                        currVector = dataToSaveForHistAndRaster(aa,(currentLabel-1)*propertiesFile.numOfTrials + tt);
+                        summedVector = summedVector + currVector;
+                        %plot a row for every 'a' trial until now (be4 or after summing?)
+                        for nn = 1:length(currVector)
+                            hold(currFig, 'on');
+                            plot(currFig, [currVector(nn) currVector(nn)], [tt-0.1 tt+0.1], 'Color', 'k');
+                        end
+                    end
+                    %ttle = sprintf('Raster Plot: %d', rr);
+                    ttle = sprintf('Raster Plot: %d_%d', aa, currentLabel);
+                    title(currFig, ttle);
+                    %ylim(currFig, [0 3]);
+                    xlim(currFig, [-5 5]);
+                    xticks([0]);
+                    xticklabels(currFig, {'BEEP_SOUND'});
+                    %labelName = getappdata(handles.nextLabel, 'currLabel');
+                    format = '%s trials';
+                    txtForY = sprintf(format, letterOfCurrLabel);
+                    %ylabel(currFig, txtForY);
+                    yticks(currFig, [2]);
+                    yticklabels(currFig, {txtForY});
+                    slowUpdateFlag = 0;
+                    
+                    %create histogram  for electrode aa (averaged hist of all trials until now)
+                    [nSlow,xoutSlow] = hist(summedVector,nBins);
+                    %[nSlow,xoutSlow] = hist(data,nBins);
+                    nSlow = nSlow/numOfTrialsPerLabel(currentLabel); %divide - to get average
+                    %format = 'nSlow(:,%d)';
+                    %barParam = sprintf(format, elecToPresent(jj));
+                    currFig = findobj('Tag',['slowUpdatePlot',num2str(aa),'_',num2str(currentLabel)]);
+                    %bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
+                    bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
+                    ttle = sprintf('Online electrode:');
+                    title(currFig, ttle);
+                    currText = findobj('Tag',['slowPlotLabel',num2str(aa),'_',num2str(currentLabel)]);
+                    set(currText, 'string', elecToPresent(aa));
+                    %xlabel(currFig, 'time bins (sec) ');
+                    %ylabel(currFig, 'count ');
+                    ylim(currFig, [0 20]);
+                end
+            end
+        end
+        % If slowUpdateGui is close setup all slow variables and delete the Gui fig
+        if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
+            %linkdata off;
+            slowUpdateFlag = true;
+            firstUpdate = true;
+            setappdata(handles.figure1, 'slowUpdateFlag', false);
+            delete(slowUpdateGuiFig);
+            %delete(rasterGuiFig); %TODO:: add
+        end
     end
     % stoping the recording and save the data
     if getappdata(handles.figure1, 'useCBMEX') == true 

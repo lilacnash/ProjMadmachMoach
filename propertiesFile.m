@@ -14,7 +14,8 @@ classdef propertiesFile
       collectTime = 0.1
       fastUpdateFlag = true
       slowUpdateFlag = true
-      numOfRasterRows = 5
+      numOfLabelTypes = 5 %a=1,e=2,u=3,o=4,i=5
+      numOfElectrodesPerPage = 4
       numOfHistogramsToPresent = 4
       fastHistogramsTitle = 'Fast update electrode number: '
       numOfRows = 0
