@@ -1,0 +1,7 @@
+#!/bin/csh -f
+
+# Author: Ariel Tankus.
+# Created: 08.03.2018.
+
+
+stty -F /dev/ttyACM0

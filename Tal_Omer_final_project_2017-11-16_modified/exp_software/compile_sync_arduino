@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+# Author: Ariel Tankus.
+# Created: 07.03.2018
+
+gcc sync_arduino.c -o sync_arduino -lm
+gcc sync_arduino_serial.c -o sync_arduino_serial -lm
+

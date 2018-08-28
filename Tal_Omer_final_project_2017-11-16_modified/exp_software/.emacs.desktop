@@ -1,0 +1,163 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Thu Mar  8 16:13:57 2018
+;; Desktop file format version 208
+;; Emacs version 25.2.2
+
+;; Global section:
+(setq desktop-saved-frameset [frameset 1 (23201 17701 673644 702000) (desktop . "208") "arielt@phg" nil nil ((((font-backend xft x) (font . "-adobe-courier-bold-r-normal--25-180-100-100-m-150-iso8859-1") (font-parameter . "-adobe-courier-bold-r-normal--25-180-100-100-m-150-iso8859-1") (border-width . 0) (internal-border-width . 0) (right-divider-width . 0) (bottom-divider-width . 0) (vertical-scroll-bars . right) (horizontal-scroll-bars) (foreground-color . "gray80") (background-color . "black") (mouse-color . "yellow") (border-color . "black") (screen-gamma) (line-spacing) (left-fringe . 8) (right-fringe . 8) (scroll-bar-foreground) (scroll-bar-background) (menu-bar-lines . 1) (tool-bar-lines . 0) (title) (wait-for-wm . t) (tool-bar-position . top) (icon-type . t) (auto-raise) (auto-lower) (cursor-type . box) (scroll-bar-width . 16) (scroll-bar-height . 0) (alpha) (fullscreen) (display-type . color) (background-mode . dark) (cursor-color . "red") (sticky) (environment) (minibuffer . t) (frameset--id . "1AE4-2F58-1969-B579") (frameset--mini t . t) (modeline . t) (unsplittable) (icon-name) (visibility . t) (display . ":0") (explicit-name) (height . 33) (width . 80) (left . 358) (top . 19)) ((min-height . 8) (min-width . 10) (min-height-ignore . 4) (min-width-ignore . 5) (min-height-safe . 2) (min-width-safe . 2) (min-pixel-height . 184) (min-pixel-width . 150) (min-pixel-height-ignore . 92) (min-pixel-width-ignore . 75) (min-pixel-height-safe . 46) (min-pixel-width-safe . 30)) vc (pixel-width . 1232) (pixel-height . 713) (total-width . 82) (total-height . 31) (normal-height . 1.0) (normal-width . 1.0) (combination-limit) (leaf (pixel-width . 1232) (pixel-height . 368) (total-width . 82) (total-height . 16) (normal-height . 0.5) (normal-width . 1.0) (buffer "sync_arduino_serial.c" (selected . t) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 976) (start . 606))) (leaf (last . t) (pixel-width . 1232) (pixel-height . 345) (total-width . 82) (total-height . 15) (normal-height . 0.5) (normal-width . 1.0) (buffer "*compilation*" (selected) (hscroll . 0) (fringes 8 8 nil) (margins nil) (scroll-bars nil 2 t nil 0 t) (vscroll . 0) (dedicated) (point . 1) (start . 1)))))])
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring '("filenamewithdatetime" "fopen" "filenamewithdatetime" "filenamewithdatetime(const" "filenamewith" "errno" "blocking" "fprintf(fid" "fwrite" "fprintf" "write" "115200" "parity" "set_interface_attribs" "parity" "set_interface_attribs"))
+(setq regexp-search-ring nil)
+(setq register-alist (list (desktop-list* 97 (let ((mk (make-marker))) (add-hook 'desktop-delay-hook `(lambda nil (set-marker ,mk ,189 (get-buffer ,"sync_arduino.c")))) mk)) '(114 ">> " ">> " ">> " ">> " ">> " "   ")))
+(setq file-name-history '("~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/" "~/ucla/mouse_recorder_shm/mouse_recorder.c" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/compile_sync_arduino" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_arduino_serial.c" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/show_serial_params" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_arduino.c" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/" "~/ucla/mouse_recorder_shm/mouse_recorder.h" "~/ucla/mouse_recorder_shm/mouse_recorder.c" "~/ucla/sync_pulse_loop_arduino/sync_pulse_loop.c" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/write_to_ard.m" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/Send_pulse_to_ard_cfg.m" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/Send_pulse_to_ard.m" "~/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_pulse_loop.m" "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/" "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_pulse_loop_arduino.m"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_arduino_serial.c"
+  "sync_arduino_serial.c"
+  'c++-mode
+  '(auto-fill-mode abbrev-mode)
+  976
+  '(299 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (fill-column . 78))
+  '((mark-ring (7853 7836 551 7639 7472 1308 1373 1147 1126 1126 982 939 885 1308 767 6681))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/mouse_recorder_shm/mouse_recorder.c"
+  "mouse_recorder.c"
+  'c++-mode
+  '(auto-fill-mode abbrev-mode)
+  5996
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (fill-column . 78))
+  '((mark-ring (5996 4679 4679 4560 14859 1250 364 1 512 14533 1181 1 1 14486))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_arduino.c"
+  "sync_arduino.c"
+  'c++-mode
+  '(auto-fill-mode abbrev-mode)
+  3072
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (fill-column . 78))
+  '((mark-ring (2743 2930 2930 2901 2121 2092 1833 1857 1850 1833 1 2092 1996 1 2930 2930))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_pulse_loop.m"
+  "sync_pulse_loop.m"
+  'matlab-mode
+  '(auto-fill-mode)
+  1525
+  '(1455 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-dos) (fill-column . 79))
+  '((mark-ring (255 1 987 199 1 1 218))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/closeArduinoPort.m"
+  "closeArduinoPort.m"
+  'matlab-mode
+  '(auto-fill-mode)
+  359
+  '(292 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix) (fill-column . 79))
+  '((mark-ring (116 109 101 337 1 1 1 359 359 118 359))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/sync_pulse_loop_arduino/sync_pulse_loop.c"
+  "sync_pulse_loop.c"
+  'c++-mode
+  '(auto-fill-mode abbrev-mode)
+  870
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (fill-column . 78))
+  '((mark-ring (1))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/mouse_recorder_shm/mouse_recorder.h"
+  "mouse_recorder.h"
+  'c++-mode
+  '(auto-fill-mode abbrev-mode)
+  159
+  '(167 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (fill-column . 78))
+  '((mark-ring (167 1 1 1))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/write_to_ard.m"
+  "write_to_ard.m"
+  'matlab-mode
+  '(auto-fill-mode)
+  160
+  '(104 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . hebrew-iso-8bit-unix) (fill-column . 79))
+  '((mark-ring (132 200 172 104 245 104 136 132 104 160))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/Send_pulse_to_ard.m"
+  "Send_pulse_to_ard.m"
+  'matlab-mode
+  '(auto-fill-mode matlab-functions-have-end-minor-mode)
+  100
+  '(789 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-dos) (fill-column . 79))
+  '((mark-ring (1 789 42 217 56 626 593 742 732 1 769 563 323 652 412 323))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/Send_pulse_to_ard_cfg.m"
+  "Send_pulse_to_ard_cfg.m"
+  'matlab-mode
+  '(auto-fill-mode)
+  134
+  '(1 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-unix) (fill-column . 79))
+  '((mark-ring (1 1))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/openArduinoPort.m"
+  "openArduinoPort.m"
+  'matlab-mode
+  '(auto-fill-mode matlab-functions-have-end-minor-mode)
+  1114
+  '(621 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-dos) (fill-column . 79))
+  '((mark-ring (624 1 1 229 109 624 588))))
+
+(desktop-create-buffer 208
+  "/home/arielt/ucla/neuralynx/matlab/Tal_Omer_final_project_2017-11-16_modified/exp_software/sync_pulse_loop_arduino.m"
+  "sync_pulse_loop_arduino.m"
+  'matlab-mode
+  '(auto-fill-mode)
+  1325
+  '(1196 nil)
+  nil
+  nil
+  '((indent-tabs-mode) (buffer-file-coding-system . undecided-dos) (fill-column . 79))
+  '((mark-ring (1275 1269 1269 1 1066 1066 1 1 1))))
+
