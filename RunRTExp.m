@@ -5,6 +5,7 @@ function [] = RunRTExp()
     global cfg;
     
     cfg = exp_specs();
+    createExpLogFile();
     connectToParadigmComputer();
     RTExp();
    

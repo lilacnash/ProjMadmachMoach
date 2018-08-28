@@ -473,6 +473,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
          end
         delete(handles.figure1);
      end
+     closeSockets();
+     fclose(cfg.logfile);
 end
 
 % --- Executes on selection change in listboxFastPlot1.
