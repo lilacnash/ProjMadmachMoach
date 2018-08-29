@@ -28,6 +28,8 @@ function RTExp_v3_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for RTExp_v3
 handles.output = hObject;
+% Sets the GUIs position to be almost the maximum of the screen
+set(hObject, 'Position', [ 0.005, 0.09, 0.95, 0.87]);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -140,7 +142,8 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
     disp('slowUpdateButton_Callback');
     % slowUpdateGui;
     if get(handles.startExpButton, 'Value') == 1
-        setappdata(handles.figure1,'slowUpdateFlag',true);
+%         setappdata(handles.figure1,'slowUpdateFlag',true);
+        setappdata(handles.figure1,'slowUpdateFlag',false);
     else
         errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
     end
@@ -154,6 +157,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
     % propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
     
+    MAX_LEGENT_FONT_SIZE = 12;
     setappdata(handles.figure1, 'startExpButtonPressed', true);
     if getappdata(handles.figure1, 'useCBMEX') == true
         % open neuroport
@@ -189,7 +193,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
         set(currHandler, 'Callback', @popupmanueData_Callback);
         % Insert data into titles
         currHandler = findobj('Tag',['fastPlotTitle', num2str(inti)]);
-        set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti)]);
+        if propertiesFile.numOfHistogramsToPresent <= 16
+            set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti)]);
+        else
+            set(currHandler, 'String', ['Electrode: ', num2str(inti)], 'FontSize', 7);
+        end
+        
         setappdata(handles.figure1, 'listboxString', listboxString);
         elecToPresent(inti) = inti;
     end
@@ -294,8 +303,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
                             format = 'n(:,%d)';
                             barParam = sprintf(format, jj);
                             bar(currFig,xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
-                            xlabel(currFig, 'time bins (sec) ');
-                            ylabel(currFig, 'count ');
+                            if nGraphs <= 16
+                                xlabel(currFig, 'time bins (sec) ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
+                                ylabel(currFig, 'count ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
+                            end
                             ylim(currFig, [0 20]);
                         end
                         fastUpdateFlag = 0;
