@@ -17,11 +17,14 @@ function cfg = exp_specs()
     cfg.slowUpdateFlag = true;      %TODO: remove this
     cfg.fastHistNum = 4;
     cfg.fastHistogramsTitle = 'Fast update electrode number: ';
+    cfg.numOfLabelTypes = 5;        %a=1,e=2,u=3,o=4,i=5
+    cfg.numOfElectrodesPerPage = 4;
+
     
     %% TIMES
     cfg.fastUpdateTime = 0.5;
     cfg.slowUpdateTime = 1;
-    cfg.collectTime = 0.5;
+    cfg.collectTime = 0; % 0 for simulator
     
     %% RASTER PLOT VARIABLES
     cfg.numOfRasterRows = 5;
@@ -47,7 +50,7 @@ function cfg = exp_specs()
     %% DATA COMPUTER
     cfg.DATA_COMPUTER_IP = '0.0.0.0';
     cfg.DATA_COMPUTER_PORT = 4013;
-    cfg.DATA_COMPUTER_TIMEOUT = 0;      %% dont wait, just read from queue.
+    cfg.DATA_COMPUTER_TIMEOUT = 0;      % dont wait, just read from queue.
     
     %% PARADIGM COMPUTER
     cfg.useParadigm = 0;
