@@ -13,6 +13,7 @@ function cfg = specs9()
 
     cfg.TTL_PORT =0;              %% 0- no ttl    1-arduino
     cfg.LOG_PREFIX = 'beeps_recording';
+    cfg.logFileLength = 1;
     cfg.BACKGROUND = 'input/bg.jpg';           %% 'black' or image's path (for example: 'input/bg.jpg')
 
 
