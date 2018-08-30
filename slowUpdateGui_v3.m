@@ -161,4 +161,13 @@ end
 % --- Executes on button press in closeAllFilteredViewsButton.
 function closeAllFilteredViewsButton_Callback(hObject, eventdata, handles)
     disp('closeAllFilteredViewsButton_Callback');
+    delete(hObject.Parent);
+end
+
+
+% --- Executes on button press in createPlots.
+function createPlots_Callback(hObject, eventdata, handles)
+% hObject    handle to createPlots (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 end
