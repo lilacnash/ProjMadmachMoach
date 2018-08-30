@@ -143,7 +143,7 @@ function slowUpdateButton_Callback(hObject, eventdata, handles)
     % slowUpdateGui;
     if get(handles.startExpButton, 'Value') == 1
 %         setappdata(handles.figure1,'slowUpdateFlag',true);
-        setappdata(handles.figure1,'slowUpdateFlag',false);
+        setappdata(handles.figure1,'slowUpdateFlag',true);
     else
         errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
     end
@@ -245,7 +245,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.labelText, 'String', 'Started, press next to continue');
 
     dataToSaveIndex = 0;
-    trialNum = 0;
+    labelsDataIndex = 0;
+    minVal = Inf;
+    maxVal = -(Inf);
     dataToSaveForHistAndRaster = cell(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
     %summedVectorsOnCurrElec = cell(1, propertiesFile.numOfLabelTypes);
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
@@ -265,7 +267,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 else
                     [neuronTimeStamps, index, lastSample] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
                     if firstGetTimestamps == true
-                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', 0); %saves time(of first call to getAllTimestamps) as offset
                         firstGetTimestamps = false;
                     end
 %                     elecToPresent = getElecToPresentFastUpdate(get(handles.listboxFastPlot1,'Value'), length(listBox1), get(handles.listboxFastPlot2,'Value'), length(listBox2), get(handles.listboxFastPlot3,'Value'), length(listBox3), get(handles.listboxFastPlot4,'Value'), length(listBox4)); %ask which neurons to present in fast update
@@ -306,18 +308,20 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 end
             end
         end
-                dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
+        dataToSave(dataToSaveIndex+1:dataToSaveIndex+length(neuronTimeStamps(:,1)),1:length(neuronTimeStamps(1,:))) = neuronTimeStamps;
         dataToSaveIndex = length(dataToSave(:,1));
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         newLabelAndBipTimeMatrix = {'a', 0.01;
                                     'e', 1.02;
-                                    'u', 2.03;
+                                    'u', 5.03;
                                     'o', 3.04;
                                     'i', 4.50}; %TODO::call Guy's func instead:
         %newLabelAndBipTimeMatrix = callGuy'sFunc();
         %if newLabelAndBipTimeMatrix == 0
         %    continue;
         %end
+        labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)),1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
+        labelsDataIndex = length(labelsData(:,1));
         newTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
         for ii = 1:size(newLabelAndBipTimeMatrix,1)
             letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
@@ -327,116 +331,41 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     currentLabel = 1;
                 case 'e'
                     currentLabel = 2;
-                case 'u' %TODO:: a e i o u (change order i=3,u=5)
+                case 'i'
                     currentLabel = 3;
                 case 'o'
                     currentLabel = 4;
-                case 'i'
+                case 'u'
                     currentLabel = 5;
             end
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             newTrialsPerLabel(currentLabel) = newTrialsPerLabel(currentLabel) + 1;
             %save relevant timestamps from new trials
             for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
-                %currentElecTimestampsVector = dataToSave(:,ee) - myOffset; %in order to compare to normalized currentBipTime
                 currentElecTimestampsVector = dataToSave(:,ee);
                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
-                numOfRelevant = length(relevantTimestamps);
-                padding = ((propertiesFile.numOfTrials - numOfRelevant)/2);
-                tmpToSave = padarray(relevantTimestamps,floor(padding),'pre');
-                finalToSave = padarray(tmpToSave,ceil(padding),'post');
-                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = finalToSave;
-            end
-        end %finished going over Guy'sNewMatrix
-            if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
-                %slowUpdateGuiFig = slowUpdateGui;
-                slowUpdateGuiFig = slowUpdateGui2;
-                slowUpdateGuiFig.UserData.closeFlag = false;
-                setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
-                firstUpdate = false;
-                slowUpdateFlag = true;
-            end
-            if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
-                slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
-                %elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/10,1)*10+1); %ask which neurons to present in fast update
-                elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/4,1)*4+1); %4 per page for now
-                %nGraphs = numberOfHistograms; %number of electrodes to present
-                nBins = propertiesFile.numOfBins; %number of bins for histogram
-                %data = neuronTimeStamps;
-                if(slowUpdateFlag)
-                    for ll = 1:propertiesFile.numOfLabelTypes
-                        if newTrialsPerLabel(ll) > 0
-                                %
-                                for aa = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
-                        %NaN(size(dataToSaveForHistAndRaster{1,1}),1); %200 instead of size(dataToSaveForHistAndRaster{1,1})
-                        %create raster for electrode aa
-                        currFig = findobj('Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
-                        for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)
-                            currVector = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + rr};
-                            
-                            %plot a row for every 'a' trial until now (be4 or after summing?)
-                            for nn = 1:length(currVector)
-                                hold(currFig, 'on');
-                                plot(currFig, [currVector(nn) currVector(nn)], [rr-0.1 rr+0.1], 'Color', 'k');
-                                %hold on;
-                            end
-                        end
-                        %ttle = sprintf('Raster Plot: %d', rr);
-                        ttle = sprintf('Raster Plot: %d_%d', aa, ll);
-                        title(currFig, ttle);
-                        %ylim(currFig, [0 3]);
-                        xlim(currFig, [-5 5]);
-                        xticks([0]);
-                        xticklabels(currFig, {'BEEP_SOUND'});
-                        format = '%s trials';
-                        switch (ll)
-                            case 1
-                                vowelToDisp = 'a';
-                            case 2
-                                vowelToDisp = 'e';
-                            case 3
-                                vowelToDisp = 'u';
-                            case 4
-                                vowelToDisp = 'o';
-                            case 5
-                                vowelToDisp = 'i';
-                        end
-                        txtForY = sprintf(format, vowelToDisp);
-                        %ylabel(currFig, txtForY);
-                        yticks(currFig, [2]);
-                        yticklabels(currFig, {txtForY});
-                        slowUpdateFlag = 0;
-                    
-                        %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
-                        for hh = 1:numOfTrialsPerLabel(ll)
-                            vectorToAdd = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + hh};
-                            if hh == 1
-                                summedVector = vectorToAdd;
-                            else
-                                summedVector = summedVector + vectorToAdd;
-                            end
-                        end
-                        [nSlow,xoutSlow] = hist(summedVector,nBins);
-                        %[nSlow,xoutSlow] = hist(data,nBins);
-                        nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
-                        %format = 'nSlow(:,%d)';
-                        %barParam = sprintf(format, elecToPresent(jj));
-                        currFig = findobj('Tag',['slowUpdatePlot',num2str(aa),'_',num2str(ll)]);
-                        %bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
-                        bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
-                        ttle = sprintf('Online electrode:');
-                        title(currFig, ttle);
-                        currText = findobj('Tag',['slowPlotLabel',num2str(aa),'_',num2str(ll)]);
-                        set(currText, 'string', elecToPresent(aa));
-                        %xlabel(currFig, 'time bins (sec) ');
-                        %ylabel(currFig, 'count ');
-                        ylim(currFig, [0 20]);
-                    end
-                        end
-                    end
+                if min(relevantTimestamps) < minVal
+                    minVal = min(relevantTimestamps);
                 end
+                if max(relevantTimestamps) > maxVal
+                    maxVal = max(relevantTimestamps);
+                end
+                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = relevantTimestamps;
             end
+        end
+        if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
+            %slowUpdateGuiFig = slowUpdateGui;
+            slowUpdateGuiFig = slowUpdateGui2;
+            slowUpdateGuiFig.UserData.closeFlag = false;
+            setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
+            firstUpdate = false;
+            slowUpdateFlag = true;
+        end
+        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
+            slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
+            createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
+        end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig
         if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
             %linkdata off;
@@ -450,6 +379,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'useCBMEX') == true 
         cbmex('close');
     end
+    %TODO::save labelsData as well
     if ~(isempty(dataToSave))
         currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
         if ~(exist('output', 'Dir') > 0)
