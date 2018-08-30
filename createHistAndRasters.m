@@ -1,6 +1,8 @@
-function ret = createHistAndRasters(slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster)
+function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster)
      elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/4,1)*4+1); %4 per page for now
-     nBins = propertiesFile.numOfBins;
+     %nBins = propertiesFile.numOfBins;
+     sizeOfBins = (maxVal-minVal)/10;
+     xBins = [minVal:sizeOfBins:maxVal];
      if(slowUpdateFlag)
          for ll = 1:propertiesFile.numOfLabelTypes
              if newTrialsPerLabel(ll) > 0
@@ -9,18 +11,18 @@ function ret = createHistAndRasters(slowUpdateFlag, newTrialsPerLabel, numOfTria
                      for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)
                          currVector = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + rr};
                          for nn = 1:length(currVector)
-                             %hold(currFig, 'on');
+                             hold(currFig, 'on');
                              plot(currFig, [currVector(nn) currVector(nn)], [rr-0.1 rr+0.1], 'Color', 'k');
-                             hold on;
+                             %hold on;
                          end
                      end
                      %ttle = sprintf('Raster Plot: %d', rr);
-                     ttle = sprintf('Raster Plot: %d_%d', aa, ll);
-                     title(currFig, ttle);
+%                      ttle = sprintf('Raster Plot: %d_%d', aa, ll);
+%                      title(currFig, ttle);
                      %ylim(currFig, [0 3]);
                      xlim(currFig, [-5 5]);
                      xticks([0]);
-                     xticklabels(currFig, {'BEEP_SOUND'});
+%                      xticklabels(currFig, {'BEEP_SOUND'});
                      format = '%s trials';
                      switch (ll)
                          case 1
@@ -39,17 +41,16 @@ function ret = createHistAndRasters(slowUpdateFlag, newTrialsPerLabel, numOfTria
                      yticks(currFig, [2]);
                      yticklabels(currFig, {txtForY});
                      slowUpdateFlag = 0;
-
                      %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                      for hh = 1:numOfTrialsPerLabel(ll)
                          vectorToAdd = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + hh};
                          if hh == 1
-                             summedVector = vectorToAdd;
+                             allVectors = vectorToAdd;
                          else
-                             summedVector = summedVector + vectorToAdd;
+                             allVectors = [allVectors; vectorToAdd];
                          end
                      end
-                     [nSlow,xoutSlow] = hist(summedVector,nBins);
+                     [nSlow,xoutSlow] = hist(allVectors,xBins);
                      nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
                      %format = 'nSlow(:,%d)';
                      %barParam = sprintf(format, elecToPresent(jj));

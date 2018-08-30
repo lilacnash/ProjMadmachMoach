@@ -245,7 +245,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.labelText, 'String', 'Started, press next to continue');
 
     dataToSaveIndex = 0;
-    trialNum = 0;
+    labelsDataIndex = 0;
+    minVal = Inf;
+    maxVal = -(Inf);
     dataToSaveForHistAndRaster = cell(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
     %summedVectorsOnCurrElec = cell(1, propertiesFile.numOfLabelTypes);
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
@@ -311,13 +313,15 @@ function startExpButton_Callback(hObject, eventdata, handles)
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         newLabelAndBipTimeMatrix = {'a', 0.01;
                                     'e', 1.02;
-                                    'u', 2.03;
+                                    'u', 5.03;
                                     'o', 3.04;
                                     'i', 4.50}; %TODO::call Guy's func instead:
         %newLabelAndBipTimeMatrix = callGuy'sFunc();
         %if newLabelAndBipTimeMatrix == 0
         %    continue;
         %end
+        labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)),1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
+        labelsDataIndex = length(labelsData(:,1));
         newTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
         for ii = 1:size(newLabelAndBipTimeMatrix,1)
             letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
@@ -327,28 +331,29 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     currentLabel = 1;
                 case 'e'
                     currentLabel = 2;
-                case 'u' %TODO:: a e i o u (change order i=3,u=5)
+                case 'i'
                     currentLabel = 3;
                 case 'o'
                     currentLabel = 4;
-                case 'i'
+                case 'u'
                     currentLabel = 5;
             end
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             newTrialsPerLabel(currentLabel) = newTrialsPerLabel(currentLabel) + 1;
             %save relevant timestamps from new trials
             for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
-                %currentElecTimestampsVector = dataToSave(:,ee) - myOffset; %in order to compare to normalized currentBipTime
                 currentElecTimestampsVector = dataToSave(:,ee);
                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
-                numOfRelevant = length(relevantTimestamps);
-                padding = ((propertiesFile.numOfTrials - numOfRelevant)/2);
-                tmpToSave = padarray(relevantTimestamps,floor(padding),'pre');
-                finalToSave = padarray(tmpToSave,ceil(padding),'post');
-                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = finalToSave;
+                if min(relevantTimestamps) < minVal
+                    minVal = min(relevantTimestamps);
+                end
+                if max(relevantTimestamps) > maxVal
+                    maxVal = max(relevantTimestamps);
+                end
+                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = relevantTimestamps;
             end
-        end %finished going over Guy'sNewMatrix
+        end
         if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
             %slowUpdateGuiFig = slowUpdateGui;
             slowUpdateGuiFig = slowUpdateGui2;
@@ -359,7 +364,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
             slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
-            createHistAndRasters(slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
+            createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig
         if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
@@ -374,6 +379,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'useCBMEX') == true 
         cbmex('close');
     end
+    %TODO::save labelsData as well
     if ~(isempty(dataToSave))
         currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
         if ~(exist('output', 'Dir') > 0)
