@@ -33,7 +33,7 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     % uiwait(handles.figure1);
     
     % Global Variables
-    currPage = [1:4];
+    currPage = [1:propertiesFile.numOfElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
     setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
 
@@ -52,13 +52,13 @@ end
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
     currChoise = get(hObject, 'Value')+1;
-    if currChoise > propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage
-        currChoise = propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage;
+    if currChoise > ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage)
+        currChoise = ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage);
     end
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
     selected = getappdata(currGui, 'selected');
-    for inti = 1:4
+    for inti = 1:propertiesFile.numOfElectrodesPerPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
         set(currText, 'string', ['Elec: ',num2str(newElecNum)]);
@@ -155,7 +155,8 @@ end
 function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
     elec = (getappdata(hObject.Parent, 'selected'));
-    find(elec == 1)
+    numOfElecs = find(elec==1)';
+    filterView_v1('UserData', numOfElecs);
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
@@ -170,5 +171,4 @@ function createPlots_Callback(hObject, eventdata, handles)
     % hObject    handle to createPlots (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
-    createHistAndRasters(
 end
