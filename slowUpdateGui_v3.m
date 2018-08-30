@@ -31,6 +31,12 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
 
     % UIWAIT makes slowUpdateGui_v3 wait for user response (see UIRESUME)
     % uiwait(handles.figure1);
+    
+    % Global Variables
+    currPage = [1:4];
+    setappdata(hObject, 'currPageElecs', currPage);
+    setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
+
 end
 
 
@@ -45,20 +51,35 @@ end
 % --- Executes on slider movement.
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
-    currChoise = round(get(hObject, 'Value')/10,1)*10+1;
+    currChoise = get(hObject, 'Value')+1;
+    if currChoise > propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage
+        currChoise = propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage;
+    end
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
-    for inti = 1:10
-        currText = findobj('Tag',['slowPlotLabel',num2str(inti)]);
-        set(currText, 'string', ((currChoise-1)*10)+inti);
+    currGui = hObject.Parent;
+    selected = getappdata(currGui, 'selected');
+    for inti = 1:4
+        currText = findobj('Tag',['elec',num2str(inti),'Label']);
+        newElecNum = ((currChoise-1)*4)+inti;
+        set(currText, 'string', ['Elec: ',num2str(newElecNum)]);
+        currPage(inti) = newElecNum;
+        currPageSelection(inti) = selected(newElecNum);
+    end
+    setappdata(currGui, 'currPageElecs', currPage);
+    for inti = 1:propertiesFile.numOfElectrodesPerPage
+        currCheckbox = findobj('Tag', ['checkbox', num2str(inti)]);
+        set(currCheckbox, 'Value', currPageSelection(inti));
     end
 end
+
 % --- Executes during object creation, after setting all properties.
 function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_CreateFcn');
     if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor',[.9 .9 .9]);
     end
-    set(hObject, 'Max', 9, 'Min', 0);
+    set(hObject, 'Max', ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
+    set(hObject, 'SliderStep', [1/get(hObject, 'Max'), 1/get(hObject, 'Max')*5])
 end
 
 
@@ -89,26 +110,52 @@ end
 % --- Executes on button press in checkbox1.
 function checkbox1_Callback(hObject, eventdata, handles)
     disp('checkbox1_Callback');
+    currGui = hObject.Parent;
+    selected = getappdata(currGui, 'selected');
+    currPage = getappdata(currGui, 'currPageElecs');
+    currSelection = currPage(1);
+    selected(currSelection) = xor(selected(currSelection), 1);
+    setappdata(currGui, 'selected', selected);
 end
 
 % --- Executes on button press in checkbox2.
 function checkbox2_Callback(hObject, eventdata, handles)
     disp('checkbox2_Callback');
+    currGui = hObject.Parent;
+    selected = getappdata(currGui, 'selected');
+    currPage = getappdata(currGui, 'currPageElecs');
+    currSelection = currPage(2);
+    selected(currSelection) = xor(selected(currSelection), 1);
+    setappdata(currGui, 'selected', selected);
 end
 
 % --- Executes on button press in checkbox3.
 function checkbox3_Callback(hObject, eventdata, handles)
     disp('checkbox3_Callback');
+    currGui = hObject.Parent;
+    selected = getappdata(currGui, 'selected');
+    currPage = getappdata(currGui, 'currPageElecs');
+    currSelection = currPage(3);
+    selected(currSelection) = xor(selected(currSelection), 1);
+    setappdata(currGui, 'selected', selected);
 end
 
 % --- Executes on button press in checkbox4.
 function checkbox4_Callback(hObject, eventdata, handles)
     disp('checkbox4_Callback');
+    currGui = hObject.Parent;
+    selected = getappdata(currGui, 'selected');
+    currPage = getappdata(currGui, 'currPageElecs');
+    currSelection = currPage(4);
+    selected(currSelection) = xor(selected(currSelection), 1);
+    setappdata(currGui, 'selected', selected);
 end
 
 % --- Executes on button press in viewSelectedButton.
 function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
+    elec = (getappdata(hObject.Parent, 'selected'));
+    find(elec == 1)
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
