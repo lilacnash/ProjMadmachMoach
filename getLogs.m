@@ -8,6 +8,11 @@ function logArray = getLogs()
     %% read response
     response = fread(cfg.server_data_socket);
     
+    if(strcmp(response, '0'))
+        logArray = 0;
+        return;
+    end
+    
     %% convert response to cell array
     logArray = convertResponseToCellArray(response);
 

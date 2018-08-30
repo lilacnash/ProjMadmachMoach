@@ -27,6 +27,12 @@ function [] = PlayBeeps(cfg,beepIndex)
     waitForDeviceStart = 0;
     
     %% play beeps
+    if(~strcmp(cfg.currentSyllable, '0'))
+            syllable = cfg.currentSyllable;
+    else
+            syllable = getSyllableFromTask();
+    end
+    
     for i = 1:beepsNum
         curBeep = MakeBeep(freqArray(i),LengthArray(i),cfg.BEEP_SAMPLE_RATE);
         % Fill the audio playback buffer with the audio data, doubled for stereo
@@ -36,14 +42,16 @@ function [] = PlayBeeps(cfg,beepIndex)
         %PsychPortAudio('FillBuffer', pahandle, './beep-07.wav');
         % Start audio playback
         %StartTime = PsychPortAudio('Start', cfg.pahandle,1, startCue, 1);
-        StartTime = 7;
-        fprintf(cfg.logfile,'$%f$ EVENT: AUDIO_BEEP %d\n',StartTime,i);
+        StartTime = 7; %TODO: delete
+        
+        fprintf(cfg.logfile,'$%f$ EVENT: AUDIO_BEEP %d, SYLLABLE: *%c* \n', StartTime, i, syllable);
         if beepsNum > 1 && i < beepsNum     % wait only between 2 beeps
             %mouse_recorder_and_wait(cfg,PauseTimesArray(i)+LengthArray(i));
         end
     end
         
     fprintf(cfg.logfile,'%f EVENT: AUDIO_FINISHED\n',GetSecs);
+    cfg.currentSyllable = '0';
     PsychPortAudio('Stop', cfg.pahandle, 1, 1);
 
 % Close the audio device

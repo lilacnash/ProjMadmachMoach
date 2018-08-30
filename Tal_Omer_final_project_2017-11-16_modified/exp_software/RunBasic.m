@@ -22,7 +22,7 @@ function RunBasic()
     %% initilize keyboard queue
     KbName('UnifyKeyNames');
     keysOfInterest=zeros(1,256);
-	keysOfInterest(KbName({'q', 'space', 'backspace','1!','2@','3#','4$','5%','6^','7&','8*','9('}))=1;
+	keysOfInterest(KbName({'q', 'space', 'backspace','1!','2@','3#','4$','5%','6^','7&','8*','9(','a','e','i','o','u'}))=1;
 	KbQueueCreate(-1, keysOfInterest);
 	KbQueueStart;
     
