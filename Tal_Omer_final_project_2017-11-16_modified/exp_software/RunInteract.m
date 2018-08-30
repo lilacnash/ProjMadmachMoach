@@ -5,6 +5,7 @@ function [] = RunInteract()
     global cfg;
     
     cfg = specs9();          %% madmoach project
+    openAudioPort();
     RunBasic();
    
 
