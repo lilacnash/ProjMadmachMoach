@@ -33,7 +33,8 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     % uiwait(handles.figure1);
     
     % Global Variables
-    selected = get(hObject, 'UserData');
+    UserData = get(hObject, 'UserData');
+    selected = UserData.numOfElec;
     setappdata(hObject, 'selected', selected);
     for inti = 1:length(selected)
         set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti))]);
@@ -49,6 +50,9 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     numOfFilteredElec = length(selected);
     set(handles.sliderForSlowUpdate, 'Max', ceil(numOfFilteredElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
     set(handles.sliderForSlowUpdate, 'SliderStep', [1/get(handles.sliderForSlowUpdate, 'Max'), 1/get(handles.sliderForSlowUpdate, 'Max')*5])
+    setappdata(hObject.Parent, 'histograms', []);
+    createPlotsFunc = findall(hObject,'Tag', 'createPlots');
+    createPlotsFunc.Callback(createPlotsFunc, eventdata);
 end
 
 
@@ -122,4 +126,15 @@ function createPlots_Callback(hObject, eventdata, handles)
     % hObject    handle to createPlots (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
+    parameters = hObject.Parent.UserData;
+    histograms = getappdata(hObject.Parent, 'histograms');
+    if isempty(histograms) 
+        for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
+            for labelsIndex = 1:propertiesFile.numOfLabelTypes
+                histograms{electrodeIndex, labelsIndex} = findobj('Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+            end
+        end
+        setappdata(hObject.Parent, 'histograms', histograms);
+    end
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms);
 end

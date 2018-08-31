@@ -36,8 +36,8 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     currPage = [1:propertiesFile.numOfElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
     setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
-    setappdata(hObject.Parent, 'histograms', []);
-
+    setappdata(hObject, 'histograms', []);
+    setappdata(hObject, 'currFilterIndex', 0);
 end
 
 
@@ -157,7 +157,13 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
     elec = (getappdata(hObject.Parent, 'selected'));
     numOfElecs = find(elec==1)';
-    filterView_v1('UserData', numOfElecs);
+    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
+    currFilterIndex = currFilterIndex + 1;
+    setappdata(hObject.Parent, 'currFilterIndex', currFilterIndex);
+    UserData = get(hObject.Parent, 'UserData');
+    UserData.numOfElecs = numOfElecs;
+    UserData.filterNum = currFilterIndex;
+    filterView_v1('UserData', UserData);
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
