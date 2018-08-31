@@ -20,10 +20,10 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
 %                      ttle = sprintf('Raster Plot: %d_%d', aa, ll);
 %                      title(currFig, ttle);
                      %ylim(currFig, [0 3]);
-                     xlim(currFig, [-5 5]);
+                     xlim(currFig, [minVal maxVal]);
                      xticks([0]);
 %                      xticklabels(currFig, {'BEEP_SOUND'});
-                     format = '%s trials';
+%                      format = '%s trials';
                      switch (ll)
                          case 1
                              vowelToDisp = 'a';
@@ -36,11 +36,10 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                          case 5
                              vowelToDisp = 'u';
                      end
-                     txtForY = sprintf(format, vowelToDisp);
-                     %ylabel(currFig, txtForY);
-                     yticks(currFig, [2]);
-                     yticklabels(currFig, {txtForY});
-                     slowUpdateFlag = 0;
+%                      txtForY = sprintf(format, vowelToDisp);
+%                      %ylabel(currFig, txtForY);
+%                      yticks(currFig, [2]);
+%                      yticklabels(currFig, {txtForY});
                      %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                      for hh = 1:numOfTrialsPerLabel(ll)
                          vectorToAdd = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + hh};
@@ -57,13 +56,17 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                      currFig = findobj('Tag',['slowUpdatePlot',num2str(aa),'_',num2str(ll)]);
                      %bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
                      bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
-                     ttle = sprintf('Online electrode:');
-                     title(currFig, ttle);
-                     currText = findobj('Tag',['slowPlotLabel',num2str(aa),'_',num2str(ll)]);
-                     set(currText, 'string', elecToPresent(aa));
-                     %xlabel(currFig, 'time bins (sec) ');
-                     %ylabel(currFig, 'count ');
-                     ylim(currFig, [0 20]);
+%                      ttle = sprintf('Online electrode:');
+%                      title(currFig, ttle);
+%                      currText = findobj('Tag',['slowPlotLabel',num2str(aa),'_',num2str(ll)]);
+%                      set(currText, 'string', elecToPresent(aa));
+%                      if aa == propertiesFile.numOfElectrodesPerPage
+%                         xlabel(currFig, 'time bins (sec) ');
+%                      end
+%                      if ll == 1
+%                         ylabel(currFig, 'count ');
+%                      end
+                     ylim(currFig, [0 sizeOfBins*400]);
                  end
              end
          end
