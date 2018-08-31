@@ -2,7 +2,7 @@ classdef propertiesFile
    %all but the last one are permanent properties (set before the experiment and do not change)
    %properties (SetAccess = private)
    properties (Constant)
-      numOfElec = 200
+      numOfElec = 80
       numOfTrials = 200
       numOfBins = 10
       numOfStamps = 100 %number of time stamps to save from electrode

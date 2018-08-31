@@ -1,5 +1,5 @@
-function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms)
-     elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/4,1)*4+1); %4 per page for now
+function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui)
+     elecToPresent = getappdata(findall(0,'Name', 'slowUpdateGui_v3'),'currPageElecs');
      %nBins = propertiesFile.numOfBins;
      sizeOfBins = (maxVal-minVal)/10;
      xBins = [minVal:sizeOfBins:maxVal];
@@ -7,11 +7,11 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
          for ll = 1:propertiesFile.numOfLabelTypes
              if newTrialsPerLabel(ll) > 0
                  for aa = 1:propertiesFile.numOfElectrodesPerPage
-                     currFig = findobj('Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
+                     currFig = findall(currGui, 'Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
                      %next for to parfor
                      for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)
                          hold(currFig, 'on');
-                         currVector = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + rr};
+                         currVector = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + rr};
                          if ~isempty(currVector)
                              yVec = rr + zeros(length(currVector),1);
                              scatter(currFig, currVector, yVec, 1, 'k');
@@ -23,7 +23,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                      
                      %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                      for hh = 1:numOfTrialsPerLabel(ll)
-                         vectorToAdd = dataToSaveForHistAndRaster{aa,(ll-1)*propertiesFile.numOfTrials + hh};
+                         vectorToAdd = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + hh};
                          if hh == 1
                              allVectors = vectorToAdd;
                          else

@@ -342,9 +342,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             newTrialsPerLabel(currentLabel) = newTrialsPerLabel(currentLabel) + 1;
             %save relevant timestamps from new trials
-            for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
+            for ee = 1:propertiesFile.numOfElec % 4 for now
 %                 currentElecTimestampsVector = dataToSave(:,ee);
-                relevantTimestamps = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
+%                 relevantTimestamps = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
 %                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
 %                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
 %                 if min(relevantTimestamps) < minVal
@@ -353,7 +353,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
 %                 if max(relevantTimestamps) > maxVal
 %                     maxVal = max(relevantTimestamps);
 %                 end
-                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = relevantTimestamps;
+                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
             end
         end
         stamIndex = stamIndex + randn(1);
@@ -373,7 +373,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             slowUpdateGuiFig.UserData.newTrialsPerLabel = newTrialsPerLabel;
             slowUpdateGuiFig.UserData.numOfTrialsPerLabel = numOfTrialsPerLabel;
             slowUpdateGuiFig.UserData.dataToSaveForHistAndRaster = dataToSaveForHistAndRaster;
-            createPlotsFunc = findobj('Tag', 'createPlots');
+            createPlotsFunc = findall(slowGuiObject,'Tag', 'createPlots');
             createPlotsFunc.Callback(createPlotsFunc, eventdata);
 %             createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
