@@ -20,6 +20,8 @@ classdef propertiesFile
       fastHistogramsTitle = 'Fast update electrode number: '
       numOfRows = 0
       numOfCols = 0
+      postBipTime = 0.2
+      preBipTime = 0.2
 
       
       %Data store configurations
