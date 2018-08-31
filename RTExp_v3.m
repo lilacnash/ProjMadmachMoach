@@ -246,6 +246,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
     dataToSaveIndex = 0;
     labelsDataIndex = 0;
+%    maxLengthVector = 0;
 %     minVal = Inf;
 %     maxVal = -(Inf);
     dataToSaveForHistAndRaster = cell(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
@@ -344,6 +345,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
             for ee = 1:propertiesFile.numOfElectrodesPerPage % 4 for now
 %                 currentElecTimestampsVector = dataToSave(:,ee);
                 relevantTimestamps = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
+%                 numOfRelevant = length(relevantTimestamps);
+%                 if numOfRelevant > maxLengthVector
+%                     maxLengthVector = numOfRelevant;
+%                 end
 %                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
 %                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
 %                 if min(relevantTimestamps) < minVal
