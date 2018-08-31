@@ -29,7 +29,7 @@ function TaskManager(pressedCode,time)
        %% start the next
        cfg.cur_task = cfg.cur_task + 1;
        fprintf(cfg.logfile,'%f EVENT: %s START\n',GetSecs,char(cfg.tasks_array(cfg.cur_task)));
-       UpdateScreen(cfg,0,0);
+       %UpdateScreen(cfg,0,0);
        return;
         
     end
@@ -50,16 +50,22 @@ function TaskManager(pressedCode,time)
         return;
         
     end
-       
+    
+    if (sum(strcmp(cfg.syllables, pressedCode)))
+        cfg.currentSyllable = pressedCode;
+        return;
+    end
     
     pressedCode = str2num(pressedCode(1));      %% convert pressed code to number
     if ~cfg.VISUAL_MODE
         if pressedCode > 0 & pressedCode < 10   %%key pressed: 1,2,3,4,5,6,7,8,9 for beeps configutations
 %            pressedCode = pressedCode - 48;
-           fprintf(cfg.logfile,'%f Event: KEY_PRESS %d Go\n',time,pressedCode);
+           fprintf(cfg.logfile,'%f Event: KEY_PRESS %d Go\n',time);
            PlayBeeps(cfg,pressedCode);
+           cfg.currentSyllable = '0';
            return;
         end
+        
     elseif cfg.VISUAL_MODE
         if pressedCode > 0 & pressedCode < 3   %%key pressed: 1 or 2
 %            pressedCode = pressedCode - 48;

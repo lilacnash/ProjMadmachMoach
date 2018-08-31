@@ -4,7 +4,7 @@ function cfg = specs9()
     cfg.centeroutMode = false;
     cfg.gonogoMode = false;          
     cfg.BRAIN_CONTROL = false;
-    cfg.CONNECT_TO_DATA_COMPUTER = true;
+    cfg.CONNECT_TO_DATA_COMPUTER = false;
 
     % for non-center out operation mode:
     cfg.TASKS_FILE_PATH = 'input/tasks.txt';
@@ -89,6 +89,7 @@ function cfg = specs9()
 
     %% beeps config:
     %general settings:
+    cfg.SYLLABLE_CHOOSE = 1;
     cfg.BEEP_SAMPLE_RATE = 48000;
     cfg.BEEP_NUM_CHANNELS = 2;
 
@@ -171,6 +172,8 @@ function cfg = specs9()
     cfg.BRAIN_CONTROL_U = 'U';
     cfg.BRAIN_CONTROL_I = 'I';
     cfg.BRAIN_CONTROL_O = 'O';
+    cfg.syllables = {'a','e','i','o','u'};
+    cfg.currentSyllable = '0';
 
 
 end

@@ -29,7 +29,7 @@ function RunBasic()
     %%
     fprintf(cfg.logfile,'%f EVENT: %s START\n',GetSecs,char(cfg.tasks_array(1)));
     %UpdateScreen(cfg,0,0);
-    while true
+a    while true
         
         [pressed, firstPress]=KbQueueCheck;
         %% pressed a button

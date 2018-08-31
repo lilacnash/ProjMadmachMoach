@@ -50,6 +50,7 @@ function [] = PlayBeeps(cfg,beepIndex)
     end
         
     fprintf(cfg.logfile,'%f EVENT: AUDIO_FINISHED\n',GetSecs);
+    cfg.currentSyllable = '0';
     PsychPortAudio('Stop', cfg.pahandle, 1, 1);
 
 % Close the audio device
