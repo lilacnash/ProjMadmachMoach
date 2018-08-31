@@ -1,4 +1,4 @@
-function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster)
+function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms)
      elecToPresent = getElecToPresentSlowUpdate(round(get(findobj('Tag','sliderForSlowUpdate'),'Value')/4,1)*4+1); %4 per page for now
      %nBins = propertiesFile.numOfBins;
      sizeOfBins = (maxVal-minVal)/10;
@@ -34,9 +34,10 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                      nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
                      %format = 'nSlow(:,%d)';
                      %barParam = sprintf(format, elecToPresent(jj));
-                     currFig = findobj('Tag',['slowUpdatePlot',num2str(aa),'_',num2str(ll)]);
+%                      currFig = findobj('Tag',['slowPlot',num2str(aa),'_',num2str(ll)]);
+                     currFig = histograms{aa,ll};
                      %bar(currFig,xoutSlow,nSlow(:,jj),'YDataSource',barParam, 'XDataSource', 'xoutSlow');
- %                    bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
+                     bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
 %                      ttle = sprintf('Online electrode:');
 %                      title(currFig, ttle);
 %                      currText = findobj('Tag',['slowPlotLabel',num2str(aa),'_',num2str(ll)]);

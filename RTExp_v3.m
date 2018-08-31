@@ -299,7 +299,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     end
                     %turn on datalinking
                     if ishandle(handles.figure1)
-                        linkdata on
+                        linkdata(handles.figure1, 'on');
                         [n,xout] = hist(data,nBins);
                         refreshdata(handles.figure1,'caller');
                         collect_time = et_col + propertiesFile.collectTime;
@@ -371,7 +371,15 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
             slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
-            createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
+            slowUpdateGuiFig.UserData.preBipTime = propertiesFile.preBipTime;
+            slowUpdateGuiFig.UserData.postBipTime = propertiesFile.postBipTime;
+            slowUpdateGuiFig.UserData.slowUpdateFlag = slowUpdateFlag;
+            slowUpdateGuiFig.UserData.newTrialsPerLabel = newTrialsPerLabel;
+            slowUpdateGuiFig.UserData.numOfTrialsPerLabel = numOfTrialsPerLabel;
+            slowUpdateGuiFig.UserData.dataToSaveForHistAndRaster = dataToSaveForHistAndRaster;
+            createPlotsFunc = findobj('Tag', 'createPlots');
+            createPlotsFunc.Callback(createPlotsFunc, eventdata);
+%             createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig
         if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true

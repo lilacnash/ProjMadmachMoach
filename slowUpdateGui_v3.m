@@ -36,6 +36,7 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     currPage = [1:propertiesFile.numOfElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
     setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
+    setappdata(hObject.Parent, 'histograms', []);
 
 end
 
@@ -171,4 +172,15 @@ function createPlots_Callback(hObject, eventdata, handles)
     % hObject    handle to createPlots (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
+    parameters = hObject.Parent.UserData;
+    histograms = getappdata(hObject.Parent, 'histograms');
+    if isempty(histograms) 
+        for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
+            for labelsIndex = 1:propertiesFile.numOfLabelTypes
+                histograms{electrodeIndex, labelsIndex} = findobj('Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+            end
+        end
+        setappdata(hObject.Parent, 'histograms', histograms);
+    end
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms);
 end
