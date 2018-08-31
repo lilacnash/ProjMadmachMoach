@@ -9,8 +9,11 @@ function CloseAll(time)
     
     KbQueueRelease;
     fclose(cfg.logfile);
-    fclose(cfg.client_data_socket);
-    fclose(cfg.server_data_socket);
+    
+    if(cfg.CONNECT_TO_DATA_COMPUTER)
+        fclose(cfg.client_data_socket);
+        fclose(cfg.server_data_socket);
+    end
     close all;
     clear all;
 end
