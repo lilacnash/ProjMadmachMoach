@@ -4,7 +4,7 @@ function cfg = specs9()
     cfg.centeroutMode = false;
     cfg.gonogoMode = false;          
     cfg.BRAIN_CONTROL = false;
-    cfg.CONNECT_TO_DATA_COMPUTER = false;
+    cfg.CONNECT_TO_DATA_COMPUTER = true;
 
     % for non-center out operation mode:
     cfg.TASKS_FILE_PATH = 'input/tasks.txt';
@@ -152,13 +152,13 @@ function cfg = specs9()
     cfg.BRAIN_CONTROL_TIMEOUT = 0;   %% dont wait, just read from queue
     
     %% DATA COMPUTER
-    cfg.DATA_COMPUTER_IP = '0.0.0.0';
+    cfg.DATA_COMPUTER_IP = 'localhost';
     cfg.DATA_COMPUTER_PORT = 4013;
     cfg.DATA_COMPUTER_TIMEOUT = 0;   %% dont wait, just read from queue
     
     %% PARADIGM COMPUTER
     cfg.PARADIGM_COMPUTER_IP = 'localhost';
-    cfg.PARADIGM_COMPUTER_PORT = 3000;
+    cfg.PARADIGM_COMPUTER_PORT = 3012;
 
     % for cursor
     cfg.BRAIN_CONTROL_DELTA_XY = 20;

@@ -221,7 +221,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===============TRAINING====================
     %===========================================
     collect_time = 0; %propertiesFile.collectTime;
-    slow_update_time = propertiesFile.slowUpdateTime;
     index = ones(propertiesFile.numOfElec, 1);
     neuronTimeStamps = NaN(propertiesFile.numOfStamps, propertiesFile.numOfElec);
     dataToSave = NaN(1, propertiesFile.numOfElec);
@@ -241,11 +240,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.labelText, 'String', 'Started, press next to continue');
 
     labelsDataIndex = 0;
-%    maxLengthVector = 0;
-%     minVal = Inf;
-%     maxVal = -(Inf);
     dataToSaveForHistAndRaster = cell(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
-    %summedVectorsOnCurrElec = cell(1, propertiesFile.numOfLabelTypes);
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
     
     %%
@@ -316,18 +311,16 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
-        newLabelAndBipTimeMatrix = {'a', 0.001;
-                                    'e', 0.002;
-                                    'u', 0.003;
-                                    'o', 0.04;
-                                    'i', 0.05}; %TODO::call Guy's func instead:
-        %newLabelAndBipTimeMatrix = callGuy'sFunc();
-        %if newLabelAndBipTimeMatrix == 0
-        %    continue;
-        %end
-        labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)),1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
-        labelsDataIndex = length(labelsData(:,1));
-        newTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
+        
+        newLabelAndBipTimeMatrix = getLogs();
+        if newLabelAndBipTimeMatrix == 0
+            continue;
+        end
+        
+        labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)), 1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
+        labelsDataIndex = length(labelsData(:, 1));
+        
+        newTrialsPerLabel = zeros(1, propertiesFile.numOfLabelTypes);
         for ii = 1:size(newLabelAndBipTimeMatrix,1)
             letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
             currentBipTime = (newLabelAndBipTimeMatrix{ii,2}+stamIndex) - myOffset;
@@ -345,6 +338,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             end
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             newTrialsPerLabel(currentLabel) = newTrialsPerLabel(currentLabel) + 1;
+            
             %save relevant timestamps from new trials
             for ee = 1:propertiesFile.numOfElec % 4 for now
 %                 currentElecTimestampsVector = dataToSave(:,ee);
