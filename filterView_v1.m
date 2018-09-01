@@ -34,7 +34,7 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     
     % Global Variables
     UserData = get(hObject, 'UserData');
-    selected = UserData.numOfElec;
+    selected = UserData.numOfElecs;
     setappdata(hObject, 'selected', selected);
     for inti = 1:length(selected)
         set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti))]);
@@ -43,7 +43,8 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     if length(selected) < propertiesFile.numOfElectrodesPerPage
         for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
             set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
-            currPage(propertiesFile.numOfElectrodesPerPage-inti) = 0;
+            currPage(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
+%             UserData.numOfElecs(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
         end
     end
     setappdata(hObject, 'currPageElecs', currPage);
@@ -126,12 +127,14 @@ function createPlots_Callback(hObject, eventdata, handles)
     % hObject    handle to createPlots (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
+    
+    %Plots the histograms and rasters for the relevant view
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
     if isempty(histograms) 
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
-                histograms{electrodeIndex, labelsIndex} = findobj('Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                histograms{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag',['slowUpdatePlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
         setappdata(hObject.Parent, 'histograms', histograms);

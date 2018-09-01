@@ -1,15 +1,23 @@
 function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui)
-     elecToPresent = getappdata(findall(0,'Name', 'slowUpdateGui_v3'),'currPageElecs');
+     elecToPresent = getappdata(currGui,'currPageElecs');
      %nBins = propertiesFile.numOfBins;
      sizeOfBins = (maxVal-minVal)/10;
      xBins = [minVal:sizeOfBins:maxVal];
+     % Get the number of electrodes to present for the update loop of the
+     % histograms and rasters
+     if find(elecToPresent == 0) > 0
+         numOfElecsToPresent = find(elecToPresent == 0) - 1;
+     else
+         numOfElecsToPresent = length(elecToPresent);
+     end
      if(slowUpdateFlag)
          for ll = 1:propertiesFile.numOfLabelTypes
              if newTrialsPerLabel(ll) > 0
-                 for aa = 1:propertiesFile.numOfElectrodesPerPage
+                 for aa = 1:numOfElecsToPresent
                      currFig = findall(currGui, 'Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
                      %next for to parfor
                      for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)
+                         currRasterRow = rr;
                          hold(currFig, 'on');
                          currVector = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + rr};
                          if ~isempty(currVector)
@@ -17,7 +25,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                              scatter(currFig, currVector, yVec, 1, 'k');
                          end
                      end
-                     %ylim(currFig, [0 3]);
+                     ylim(currFig, [0 (currRasterRow+1)]);
                      xlim(currFig, [minVal maxVal]);
                      xticks([0]);
                      
@@ -32,6 +40,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                      end
                      [nSlow,xoutSlow] = hist(allVectors,xBins);
                      nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
+                     maxYForLim = max(nSlow);
                      %format = 'nSlow(:,%d)';
                      %barParam = sprintf(format, elecToPresent(jj));
 %                      currFig = findobj('Tag',['slowPlot',num2str(aa),'_',num2str(ll)]);
@@ -48,7 +57,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
 %                      if ll == 1
 %                         ylabel(currFig, 'count ');
 %                      end
-                     ylim(currFig, [0 sizeOfBins*400]);
+                     ylim(currFig, [0 20]);
                  end
              end
          end
