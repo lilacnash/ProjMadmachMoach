@@ -160,19 +160,23 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
     elec = (getappdata(hObject.Parent, 'selected'));
     numOfElecs = find(elec==1)';
-    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
-    currFilterIndex = currFilterIndex + 1;
-    setappdata(hObject.Parent, 'currFilterIndex', currFilterIndex);
-    UserData = get(hObject.Parent, 'UserData');
-    UserData.numOfElecs = numOfElecs;
-    UserData.filterNum = currFilterIndex;
-    newFilterView = filterView_v1('UserData', UserData);
-    filtersView = getappdata(hObject.Parent, 'filtersView');
-    filtersView{currFilterIndex} = newFilterView;
-    setappdata(hObject.Parent, 'filtersView', filtersView);
-%     selectedPerView = getappdata(hObject.Parent, 'selectedPerView');
-%     selectedPerView{currFilterIndex} = numOfElecs;
-%     setappdata(hObject.Parent, 'selectedPerView', selectedPerView);
+    if isempty(numOfElecs)
+        errordlg('Please choose at least one electrode');
+    else
+        currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
+        currFilterIndex = currFilterIndex + 1;
+        setappdata(hObject.Parent, 'currFilterIndex', currFilterIndex);
+        UserData = get(hObject.Parent, 'UserData');
+        UserData.numOfElecs = numOfElecs;
+        UserData.filterNum = currFilterIndex;
+        newFilterView = filterView_v1('UserData', UserData);
+        filtersView = getappdata(hObject.Parent, 'filtersView');
+        filtersView{currFilterIndex} = newFilterView;
+        setappdata(hObject.Parent, 'filtersView', filtersView);
+    %     selectedPerView = getappdata(hObject.Parent, 'selectedPerView');
+    %     selectedPerView{currFilterIndex} = numOfElecs;
+    %     setappdata(hObject.Parent, 'selectedPerView', selectedPerView);
+    end
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.

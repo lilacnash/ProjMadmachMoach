@@ -1,12 +1,19 @@
 function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui)
-     elecToPresent = getappdata(findall(0,'Name', 'slowUpdateGui_v3'),'currPageElecs');
+     elecToPresent = getappdata(currGui,'currPageElecs');
      %nBins = propertiesFile.numOfBins;
      sizeOfBins = (maxVal-minVal)/10;
      xBins = [minVal:sizeOfBins:maxVal];
+     % Get the number of electrodes to present for the update loop of the
+     % histograms and rasters
+     if find(elecToPresent == 0) > 0
+         numOfElecsToPresent = find(elecToPresent == 0) - 1;
+     else
+         numOfElecsToPresent = length(elecToPresent);
+     end
      if(slowUpdateFlag)
          for ll = 1:propertiesFile.numOfLabelTypes
              if newTrialsPerLabel(ll) > 0
-                 for aa = 1:propertiesFile.numOfElectrodesPerPage
+                 for aa = 1:numOfElecsToPresent
                      currFig = findall(currGui, 'Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
                      %next for to parfor
                      for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)

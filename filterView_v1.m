@@ -44,6 +44,7 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
         for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
             set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
             currPage(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
+%             UserData.numOfElecs(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
         end
     end
     setappdata(hObject, 'currPageElecs', currPage);
