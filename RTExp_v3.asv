@@ -381,12 +381,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
             delete(slowUpdateGuiFig);
         end
     end
-    
-    %% stoping the recording and saving the data
+    % stoping the recording and save the data
     if getappdata(handles.figure1, 'useCBMEX') == true 
         cbmex('close');
     end
-    
     %TODO::save labelsData as well
     if ~(isempty(dataToSave))
         currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
@@ -395,7 +393,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');    
     end
-    
      linkdata off;
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);

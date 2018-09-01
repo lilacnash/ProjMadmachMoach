@@ -12,12 +12,11 @@ function [neuronTimeStamps, tempDataToSave] = getAllTimestamps(allTimestampsMatr
     
     %% add new data to cyclic array    
     for jj = 1:numOfChanel
-        
-        timeStamps = length(tempTimeStamps{jj, 2});
+        timeStamps = length(tempTimeStamps{jj, 2};
         tempDataToSave(1:timeStamps, jj) = transpose(tempTimeStamps{jj, 2});
         
         if(timeStamps > maxLength)
-            maxLength = timeStamps;
+            maxLength = 
         end
         
         if(~(isempty(tempTimeStamps{jj, 2})))
@@ -29,6 +28,5 @@ function [neuronTimeStamps, tempDataToSave] = getAllTimestamps(allTimestampsMatr
         end
     end
     neuronTimeStamps = allTimestampsMatrix;
-    tempDataToSave = tempDataToSave(1:maxLength,:);
     
 end

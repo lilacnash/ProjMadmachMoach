@@ -12,7 +12,7 @@ function [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestamp
         neuronTimeStampsVector = (max-min).*rand(numberOfTimeStamps,1) + min;
         
         if(numberOfTimeStamps > maxLength)
-            maxLength = numberOfTimeStamps;
+        `    
         end
         
         tempDataToSave(1:length(neuronTimeStampsVector), i) = neuronTimeStampsVector;
@@ -25,7 +25,6 @@ function [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestamp
         end
     end   
     lastSample = fakeTime;
-    tempDataToSave = tempDataToSave(1:maxLength,:);
 end
 
     

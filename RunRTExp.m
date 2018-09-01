@@ -11,7 +11,7 @@ function [] = RunRTExp()
         connectToParadigmComputer();
     end
     
-    RTExp();
+    RTExp_v3();
    
 
 end
