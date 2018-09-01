@@ -127,6 +127,12 @@ end
 
 function startRecording_Callback(hObject, eventdata, handles)
     disp('startRecording_Callback');
+    
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        startRecording(); 
+    end
+    %TODO: add "recording" on screen
+    
     labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
     labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
     if labelsAndBipsTimeIndex ~= 1 && labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
@@ -155,6 +161,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===============PRE-PROCESING===============
     %===========================================
     disp('startExpButton_Callback');
+    
+    globa cfg;
+    
     stamIndex = 1; %delete after connecting to Guy
     connection = -1;
     instrument = -1;
@@ -407,6 +416,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
          end
         delete(handles.figure1);
      end
+     
+     % close sockets
+     if cfg.useParadigm
+         CloseSockets();
+     end
 end
 
 function useCBMEX_Callback(hObject, eventdata, handles)
@@ -424,6 +438,11 @@ end
 % --- Executes on button press in stopButton.
 function stopButton_Callback(hObject, eventdata, handles)
     disp('stopButton_Callback');
+    
+    if getappdata(handles.figure1, 'useCBMEX') == true
+        stopRec();
+    end
+    
     setappdata(handles.figure1, 'stopButtonPressed', true);
 end
 
