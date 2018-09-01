@@ -100,15 +100,18 @@ function slowPlotsSliderResultLabel_CreateFcn(hObject, eventdata, handles)
     set(hObject, 'String', '1');
 end
 
-% --- Executes on button press in closeButtonSlow.
-function closeButtonSlow_Callback(hObject, eventdata, handles)
-    disp('closeButtonSlow_Callback');
-end
-
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
     disp('figure1_CloseRequestFcn');
     handles.figure1.UserData.closeFlag = true;
+    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
+    filtersViewList = getappdata(hObject.Parent, 'filtersView');
+    for inti = 1:currFilterIndex
+        if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
+            delete(filtersViewList{inti})
+        end
+    end
+    delete(hObject);
 end
 
 % --- Executes on button press in checkbox1.
@@ -169,6 +172,7 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
         UserData = get(hObject.Parent, 'UserData');
         UserData.numOfElecs = numOfElecs;
         UserData.filterNum = currFilterIndex;
+        UserData.open = true;
         newFilterView = filterView_v1('UserData', UserData);
         filtersView = getappdata(hObject.Parent, 'filtersView');
         filtersView{currFilterIndex} = newFilterView;
@@ -182,7 +186,14 @@ end
 % --- Executes on button press in closeAllFilteredViewsButton.
 function closeAllFilteredViewsButton_Callback(hObject, eventdata, handles)
     disp('closeAllFilteredViewsButton_Callback');
-    delete(hObject.Parent);
+    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
+    filtersViewList = getappdata(hObject.Parent, 'filtersView');
+    for inti = 1:currFilterIndex
+        % Adding relevant data to the UserData object of the relevant view
+        if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
+            delete(filtersViewList{inti})
+        end
+    end
 end
 
 
@@ -211,13 +222,15 @@ function createPlots_Callback(hObject, eventdata, handles)
     guiUserData = get(hObject.Parent, 'UserData');
     for inti = 1:currFilterIndex
         % Adding relevant data to the UserData object of the relevant view
-        filtersViewList{inti}.UserData.numOfTrialsPerLabel = guiUserData.numOfTrialsPerLabel;
-        filtersViewList{inti}.UserData.newTrialsPerLabel = guiUserData.newTrialsPerLabel;
-        filtersViewList{inti}.UserData.dataToSaveForHistAndRaster = guiUserData.dataToSaveForHistAndRaster;
-        filtersViewList{inti}.UserData.slowUpdateFlag = guiUserData.slowUpdateFlag;
-        %Finds the relevant createPlots function
-        createPlotsFunc = findall(filtersViewList{inti},'Tag', 'createPlots');
-        %Execute its callback
-        createPlotsFunc.Callback(createPlotsFunc, eventdata);
+        if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
+            filtersViewList{inti}.UserData.numOfTrialsPerLabel = guiUserData.numOfTrialsPerLabel;
+            filtersViewList{inti}.UserData.newTrialsPerLabel = guiUserData.newTrialsPerLabel;
+            filtersViewList{inti}.UserData.dataToSaveForHistAndRaster = guiUserData.dataToSaveForHistAndRaster;
+            filtersViewList{inti}.UserData.slowUpdateFlag = guiUserData.slowUpdateFlag;
+            %Finds the relevant createPlots function
+            createPlotsFunc = findall(filtersViewList{inti},'Tag', 'createPlots');
+            %Execute its callback
+            createPlotsFunc.Callback(createPlotsFunc, eventdata);
+        end
     end
 end

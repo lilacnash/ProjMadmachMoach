@@ -111,6 +111,7 @@ end
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
     disp('figure1_CloseRequestFcn');
+    hObject.UserData.open = false;
     delete(hObject);
 end
 
