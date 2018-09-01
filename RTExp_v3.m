@@ -382,7 +382,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
 %             createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig
-        if getappdata(handles.figure1, 'slowUpdateFlag') == true && slowUpdateGuiFig.UserData.closeFlag == true
+        if getappdata(handles.figure1, 'slowUpdateFlag') == true && ishandle(slowUpdateGuiFig) && slowUpdateGuiFig.UserData.closeFlag == true
             %linkdata off;
             slowUpdateFlag = true;
             firstUpdate = true;
