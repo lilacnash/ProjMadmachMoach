@@ -162,7 +162,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===========================================
     disp('startExpButton_Callback');
     
-    globa cfg;
+    global cfg;
     
     stamIndex = 1; %delete after connecting to Guy
     connection = -1;
