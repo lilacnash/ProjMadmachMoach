@@ -5,9 +5,9 @@ classdef propertiesFile
       numOfElec = 80
       numOfTrials = 200
       numOfBins = 10
-      numOfStamps = 100 %number of time stamps to save from electrode
+      numOfStamps = 200 %number of time stamps to save from electrode
       binSize = (100/300) %how do we convert to milliseconds?
-      recordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'
+      cbmexRecordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'
       FiringRate = 0 %not sure we need this
       slowUpdateTime = 1
       fastUpdateTime = 0.1
