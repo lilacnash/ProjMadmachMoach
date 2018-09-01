@@ -38,6 +38,9 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
     setappdata(hObject, 'histograms', []);
     setappdata(hObject, 'currFilterIndex', 0);
+    setappdata(hObject.Parent, 'filtersView', {});
+    setappdata(hObject.Parent, 'selectedPerView', {});
+
 end
 
 
@@ -163,7 +166,13 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
     UserData = get(hObject.Parent, 'UserData');
     UserData.numOfElecs = numOfElecs;
     UserData.filterNum = currFilterIndex;
-    filterView_v1('UserData', UserData);
+    newFilterView = filterView_v1('UserData', UserData);
+    filtersView = getappdata(hObject.Parent, 'filtersView');
+    filtersView{currFilterIndex} = newFilterView;
+    setappdata(hObject.Parent, 'filtersView', filtersView);
+%     selectedPerView = getappdata(hObject.Parent, 'selectedPerView');
+%     selectedPerView{currFilterIndex} = numOfElecs;
+%     setappdata(hObject.Parent, 'selectedPerView', selectedPerView);
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
@@ -178,6 +187,8 @@ function createPlots_Callback(hObject, eventdata, handles)
     % hObject    handle to createPlots (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
+    
+    %Plots the histograms and rasters for the slowUpdateGui
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
     if isempty(histograms) 
@@ -189,4 +200,20 @@ function createPlots_Callback(hObject, eventdata, handles)
         setappdata(hObject.Parent, 'histograms', histograms);
     end
     createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent);
+    
+    %Call for the create plots function of each filteres view
+    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
+    filtersViewList = getappdata(hObject.Parent, 'filtersView');
+    guiUserData = get(hObject.Parent, 'UserData');
+    for inti = 1:currFilterIndex
+        % Adding relevant data to the UserData object of the relevant view
+        filtersViewList{inti}.UserData.numOfTrialsPerLabel = guiUserData.numOfTrialsPerLabel;
+        filtersViewList{inti}.UserData.newTrialsPerLabel = guiUserData.newTrialsPerLabel;
+        filtersViewList{inti}.UserData.dataToSaveForHistAndRaster = guiUserData.dataToSaveForHistAndRaster;
+        filtersViewList{inti}.UserData.slowUpdateFlag = guiUserData.slowUpdateFlag;
+        %Finds the relevant createPlots function
+        createPlotsFunc = findall(filtersViewList{inti},'Tag', 'createPlots');
+        %Execute its callback
+        createPlotsFunc.Callback(createPlotsFunc, eventdata);
+    end
 end
