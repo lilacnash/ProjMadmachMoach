@@ -50,7 +50,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
 %                      if ll == 1
 %                         ylabel(currFig, 'count ');
 %                      end
-                     ylim(currFig, [0 (maxYForLim+1)]);
+                     ylim(currFig, [0 20]);
                  end
              end
          end
