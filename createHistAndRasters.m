@@ -23,13 +23,16 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                              scatter(currFig, currVector, yVec, 1, 'k');
                          end
                      end
+                     xlim(currFig, [minVal maxVal]);
                      ylim(currFig, [0 (rr+1)]);
                      currFig.YAxis.Visible = 'off';
                      if aa < numOfElecsToPresent
                          currFig.XAxis.Visible = 'off';
+                     else
+                         currFig.XAxis.Visible = 'on';
+                         currFig.XAxis.FontSize = 8;
+                         currFig.XAxis.Color = [0.94 0.94 0.94];
                      end
-                     xlim(currFig, [minVal maxVal]);
-                     xticks([0]);
                      %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                      for hh = 1:numOfTrialsPerLabel(ll)
                          vectorToAdd = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + hh};
@@ -62,6 +65,8 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                      currFig.XAxis.Visible = 'off';
                      if ll > 1
                          currFig.YAxis.Visible = 'off';
+                     else
+                         currFig.YAxis.Color = [0.94 0.94 0.94];
                      end
                  end
              end
