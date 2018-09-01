@@ -308,15 +308,24 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     end
                 end
             end
-        end
-        
+        end  
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
-        
-        newLabelAndBipTimeMatrix = getLogs();
-        if newLabelAndBipTimeMatrix == 0
-            continue;
+        if propertiesFile.connectToParadigm == false
+            newLabelAndBipTimeMatrix = {'a', 0.001;
+                                        'e', 0.002;
+                                        'u', 0.003;
+                                        'o', 0.04;
+                                        'i', 0.05}; %TODO::call Guy's func instead:
+            %newLabelAndBipTimeMatrix = callGuy'sFunc();
+            %if newLabelAndBipTimeMatrix == 0
+            %    continue;
+            %end
+        else
+            newLabelAndBipTimeMatrix = getLogs();
+            if newLabelAndBipTimeMatrix == 0
+                continue;
+            end
         end
-        
         labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)), 1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
         labelsDataIndex = length(labelsData(:, 1));
         

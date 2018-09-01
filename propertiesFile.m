@@ -22,6 +22,7 @@ classdef propertiesFile
       numOfCols = 0
       postBipTime = 0.2
       preBipTime = 0.2
+      connectToParadigm = false
 
       
       %Data store configurations
