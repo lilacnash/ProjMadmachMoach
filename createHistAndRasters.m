@@ -15,9 +15,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
              if newTrialsPerLabel(ll) > 0
                  for aa = 1:numOfElecsToPresent
                      currFig = findall(currGui, 'Tag', ['rasterPlot',num2str(aa),'_',num2str(ll)]);
-                     %next for to parfor
-                     for rr = (numOfTrialsPerLabel(ll) - newTrialsPerLabel(ll) + 1):numOfTrialsPerLabel(ll)
-                         currRasterRow = rr;
+                     for rr = 1:numOfTrialsPerLabel(ll)
                          hold(currFig, 'on');
                          currVector = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + rr};
                          if ~isempty(currVector)
@@ -25,7 +23,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, newTrialsPerLabel,
                              scatter(currFig, currVector, yVec, 1, 'k');
                          end
                      end
-                     ylim(currFig, [0 (currRasterRow+1)]);
+                     ylim(currFig, [0 (rr+1)]);
                      xlim(currFig, [minVal maxVal]);
                      xticks([0]);
                      
