@@ -152,13 +152,13 @@ function cfg = specs9()
     cfg.BRAIN_CONTROL_TIMEOUT = 0;   %% dont wait, just read from queue
     
     %% DATA COMPUTER
-    cfg.DATA_COMPUTER_IP = 'localhost';
-    cfg.DATA_COMPUTER_PORT = 4013;
+    cfg.DATA_COMPUTER_IP = '127.0.0.1';
+    cfg.DATA_COMPUTER_PORT = 3015;
     cfg.DATA_COMPUTER_TIMEOUT = 0;   %% dont wait, just read from queue
     
     %% PARADIGM COMPUTER
-    cfg.PARADIGM_COMPUTER_IP = 'localhost';
-    cfg.PARADIGM_COMPUTER_PORT = 3012;
+    cfg.PARADIGM_COMPUTER_IP = '127.0.0.1';
+    cfg.PARADIGM_COMPUTER_PORT = 4015;
 
     % for cursor
     cfg.BRAIN_CONTROL_DELTA_XY = 20;
