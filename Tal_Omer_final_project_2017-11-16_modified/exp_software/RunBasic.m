@@ -8,11 +8,12 @@ function RunBasic()
         openArduinoPort();
     end 
     
+    create_log_file();
+    
     if cfg.CONNECT_TO_DATA_COMPUTER == 1
         ConnectToDataComputerSocket() %open connection with data presentation computer
     end
     
-    create_log_file();
     %set_screen();
     %cfg.currentTargetColor = cfg.TARGET_COLOR;
     read_cmnds_from_file();
