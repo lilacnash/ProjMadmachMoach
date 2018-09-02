@@ -43,8 +43,13 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     if length(selected) < propertiesFile.numOfElectrodesPerPage
         for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
             set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
-            currPage(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
-%             UserData.numOfElecs(propertiesFile.numOfElectrodesPerPage-inti+1) = 0;
+            currPage(length(selected)+inti) = 0;
+            for indexForLabel = 1:propertiesFile.numOfLabelTypes
+                currRaster = findall(hObject, 'Tag', ['rasterPlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
+                currHist = findall(hObject, 'Tag', ['slowUpdatePlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
+                currRaster.Visible = 'off';
+                currHist.Visible = 'off';
+            end
         end
     end
     setappdata(hObject, 'currPageElecs', currPage);
@@ -68,7 +73,6 @@ end
 % --- Executes on slider movement.
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
-    disp(get(hObject, 'Value'));
     currChoise = get(hObject, 'Value')+1;
     selected = getappdata(hObject.Parent, 'selected');
     if currChoise > ceil(length(selected)/propertiesFile.numOfElectrodesPerPage)
