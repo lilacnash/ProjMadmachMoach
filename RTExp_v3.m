@@ -59,8 +59,9 @@ end
 
 % Outputs from this function are returned to the command line.
 function varargout = RTExp_v3_OutputFcn(hObject, eventdata, handles) 
-% Get default command line output from handles structure
-varargout{1} = handles.output;
+    % Get default command line output from handles structure
+    varargout{1} = handles.output;
+    hObject.UserData.update = true;
 end
 
 
@@ -259,7 +260,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                         firstGetTimestamps = false;
                     end
                     elecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
-                    
+
                 else
                     [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
                     dataToSave = [dataToSave; tempDataToSave];
@@ -350,16 +351,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
             %save relevant timestamps from new trials
             for ee = 1:propertiesFile.numOfElec % 4 for now
-%                 currentElecTimestampsVector = dataToSave(:,ee);
-%                 relevantTimestamps = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
-%                 relevantTimestamps = currentElecTimestampsVector(currentElecTimestampsVector>(currentBipTime-1) & currentElecTimestampsVector<(currentBipTime+1));
-%                 relevantTimestamps = relevantTimestamps - currentBipTime; %normalized for histogram x axis
-%                 if min(relevantTimestamps) < minVal
-%                     minVal = min(relevantTimestamps);
-%                 end
-%                 if max(relevantTimestamps) > maxVal
-%                     maxVal = max(relevantTimestamps);
-%                 end
                 dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
             end
         end
@@ -372,7 +363,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
             firstUpdate = false;
             slowUpdateFlag = true;
         end
-        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false
+        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
+                (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true))
             slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
             slowUpdateGuiFig.UserData.preBipTime = propertiesFile.preBipTime;
             slowUpdateGuiFig.UserData.postBipTime = propertiesFile.postBipTime;
@@ -382,6 +374,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             slowUpdateGuiFig.UserData.dataToSaveForHistAndRaster = dataToSaveForHistAndRaster;
             createPlotsFunc = findall(slowGuiObject,'Tag', 'createPlots');
             createPlotsFunc.Callback(createPlotsFunc, eventdata);
+            hObject.Parent.UserData.update = false;
 %             createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig

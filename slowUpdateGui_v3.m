@@ -74,6 +74,8 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
         currCheckbox = findobj('Tag', ['checkbox', num2str(inti)]);
         set(currCheckbox, 'Value', currPageSelection(inti));
     end
+    currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
+    currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -177,10 +179,9 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
         filtersView = getappdata(hObject.Parent, 'filtersView');
         filtersView{currFilterIndex} = newFilterView;
         setappdata(hObject.Parent, 'filtersView', filtersView);
-    %     selectedPerView = getappdata(hObject.Parent, 'selectedPerView');
-    %     selectedPerView{currFilterIndex} = numOfElecs;
-    %     setappdata(hObject.Parent, 'selectedPerView', selectedPerView);
     end
+    currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
+    currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
@@ -206,15 +207,18 @@ function createPlots_Callback(hObject, eventdata, handles)
     %Plots the histograms and rasters for the slowUpdateGui
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
+    rasters = getappdata(hObject.Parent, 'rasters');
     if isempty(histograms) 
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
-                histograms{electrodeIndex, labelsIndex} = findobj('Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                histograms{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
         setappdata(hObject.Parent, 'histograms', histograms);
+        setappdata(hObject.Parent, 'rasters', rasters);
     end
-    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent);
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters);
     
     %Call for the create plots function of each filteres view
     currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
@@ -232,5 +236,17 @@ function createPlots_Callback(hObject, eventdata, handles)
             %Execute its callback
             createPlotsFunc.Callback(createPlotsFunc, eventdata);
         end
+    end
+end
+
+
+% --- Executes on button press in updateButton.
+function updateButton_Callback(hObject, eventdata, handles)
+    % hObject    handle to updateButton (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    bigFather = findall(0,'Name', 'RTExp_v3');
+    if ~isempty(bigFather)
+        bigFather.UserData.update = true;
     end
 end

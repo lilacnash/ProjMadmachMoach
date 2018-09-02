@@ -23,6 +23,7 @@ classdef propertiesFile
       postBipTime = 0.2
       preBipTime = 0.2
       connectToParadigm = false
+      usingUpdateButton = true;
 
       
       %Data store configurations

@@ -36,31 +36,56 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     UserData = get(hObject, 'UserData');
     selected = UserData.numOfElecs;
     setappdata(hObject, 'selected', selected);
-    for inti = 1:length(selected)
+    setappdata(hObject, 'histograms', []);
+    setappdata(hObject, 'rasters', []);
+
+    for inti = 1:min(length(selected), propertiesFile.numOfElectrodesPerPage)
         set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti))]);
         currPage(inti) = selected(inti);
     end
     if length(selected) < propertiesFile.numOfElectrodesPerPage
-        for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
-            set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
-            currPage(length(selected)+inti) = 0;
-            for indexForLabel = 1:propertiesFile.numOfLabelTypes
-                currRaster = findall(hObject, 'Tag', ['rasterPlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
-                currHist = findall(hObject, 'Tag', ['slowUpdatePlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
-                currRaster.Visible = 'off';
-                currHist.Visible = 'off';
-            end
-        end
+        makeUnrelevantPlotUnvisible(length(selected), currPage, hObject, handles);
+    else
+        setappdata(hObject, 'currPageElecs', currPage);
     end
-    setappdata(hObject, 'currPageElecs', currPage);
+%         for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
+%             set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
+%             currPage(length(selected)+inti) = 0;
+%             for indexForLabel = 1:propertiesFile.numOfLabelTypes
+%                 currRaster = findall(hObject, 'Tag', ['rasterPlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
+%                 currHist = findall(hObject, 'Tag', ['slowUpdatePlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
+%                 currRaster.Visible = 'off';
+%                 currHist.Visible = 'off';
+%             end
+%         end
+%     end
+%     setappdata(hObject, 'currPageElecs', currPage);
     numOfFilteredElec = length(selected);
     set(handles.sliderForSlowUpdate, 'Max', ceil(numOfFilteredElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
     set(handles.sliderForSlowUpdate, 'SliderStep', [1/get(handles.sliderForSlowUpdate, 'Max'), 1/get(handles.sliderForSlowUpdate, 'Max')*5])
-    setappdata(hObject.Parent, 'histograms', []);
     createPlotsFunc = findall(hObject,'Tag', 'createPlots');
     createPlotsFunc.Callback(createPlotsFunc, eventdata);
 end
 
+function makeUnrelevantPlotUnvisible(selectedLength, currPage, currGui, handles)
+    for inti = 1:(propertiesFile.numOfElectrodesPerPage-selectedLength)
+        histograms = getappdata(currGui, 'histograms');
+        rasters = getappdata(currGui, 'rasters');
+        set(handles.(['elec',num2str(selectedLength+inti),'Label']), 'string','');
+        currPage(selectedLength+inti) = 0;
+%         for indexForLabel = 1:propertiesFile.numOfLabelTypes
+%             currRaster = findall(currGui, 'Tag', ['rasterPlot',num2str(selectedLength+inti),'_',num2str(indexForLabel)]);
+%             currHist = findall(currGui, 'Tag', ['slowUpdatePlot',num2str(selectedLength+inti),'_',num2str(indexForLabel)]);
+%             if isempty(currHist) || isempty(currRaster)
+%                 currRaster = rasters{selectedLength+inti, indexForLabel};
+%                 currHist = histograms{selectedLength+inti, indexForLabel};
+%             end
+%             currRaster.Visible = 'off';
+%             currHist.Visible = 'off';
+%         end
+    end
+    setappdata(currGui, 'currPageElecs', currPage);
+end
 
 % --- Outputs from this function are returned to the command line.
 function varargout = filterView_v1_OutputFcn(hObject, eventdata, handles) 
@@ -80,13 +105,19 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     end
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
-    for inti = 1:min(length(selected),propertiesFile.numOfElectrodesPerPage)
+    for inti = 1:min((length(selected)-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)),propertiesFile.numOfElectrodesPerPage)
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
-        newElecNum = ((currChoise-1)*4)+inti;
+        newElecNum = selected(((currChoise-1)*4)+inti);
         set(currText, 'string', ['Elec: ',num2str(newElecNum)]);
         currPage(inti) = newElecNum;
     end
-    setappdata(currGui, 'currPageElecs', currPage);
+    if inti<propertiesFile.numOfElectrodesPerPage
+        makeUnrelevantPlotUnvisible(inti, currPage, hObject.Parent, handles);
+    else
+        setappdata(currGui, 'currPageElecs', currPage);
+    end  
+    currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
+    currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
 % --- Executes during object creation, after setting all properties.
@@ -136,13 +167,28 @@ function createPlots_Callback(hObject, eventdata, handles)
     %Plots the histograms and rasters for the relevant view
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
+    rasters = getappdata(hObject.Parent, 'rasters');
     if isempty(histograms) 
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
                 histograms{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag',['slowUpdatePlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
         setappdata(hObject.Parent, 'histograms', histograms);
+        setappdata(hObject.Parent, 'rasters', rasters);
     end
-    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent);
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters);
+end
+
+
+% --- Executes on button press in updateButton.
+function updateButton_Callback(hObject, eventdata, handles)
+    % hObject    handle to updateButton (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+    bigFather = findall(0,'Name', 'RTExp_v3');
+    if ~isempty(bigFather)
+        bigFather.UserData.update = true;
+    end
 end
