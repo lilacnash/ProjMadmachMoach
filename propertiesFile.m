@@ -26,7 +26,7 @@ classdef propertiesFile
       numOfCols = 0
       postBipTime = 0.2
       preBipTime = 0.2
-      connectToParadigm = false
+      connectToParadigm = true
       usingUpdateButton = true
       fastHistNum = 4
       predictionOnline = false

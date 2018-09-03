@@ -155,6 +155,7 @@ function cfg = specs9()
     cfg.DATA_COMPUTER_IP = '127.0.0.1';
     cfg.DATA_COMPUTER_PORT = 3015;
     cfg.DATA_COMPUTER_TIMEOUT = 0;   %% dont wait, just read from queue
+    cfg.SEND_LOGS = 0;
     
     %% PARADIGM COMPUTER
     cfg.PARADIGM_COMPUTER_IP = '127.0.0.1';
@@ -167,11 +168,11 @@ function cfg = specs9()
     cfg.BRAIN_CONTROL_LEFT = 'D';
     cfg.BRAIN_CONTROL_RIGHT = 'G';
     % for speech
-    cfg.BRAIN_CONTROL_A = 'A';
-    cfg.BRAIN_CONTROL_E = 'E';
-    cfg.BRAIN_CONTROL_U = 'U';
-    cfg.BRAIN_CONTROL_I = 'I';
-    cfg.BRAIN_CONTROL_O = 'O';
+    cfg.BRAIN_CONTROL_A = 'a';
+    cfg.BRAIN_CONTROL_E = 'e';
+    cfg.BRAIN_CONTROL_U = 'u';
+    cfg.BRAIN_CONTROL_I = 'i';
+    cfg.BRAIN_CONTROL_O = 'o';
     cfg.syllables = {'a','e','i','o','u'};
     cfg.currentSyllable = '0';
 

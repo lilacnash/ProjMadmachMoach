@@ -62,6 +62,7 @@ function TaskManager(pressedCode,time)
 %            pressedCode = pressedCode - 48;
            fprintf(cfg.logfile,'%f Event: KEY_PRESS %d Go\n',time);
            PlayBeeps(cfg,pressedCode);
+           cfg.SEND_LOGS = 1;
            cfg.currentSyllable = '0';
            return;
         end

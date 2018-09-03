@@ -71,11 +71,18 @@ function RunBasic()
         %% logFile requested
         if cfg.CONNECT_TO_DATA_COMPUTER
             
-            if (cfg.SEND_LOGS)
+            if (cfg.client_data_socket.BytesAvailable > 0)
+                logFileRequest = fread(cfg.client_data_socket);
+            
+          
+            if ~isempty(logFileRequest)
                 sendLogFile();
-            end          
+            end
+            
         end
-        
+
+            
+    
     end
 end
     

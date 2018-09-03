@@ -14,6 +14,7 @@ function sendLogFile()
     logFileAsCharMessage = logFileAsChar(:, cfg.logFileLength+1:tempLogFileLength);
     fwrite(cfg.client_data_socket, logFileAsCharMessage);
     cfg.logFileLength = tempLogFileLength;
+    cfg.SEND_LOGS = 0;
     fprintf(cfg.logfile,'%f DATA COMPUTER- CLIENT_SOCKET_SENT PORT: %d\n',GetSecs,cfg.DATA_COMPUTER_PORT);
    
 end
