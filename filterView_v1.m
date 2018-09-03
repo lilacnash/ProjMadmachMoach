@@ -168,6 +168,7 @@ function createPlots_Callback(hObject, eventdata, handles)
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
     rasters = getappdata(hObject.Parent, 'rasters');
+    firstCreationFlag = false;
     if isempty(histograms) 
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
@@ -175,10 +176,11 @@ function createPlots_Callback(hObject, eventdata, handles)
                 rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
+        firstCreationFlag = true;
         setappdata(hObject.Parent, 'histograms', histograms);
         setappdata(hObject.Parent, 'rasters', rasters);
     end
-    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters);
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
 end
 
 

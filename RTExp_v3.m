@@ -197,6 +197,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
     else
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPresent_Temp(); % change to the real function
     end
+    setappdata(hObject.Parent, 'numOfActiveElectrodes', numOfActiveElectrodes);
+    setappdata(hObject.Parent, 'neuronMap', neuronMap);
         
     listboxString = arrayfun(@num2str, (1:numOfActiveElectrodes), 'UniformOutput', false);
     
@@ -224,9 +226,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===============TRAINING====================
     %===========================================
     collect_time = 0; %propertiesFile.collectTime;
-    index = ones(propertiesFile.numOfElec, 1);
-    neuronTimeStamps = NaN(propertiesFile.numOfStamps, propertiesFile.numOfElec);
-    dataToSave = NaN(1, propertiesFile.numOfElec);
+    index = ones(numOfActiveElectrodes, 1);
+    neuronTimeStamps = NaN(propertiesFile.numOfStamps, numOfActiveElectrodes);
+    dataToSave = NaN(1, numOfActiveElectrodes);
     fastUpdateFlag = propertiesFile.fastUpdateFlag;
     slowUpdateFlag = propertiesFile.slowUpdateFlag;
     firstUpdate = true;
@@ -243,7 +245,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     set(handles.labelText, 'String', 'Started, press next to continue');
 
     labelsDataIndex = 0;
-    dataToSaveForHistAndRaster = cell(propertiesFile.numOfElec, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
+    dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
     
     %%
@@ -331,7 +333,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
         labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)), 1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
         labelsDataIndex = length(labelsData(:, 1));
         
-        newTrialsPerLabel = zeros(1, propertiesFile.numOfLabelTypes);
         for ii = 1:size(newLabelAndBipTimeMatrix,1)
             letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
             currentBipTime = (newLabelAndBipTimeMatrix{ii,2}+stamIndex) - myOffset;
@@ -348,10 +349,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     currentLabel = 5;
             end
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
-            newTrialsPerLabel(currentLabel) = newTrialsPerLabel(currentLabel) + 1;
             
             %save relevant timestamps from new trials
-            for ee = 1:propertiesFile.numOfElec % 4 for now
+            for ee = 1:numOfActiveElectrodes % 4 for now
                 dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
             end
         end
@@ -370,13 +370,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
             slowUpdateGuiFig.UserData.preBipTime = propertiesFile.preBipTime;
             slowUpdateGuiFig.UserData.postBipTime = propertiesFile.postBipTime;
             slowUpdateGuiFig.UserData.slowUpdateFlag = slowUpdateFlag;
-            slowUpdateGuiFig.UserData.newTrialsPerLabel = newTrialsPerLabel;
             slowUpdateGuiFig.UserData.numOfTrialsPerLabel = numOfTrialsPerLabel;
             slowUpdateGuiFig.UserData.dataToSaveForHistAndRaster = dataToSaveForHistAndRaster;
             createPlotsFunc = findall(slowGuiObject,'Tag', 'createPlots');
             createPlotsFunc.Callback(createPlotsFunc, eventdata);
             hObject.Parent.UserData.update = false;
-%             createHistAndRasters(-propertiesFile.preBipTime, propertiesFile.postBipTime, slowUpdateFlag, newTrialsPerLabel, numOfTrialsPerLabel, dataToSaveForHistAndRaster);
         end
         % If slowUpdateGui is close setup all slow variables and delete the Gui fig
         if getappdata(handles.figure1, 'slowUpdateFlag') == true && ishandle(slowUpdateGuiFig) && slowUpdateGuiFig.UserData.closeFlag == true
