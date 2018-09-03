@@ -4,6 +4,8 @@ function [logArray, empty] = getLogs()
     
     empty = 0;
     
+    logArray = cell(1,1);
+    
     %% request logFile from paradigm computer
     fwrite(cfg.server_data_socket, '1');
     
@@ -16,6 +18,6 @@ function [logArray, empty] = getLogs()
     end
     
     %% convert response to cell array
-    logArray = convertResponseToCellArray(response);
+    [logArray, empty] = convertResponseToCellArray(response);
 
 end

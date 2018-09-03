@@ -4,7 +4,7 @@ function TaskManager(pressedCode,time)
     
     
     
-    if pressedCode == 'q' | pressedCode == 'Q'      %%Press on q
+    if strcmp(pressedCode,'q') | strcmp(pressedCode,'Q')     %%Press on q
         CloseAll(time);
         cfg.cur_task = -1;
         return;
