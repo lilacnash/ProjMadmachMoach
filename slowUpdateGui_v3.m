@@ -35,7 +35,9 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     % Global Variables
     currPage = [1:propertiesFile.numOfElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
-    setappdata(hObject, 'selected', zeros(propertiesFile.numOfElec,1));
+    numOfActiveElectrodes = getappdata(findall(0,'Name', 'RTExp_v3'), 'numOfActiveElectrodes');
+    setappdata(hObject, 'numOfActiveElectrodes', numOfActiveElectrodes);
+    setappdata(hObject, 'selected', zeros(numOfActiveElectrodes,1));
     setappdata(hObject, 'histograms', []);
     setappdata(hObject, 'currFilterIndex', 0);
     setappdata(hObject.Parent, 'filtersView', {});
@@ -56,8 +58,9 @@ end
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
     currChoise = get(hObject, 'Value')+1;
-    if currChoise > ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage)
-        currChoise = ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage);
+    numOfActiveElectrodes = getappdata(hObject.Parent, 'numOfActiveElectrodes');
+    if currChoise > ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage)
+        currChoise = ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage);
     end
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
@@ -81,10 +84,11 @@ end
 % --- Executes during object creation, after setting all properties.
 function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_CreateFcn');
+    numOfActiveElectrodes = getappdata(findall(0,'Name', 'RTExp_v3'), 'numOfActiveElectrodes');
     if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
         set(hObject,'BackgroundColor',[.9 .9 .9]);
     end
-    set(hObject, 'Max', ceil(propertiesFile.numOfElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
+    set(hObject, 'Max', ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
     set(hObject, 'SliderStep', [1/get(hObject, 'Max'), 1/get(hObject, 'Max')*5])
 end
 
@@ -208,6 +212,7 @@ function createPlots_Callback(hObject, eventdata, handles)
     parameters = hObject.Parent.UserData;
     histograms = getappdata(hObject.Parent, 'histograms');
     rasters = getappdata(hObject.Parent, 'rasters');
+    firstCreationFlag = false;
     if isempty(histograms) 
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
@@ -215,10 +220,11 @@ function createPlots_Callback(hObject, eventdata, handles)
                 rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
+        firstCreationFlag = true;
         setappdata(hObject.Parent, 'histograms', histograms);
         setappdata(hObject.Parent, 'rasters', rasters);
     end
-    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.newTrialsPerLabel, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters);
+    createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
     
     %Call for the create plots function of each filteres view
     currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
@@ -228,7 +234,6 @@ function createPlots_Callback(hObject, eventdata, handles)
         % Adding relevant data to the UserData object of the relevant view
         if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
             filtersViewList{inti}.UserData.numOfTrialsPerLabel = guiUserData.numOfTrialsPerLabel;
-            filtersViewList{inti}.UserData.newTrialsPerLabel = guiUserData.newTrialsPerLabel;
             filtersViewList{inti}.UserData.dataToSaveForHistAndRaster = guiUserData.dataToSaveForHistAndRaster;
             filtersViewList{inti}.UserData.slowUpdateFlag = guiUserData.slowUpdateFlag;
             %Finds the relevant createPlots function
