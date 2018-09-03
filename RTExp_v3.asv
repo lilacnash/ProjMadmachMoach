@@ -270,14 +270,13 @@ function startExpButton_Callback(hObject, eventdata, handles)
                         firstGetTimestamps = false;
                     end
                     
-                    fastElecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
                     elecToPresent = getappdata(handles.figure1, 'elecToPresent');
                 end
                 
                 %if the gui is open
                 if(ishandle(handles.figure1))
                     % update fast
-                    nGraphs = length(fastElecToPresent); %number of electrodes to present
+                    nGraphs = fastElecToPresent; %number of electrodes to present
                     nBins = propertiesFile.numOfBins;  
                     data = neuronTimeStamps(:, elecToPresent);
                     if(fastUpdateFlag)

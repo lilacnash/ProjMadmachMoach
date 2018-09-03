@@ -1,17 +1,15 @@
 
-function [neuronTimeStamps, tempDataToSave] = getAllTimestamps(allTimestampsMatrix, index)
+function [neuronTimeStamps, tempDataToSave] = getAllTimestamps(allTimestampsMatrix, index, numOfElecToPres)
     
     %% flush buffer + read new data
     [tempTimeStamps, t, continuous_data] = cbmex('trialdata');
         
-    numOfChanel = size(tempTimeStamps);
-    numOfChanel = numOfChanel(1);
     maxLength = 0;
     
     tempDataToSave = NaN(propertiesFile.numOfStamps, propertiesFile.numOfElec);
     
     %% add new data to cyclic array    
-    for jj = 1:numOfChanel
+    for jj = 1:propertiesFile.numOfElec
         
         timeStamps = length(tempTimeStamps{jj, 2});
         tempDataToSave(1:timeStamps, jj) = transpose(tempTimeStamps{jj, 2});

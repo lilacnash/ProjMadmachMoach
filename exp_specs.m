@@ -53,7 +53,7 @@ function cfg = exp_specs()
     cfg.DATA_COMPUTER_TIMEOUT = 0;      % dont wait, just read from queue.
     
     %% PARADIGM COMPUTER
-    cfg.useParadigm = 1;
+    cfg.useParadigm = 0;
     cfg.PARADIGM_COMPUTER_IP = '127.0.0.1';
     cfg.PARADIGM_COMPUTER_PORT = 3015;
 

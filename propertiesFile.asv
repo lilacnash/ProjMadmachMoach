@@ -9,9 +9,7 @@ classdef propertiesFile
       binSize = (100/300) %how do we convert to milliseconds?
       cbmexRecordingsFileName = 'D:\Neuroport\BMI\DataFromCbmex'
       maskRecordingsFileName = 'D:\Neuroport\BMI\MaskDataFromCbmex'
-      spontenuasTime = 2
-      useSpikeSorting = 0
-      numOfChannels = 0
+      propertiesFile.spontenuasTime = 
       FiringRate = 0 %not sure we need this
       slowUpdateTime = 1
       fastUpdateTime = 0.1

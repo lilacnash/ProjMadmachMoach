@@ -24,17 +24,17 @@ function [numOfElecToPres, neuronMap] = getNumOfElecToPres()
     
     if(~propertiesFile.useSpikeSorting)
         
-        index = 0;
+        index = 1;
         
         for ii = 1:numOfChannels
             if isempty(tempTimeStamps{ii,2})
                 cbmex('mask', ii, 0);
             else
-                index = index + 1;
                 chan_label = cbmex('chanlabel', ii);
                 label = chan_label{1,1};
                 electrodsMap{index,1} = index;
                 electrodsMap{index,1} = label;
+                index = index + 1;
             end
         end
     else
