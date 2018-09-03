@@ -71,9 +71,9 @@ function RunBasic()
         %% logFile requested
         if cfg.CONNECT_TO_DATA_COMPUTER
             
-            logFileRequest = fread(cfg.server_data_socket);
+            logFileRequest = fread(cfg.client_data_socket);
             
-            if strcmp(logFileRequest,'1')
+            if ~isempty(logFileRequest)
                 sendLogFile();
             end
             

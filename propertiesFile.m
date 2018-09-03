@@ -2,7 +2,7 @@ classdef propertiesFile
    %all but the last one are permanent properties (set before the experiment and do not change)
    %properties (SetAccess = private)
    properties (Constant)
-      numOfElec = 80
+      numOfElec = 128
       numOfTrials = 200
       numOfBins = 10
       numOfStamps = 200 %number of time stamps to save from electrode
@@ -11,7 +11,7 @@ classdef propertiesFile
       maskRecordingsFileName = 'D:\Neuroport\BMI\MaskDataFromCbmex'
       spontenuasTime = 2
       useSpikeSorting = 0
-      numOfChannels = 0
+      numOfChannels = 128
       FiringRate = 0 %not sure we need this
       slowUpdateTime = 1
       fastUpdateTime = 0.1
@@ -27,7 +27,8 @@ classdef propertiesFile
       postBipTime = 0.2
       preBipTime = 0.2
       connectToParadigm = false
-      usingUpdateButton = true;
+      usingUpdateButton = true
+      fastHistNum = 4
 
       
       %Data store configurations
