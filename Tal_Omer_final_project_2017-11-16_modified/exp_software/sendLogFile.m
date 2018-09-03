@@ -2,7 +2,7 @@ function sendLogFile()
 
     global cfg;
     
-    logFileAsChar = fileread(cfg.LOG_PREFIX);
+    logFileAsChar = fileread(cfg.logFileName);
     tempLogFileLength = length(logFileAsChar);
     
     if(cfg.logFileLength == tempLogFileLength)

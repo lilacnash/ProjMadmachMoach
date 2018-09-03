@@ -195,7 +195,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
     if getappdata(handles.figure1, 'useCBMEX') == true
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPres();
     else
-        [numOfActiveElectrodes, neuronMap] = getNumOfElecToPresent_Temp(); % change to the real function
+        [numOfActiveElectrodes, neuronMap] = getNumOfElecToPresent_Temp(); 
+    end
+    
+    if(numOfActiveElectrodes == 0)
+        % TODO: add close here.
     end
     setappdata(hObject.Parent, 'numOfActiveElectrodes', numOfActiveElectrodes);
     setappdata(hObject.Parent, 'neuronMap', neuronMap);
@@ -232,6 +236,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     fastUpdateFlag = propertiesFile.fastUpdateFlag;
     slowUpdateFlag = propertiesFile.slowUpdateFlag;
     firstUpdate = true;
+    fastElecToPresent = (1:propertiesFile.fastHistNum);
 
     fprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
 
@@ -256,11 +261,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
             if(et_col >= collect_time)
                 
                 if getappdata(handles.figure1, 'useCBMEX') == true
-                    [neuronTimeStamps, tempDataToSave] = getAllTimestamps(neuronTimeStamps, index, numOfActiveElectrodes); %read some data - the data should retern in cyclic arrays
+                    [neuronTimeStamps, tempDataToSave] = getAllTimestamps(neuronTimeStamps, index, numOfActiveElectrodes, neuronMap); %read some data - the data should retern in cyclic arrays
                     dataToSave = [dataToSave; tempDataToSave];
 
                     if firstGetTimestamps == true
-                        setappdata(handles.figure1,'offsetFirstGetTimestamps', GetSecs); %saves time(of first call to getAllTimestamps) as offset
+                        setappdata(handles.figure1,'offsetFirstGetTimestamps', 0); %saves time(of first call to getAllTimestamps) as offset
                         firstGetTimestamps = false;
                     end
 
@@ -273,7 +278,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
                         firstGetTimestamps = false;
                     end
                     
-                    fastElecToPresent = getElecToPresentFastUpdate_tmp(); %ask which neurons to present in fast update
                     elecToPresent = getappdata(handles.figure1, 'elecToPresent');
                 end
                 
@@ -282,7 +286,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     % update fast
                     nGraphs = length(fastElecToPresent); %number of electrodes to present
                     nBins = propertiesFile.numOfBins;  
-                    data = neuronTimeStamps(:, elecToPresent);
+                    data = neuronTimeStamps(:, fastElecToPresent);
                     if(fastUpdateFlag)
                         [n,xout] = hist(data,nBins);
                         for jj = 1:nGraphs
@@ -294,7 +298,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                                 xlabel(currFig, 'time bins (sec) ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
                                 ylabel(currFig, 'count ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
                             end
-                            ylim(currFig, [0 20]);
+                            ylim(currFig, [0 30]);
                         end
                         fastUpdateFlag = 0;
                     
@@ -314,19 +318,16 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end  
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
+        
         if propertiesFile.connectToParadigm == false
             newLabelAndBipTimeMatrix = {'a', 0.001;
                                         'e', 0.002;
                                         'u', 0.003;
                                         'o', 0.04;
-                                        'i', 0.05}; %TODO::call Guy's func instead:
-            %newLabelAndBipTimeMatrix = callGuy'sFunc();
-            %if newLabelAndBipTimeMatrix == 0
-            %    continue;
-            %end
+                                        'i', 0.05};
         else
-            newLabelAndBipTimeMatrix = getLogs();
-            if newLabelAndBipTimeMatrix == 0
+            [newLabelAndBipTimeMatrix, empty] = getLogs();
+            if empty
                 continue;
             end
         end

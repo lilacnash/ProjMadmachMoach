@@ -1,15 +1,17 @@
-function logArray = getLogs()
+function [logArray, empty] = getLogs()
     
     global cfg;
+    
+    empty = 0;
     
     %% request logFile from paradigm computer
     fwrite(cfg.server_data_socket, '1');
     
     %% read response
-    response = fread(cfg.client_data_socket);
+    response = fread(cfg.server_data_socket);
     
     if(strcmp(response, '0') || isempty(response))
-        logArray = 0;
+        empty = 1;
         return;
     end
     
