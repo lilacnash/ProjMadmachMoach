@@ -27,36 +27,34 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel)))];
                  lengthMatWithZeros = [currTrialsLength; [1:length(currTrialsLength)]];
                  lengthMat = lengthMatWithZeros(:, lengthMatWithZeros(1,:) ~= 0);
-                 if ~isempty(allTimes)
-                    yAxisForCurrUpdate = ones(2, length(allTimes));
-                    yAxisIndex = 1;
-                    for activeTrial = 1:size(lengthMat,2)
-                        yAxisForCurrUpdate(1, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial);
-                        yAxisForCurrUpdate(2, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial)+0.5;
-                        yAxisIndex = yAxisIndex+lengthMat(1,activeTrial);
-                    end
-                    yAxis{ll, aa} = yAxisForCurrUpdate;
-                    if firstFlag == true
-                        xFormat = 'xAxis{%d,%d}';
-                        yFormat = 'yAxis{%d,%d}';
-                        xParam = sprintf(xFormat, ll, aa);
-                        yParam = sprintf(yFormat, ll, aa);
-                        plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, ...
-                            'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
-                    else
-                        plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
-%                             refreshdata(currFig, 'caller');
-                    end
-                    xlim(currFig, [minVal maxVal]);
-                    ylim(currFig, [0 (numOfTrialsPerLabel(ll)+1)]);
-                    currFig.YAxis.Visible = 'off';
-                    if aa < numOfElecsToPresent
-                        currFig.XAxis.Visible = 'off';
-                    else
-                        currFig.XAxis.Visible = 'on';
-                        currFig.XAxis.FontSize = 8;
-                        currFig.XAxis.Color = [0.94 0.94 0.94];
-                    end
+                 yAxisForCurrUpdate = ones(2, length(allTimes));
+                 yAxisIndex = 1;
+                 for activeTrial = 1:size(lengthMat,2)
+                     yAxisForCurrUpdate(1, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial);
+                     yAxisForCurrUpdate(2, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial)+0.5;
+                     yAxisIndex = yAxisIndex+lengthMat(1,activeTrial);
+                 end
+                 yAxis{ll, aa} = yAxisForCurrUpdate;
+                 if firstFlag == true
+                     xFormat = 'xAxis{%d,%d}';
+                     yFormat = 'yAxis{%d,%d}';
+                     xParam = sprintf(xFormat, ll, aa);
+                     yParam = sprintf(yFormat, ll, aa);
+                     plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, ...
+                         'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
+                 else
+                     plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
+%                              refreshdata(currFig, 'caller');
+                 end
+                 xlim(currFig, [minVal maxVal]);
+                 ylim(currFig, [0 (numOfTrialsPerLabel(ll)+1)]);
+                 currFig.YAxis.Visible = 'off';
+                 if aa < numOfElecsToPresent
+                     currFig.XAxis.Visible = 'off';
+                 else
+                     currFig.XAxis.Visible = 'on';
+                     currFig.XAxis.FontSize = 8;
+                     currFig.XAxis.Color = [0.94 0.94 0.94];
                  end
                  %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                  for hh = 1:numOfTrialsPerLabel(ll)
