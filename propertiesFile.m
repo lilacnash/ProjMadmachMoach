@@ -29,6 +29,7 @@ classdef propertiesFile
       connectToParadigm = false
       usingUpdateButton = true
       fastHistNum = 4
+      predictionOnline = false
 
       
       %Data store configurations

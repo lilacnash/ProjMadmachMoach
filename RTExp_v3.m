@@ -35,16 +35,9 @@ set(hObject, 'Position', [ 0.005, 0.09, 0.95, 0.87]);
 guidata(hObject, handles);
 
 % set up data
-load('labelsList.mat')
-labelsAndBipsTime = zeros(length(labelsList),2);
-setappdata(handles.figure1, 'labelsList', labelsList);
-setappdata(handles.figure1, 'labelsIndex', 1);
-%TODO::add next line
-%setappdata(handles.nextLabel, 'trialIndex', 1);
-setappdata(handles.figure1, 'labelsAndBipsTime', labelsAndBipsTime);
-setappdata(handles.figure1, 'labelsAndBipsTimeIndex', 1);
 setappdata(handles.figure1,'slowUpdateFlag',false);
 setappdata(handles.figure1, 'useCBMEX', false);
+setappdata(handles.figure1, 'usePrediction', false);
 setappdata(handles.figure1, 'closeFlagOn', false);
 setappdata(handles.figure1, 'stopButtonPressed', false);
 setappdata(handles.figure1, 'startExpButtonPressed', false);
@@ -64,14 +57,6 @@ function varargout = RTExp_v3_OutputFcn(hObject, eventdata, handles)
     hObject.UserData.update = true;
 end
 
-
-%%
-%===========GUI-CREATE-FUNCTIONS========
-%=======================================
-
-
-
-
 %%
 %===============GUI-CALLBACKS===========
 %=======================================
@@ -88,60 +73,6 @@ function popupmanueData_Callback (hObject, eventdata)
     setappdata(RTExpObject, 'elecToPresent', elecToPresent);
     titleObj = findobj('Tag', ['fastPlotTitle', num2str(elecNum)]);
     set(titleObj, 'String', [propertiesFile.fastHistogramsTitle, num2str(newChoise)]);
-end
-
-
-function nextLabel_Callback(hObject, eventdata, handles)
-    disp('nextLabel_Callback');
-    labelsList = getappdata(handles.figure1, 'labelsList');
-    labelsIndex = getappdata(handles.figure1, 'labelsIndex');
-    %TODO:: add next line
-    %trialIndex = getappdata(handles.nextLabel, 'trialIndex');
-    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
-    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
-    if labelsIndex == 1
-        set(handles.labelText, 'String', labelsList(labelsIndex));
-        labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
-        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
-        setappdata(handles.figure1,'currLabel',labelsList(labelsIndex));
-        setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
-    elseif labelsIndex <= length(labelsList)
-        labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
-        set(handles.labelText, 'String', labelsList(labelsIndex));
-        labelsAndBipsTime(labelsAndBipsTimeIndex+1, 1:2) = [propertiesFile.LABEL_SHOWING, GetSecs];
-        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+2);
-        setappdata(handles.figure1,'currLabel',labelsList(labelsIndex));
-        setappdata(handles.figure1,'labelsIndex',labelsIndex+1);
-        %TODO:: add next line
-        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3); %TODO:1,3,1,3(no2=bip) in labelAndBipsTime
-    else
-        labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.END_OF_LABEL, GetSecs];    
-        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
-        %TODO:: add next line
-        %setappdata(handles.nextLabel,'trialIndex',trialIndex+3);
-        save('labelsAndBipsTime.mat', 'labelsAndBipsTime');
-    end
-end
-
-
-function startRecording_Callback(hObject, eventdata, handles)
-    disp('startRecording_Callback');
-    
-    if getappdata(handles.figure1, 'useCBMEX') == true
-        startRecording(); 
-    end
-    %TODO: add "recording" on screen
-    
-    labelsAndBipsTime = getappdata(handles.figure1, 'labelsAndBipsTime');
-    labelsAndBipsTimeIndex = getappdata(handles.figure1, 'labelsAndBipsTimeIndex');
-    if labelsAndBipsTimeIndex ~= 1 && labelsAndBipsTime(labelsAndBipsTimeIndex-1,1) == propertiesFile.LABEL_SHOWING
-        labelsAndBipsTime(labelsAndBipsTimeIndex, 1:2) = [propertiesFile.BEEP_SOUND, GetSecs];
-        Beeper(propertiesFile.beepFrequency, propertiesFile.beepVolume, propertiesFile.beepDurationSec);
-        setappdata(handles.figure1,'labelsAndBipsTime',labelsAndBipsTime);
-        setappdata(handles.figure1,'labelsAndBipsTimeIndex',labelsAndBipsTimeIndex+1);
-    end
 end
 
 
@@ -174,6 +105,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         % open neuroport
         cbmex('close');
         [connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+        startRecording();
     end
     
     MAX_LEGENT_FONT_SIZE = 12;
@@ -247,7 +179,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     firstGetTimestamps = true;
     lastSample = 0;
 
-    set(handles.labelText, 'String', 'Started, press next to continue');
+    set(handles.labelText, 'String', '');
 
     labelsDataIndex = 0;
     dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
@@ -358,7 +290,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         stamIndex = stamIndex + randn(1);
         if (getappdata(handles.figure1, 'slowUpdateFlag') == true) && firstUpdate
-            %slowUpdateGuiFig = slowUpdateGui;
             slowUpdateGuiFig = slowUpdateGui_v3;
             slowUpdateGuiFig.UserData.closeFlag = false;
             setappdata(handles.figure1, 'slowUpdateGuiFig',slowUpdateGuiFig);
@@ -384,6 +315,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
             firstUpdate = true;
             setappdata(handles.figure1, 'slowUpdateFlag', false);
             delete(slowUpdateGuiFig);
+        end
+        % When prediction flag is false, prediction works only with button
+        if propertiesFile.predictionOnline && getappdata(handles.figure1, 'usePrediction') == true
+            predictButton_Callback(handles.predictButton, eventdata);
+            handles.predictButton.UserData = dataToSaveForHistAndRaster;
         end
     end
     
@@ -421,7 +357,7 @@ end
 
 function useCBMEX_Callback(hObject, eventdata, handles)
     disp('useCBMEX_Callback');
-    setappdata(handles.figure1, 'useCBMEX', true);
+    setappdata(handles.figure1, 'useCBMEX', xor(getappdata(handles.figure1, 'useCBMEX'),true));
 end
 
 
@@ -470,5 +406,24 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     setappdata(handles.figure1, 'closeFlagOn', true);
     if getappdata(handles.figure1, 'startExpButtonPressed') == false
         delete(handles.figure1);
+    end
+end
+
+
+% --- Executes on button press in predictionCheckbox.
+function predictionCheckbox_Callback(hObject, eventdata, handles)
+    disp('predictionCheckbox_Callback');
+    setappdata(handles.figure1, 'usePrediction', xor(getappdata(handles.figure1, 'usePrediction'),true));
+end
+
+
+% --- Executes on button press in predictButton.
+function predictButton_Callback(hObject, eventdata, handles)
+    if getappdata(handles.figure1, 'usePrediction') == true && getappdata(handles.figure1, 'startExpButtonPressed') == true
+        labels = {'a','e','i','o','u'};
+        prediction = labels{randi([1 length(labels)])};
+        playPrediction(prediction);
+    else
+        errordlg('Please mark the "with prediction" checkbox and start the expiriment first','Unpermitted Operation');
     end
 end
