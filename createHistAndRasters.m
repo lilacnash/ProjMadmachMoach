@@ -4,6 +4,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
      sizeOfBins = (maxVal-minVal)/10;
      numOfLabels = propertiesFile.numOfLabelTypes;
      xBins = [minVal:sizeOfBins:maxVal];
+     yLimMax = zeros(propertiesFile.numOfElectrodesPerPage,1);
      % Get the number of electrodes to present for the update loop of the
      % histograms and rasters
      if find(elecToPresent == 0) > 0
@@ -19,9 +20,8 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
      xAxis = cell(numOfLabels, numOfElecsToPresent);
      yAxis = cell(numOfLabels, numOfElecsToPresent);
      if(slowUpdateFlag)
-         for ll = 1:numOfLabels
-             for aa = 1:numOfElecsToPresent
-                 currFig = rasters{aa,ll};
+         for aa = 1:numOfElecsToPresent
+            for ll = 1:numOfLabels 
                  allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))});
                  xAxis{ll, aa} = [allTimes allTimes]';
                  currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))))];
@@ -40,62 +40,56 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      yFormat = 'yAxis{%d,%d}';
                      xParam = sprintf(xFormat, ll, aa);
                      yParam = sprintf(yFormat, ll, aa);
-                     plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, ...
+                     plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, ...
                          'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
                  else
-                     plot(currFig, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
-%                              refreshdata(currFig, 'caller');
+                     plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
+%                              refreshdata(rasters{aa,ll}, 'caller');
                  end
-                 xlim(currFig, [minVal maxVal]);
-                 ylim(currFig, [0 (numOfTrialsPerLabel(ll)+1)]);
-                 currFig.YAxis.Visible = 'off';
+                 xlim(rasters{aa,ll}, [minVal maxVal]);
+                 ylim(rasters{aa,ll}, [0 (numOfTrialsPerLabel(ll)+1)]);
+                 rasters{aa,ll}.YAxis.Visible = 'off';
                  if aa < numOfElecsToPresent
-                     currFig.XAxis.Visible = 'off';
+                     rasters{aa,ll}.XAxis.Visible = 'off';
                  else
-                     currFig.XAxis.Visible = 'on';
-                     currFig.XAxis.FontSize = 8;
-                     currFig.XAxis.Color = [0.94 0.94 0.94];
+                     rasters{aa,ll}.XAxis.Visible = 'on';
+                     rasters{aa,ll}.XAxis.FontSize = 8;
+                     rasters{aa,ll}.XAxis.Color = [0.94 0.94 0.94];
                  end
                  %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
-                 for hh = 1:numOfTrialsPerLabel(ll)
-                     vectorToAdd = dataToSaveForHistAndRaster{elecToPresent(aa),(ll-1)*propertiesFile.numOfTrials + hh};
-                     if hh == 1
-                         allVectors = vectorToAdd;
-                     else
-                         allVectors = [allVectors; vectorToAdd];
-                     end
-                 end
-                 [nSlow,xoutSlow] = hist(allVectors,xBins);
+                 [nSlow,xoutSlow] = hist(allTimes,xBins);
                  nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
-                 currFig = histograms{aa,ll};
-                 bar(currFig,xoutSlow,nSlow); %nSlow(:,1)?
-                 ylim(currFig, [0 20]);
-                 currFig.XAxis.Visible = 'off';
+                 bar(histograms{aa,ll},xoutSlow,nSlow); %nSlow(:,1)?
+                 yLimMax(aa) = max(yLimMax(aa), max(nSlow));
+                 xlim(histograms{aa,ll}, [minVal maxVal]);
+%                  ylim(histograms{aa,ll}, [0 20]);
+                 histograms{aa,ll}.XAxis.Visible = 'off';
+                 
                  if ll > 1
-                     currFig.YAxis.Visible = 'off';
+                     histograms{aa,ll}.YAxis.Visible = 'off';
                  else
-                     currFig.YAxis.Color = [0.94 0.94 0.94];
+                     histograms{aa,ll}.YAxis.Color = [0.94 0.94 0.94];
                  end
-             end
-             if numOfElecsToPresent < propertiesFile.numOfElectrodesPerPage
+                 ylim(histograms{aa,ll}, [0 yLimMax(aa)+1]);
+            end
+         end
+         if numOfElecsToPresent < propertiesFile.numOfElectrodesPerPage
+             for ll = 1:numOfLabels 
                  for inti = 1:(propertiesFile.numOfElectrodesPerPage-numOfElecsToPresent)
-                     currRaster = rasters{numOfElecsToPresent+inti, ll};
-                     currHist = histograms{numOfElecsToPresent+inti, ll};
-                     emptyBar = bar(currHist, 0);
+                     emptyBar = bar(histograms{numOfElecsToPresent+inti, ll}, 0);
                      emptyBar.Visible = 'Off';
-                     emptyRaster = scatter(currRaster, 1, 1);
+                     emptyRaster = scatter(rasters{numOfElecsToPresent+inti, ll}, 1, 1);
                      emptyRaster.Visible = 'off';
-                     currRaster.Visible = 'off';
-                     currHist.Visible = 'off';
-                     currRaster.XAxis.Visible = 'off';
-                     currHist.XAxis.Visible = 'off';
-                     currRaster.YAxis.Visible = 'off';
-                     currHist.YAxis.Visible = 'off';
+                     rasters{numOfElecsToPresent+inti, ll}.Visible = 'off';
+                     histograms{numOfElecsToPresent+inti, ll}.Visible = 'off';
+                     rasters{numOfElecsToPresent+inti, ll}.XAxis.Visible = 'off';
+                     histograms{numOfElecsToPresent+inti, ll}.XAxis.Visible = 'off';
+                     rasters{numOfElecsToPresent+inti, ll}.YAxis.Visible = 'off';
+                     histograms{numOfElecsToPresent+inti, ll}.YAxis.Visible = 'off';
                  end
              end
          end
      end
-     drawnow;
 end
 
 
