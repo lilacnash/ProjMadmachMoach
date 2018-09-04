@@ -130,7 +130,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         if neuronMap == 0
             neuronMap = cell(numOfActiveElectrodes, 3);
             neuronMap(:,1) = arrayfun(@num2cell, [1:numOfActiveElectrodes]);
-            neuronMap(:,2) = {'bla'};
+            neuronMap(:,2) = {''};
         end
     end
     
@@ -143,7 +143,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
     listboxString = arrayfun(@num2str, (1:numOfActiveElectrodes), 'UniformOutput', false);
     
-    for inti = 1:numOfActiveElectrodes
+    for inti = 1:propertiesFile.numOfHistogramsToPresent
         % Insert data to listboxes
         currHandler = findobj('Tag',['fastPlotPopupmenu', num2str(inti)]);
         set(currHandler, 'Value', inti);
@@ -173,7 +173,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
     fastUpdateFlag = propertiesFile.fastUpdateFlag;
     slowUpdateFlag = propertiesFile.slowUpdateFlag;
     firstUpdate = true;
-    fastElecToPresent = (1:propertiesFile.fastHistNum);
     
     fakeTrailNum = 1; %for simulation time sync
 
@@ -223,9 +222,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 %if the gui is open
                 if(ishandle(handles.figure1))
                     % update fast
-                    nGraphs = length(fastElecToPresent); %number of electrodes to present
+                    nGraphs = length(elecToPresent); %number of electrodes to present
                     nBins = propertiesFile.numOfBins;  
-                    data = neuronTimeStamps(:, fastElecToPresent);
+                    data = neuronTimeStamps(:, elecToPresent);
                     if(fastUpdateFlag)
                         [n,xout] = hist(data,nBins);
                         for jj = 1:nGraphs
@@ -307,7 +306,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             
-            if (getappdata(handles.figure1, 'useCBMEX') == true && propertiesFile.connectToParadigm == true)
+            if propertiesFile.connectToParadigm == true
                 currentBipTime = NaN;
                 kk = 1;
                 while(isnan(currentBipTime))
@@ -324,9 +323,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
             %save relevant timestamps from new trials
             for ee = 1:numOfActiveElectrodes 
                 dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
+                newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
             end
         end
-        
+        if ~isempty(newTrialData)
+            disp(newTrialData);
+        end
         stamIndex = stamIndex + randn(1);
         
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
