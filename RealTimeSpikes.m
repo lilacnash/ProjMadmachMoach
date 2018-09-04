@@ -462,3 +462,7 @@ function predictButton_Callback(hObject, eventdata, handles)
         errordlg('Please mark the "with prediction" checkbox and start the expiriment first','Unpermitted Operation');
     end
 end
+
+function getLogs_Callback(hObject, eventdata, handles)
+    getLogs();
+end
