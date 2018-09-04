@@ -64,6 +64,7 @@ end
 function popupmanueData_Callback (hObject, eventdata)
     disp('popupmanueData_Callback');
     RTExpObject = hObject.Parent;
+    neuronMap = getappdata(hObject.Parent, 'neuronMap');
     elecToPresent = getappdata(RTExpObject, 'elecToPresent');
     elecNumRegex = regexp(get(hObject, 'Tag'), '\d+', 'match');
     elecNum = str2num(elecNumRegex{1});
@@ -72,7 +73,7 @@ function popupmanueData_Callback (hObject, eventdata)
     elecToPresent(elecNum) = str2num(listboxString{newChoise});
     setappdata(RTExpObject, 'elecToPresent', elecToPresent);
     titleObj = findobj('Tag', ['fastPlotTitle', num2str(elecNum)]);
-    set(titleObj, 'String', [propertiesFile.fastHistogramsTitle, num2str(newChoise)]);
+    set(titleObj, 'String', [propertiesFile.fastHistogramsTitle, num2str(newChoise), ' - ',neuronMap{newChoise,2}]);
 end
 
 
@@ -133,6 +134,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
     if(numOfActiveElectrodes == 0)
         % TODO: add close here.
     end
+    if neuronMap == 0
+        neuronMap = cell(numOfActiveElectrodes, 3);
+        neuronMap(:,1) = arrayfun(@num2cell, [1:numOfActiveElectrodes]);
+        neuronMap(:,2) = {'bla'};
+    end
     setappdata(hObject.Parent, 'numOfActiveElectrodes', numOfActiveElectrodes);
     setappdata(hObject.Parent, 'neuronMap', neuronMap);
         
@@ -147,7 +153,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         % Insert data into titles
         currHandler = findobj('Tag',['fastPlotTitle', num2str(inti)]);
         if propertiesFile.numOfHistogramsToPresent <= 16
-            set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti)]);
+            set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti), ' - ',neuronMap{inti,2}]);
         else
             set(currHandler, 'String', ['Electrode: ', num2str(inti)], 'FontSize', 7);
         end
@@ -300,7 +306,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             
-            if (getappdata(handles.figure1, 'useCBMEX') == false && propertiesFile.connectToParadigm == true)                
+            if (getappdata(handles.figure1, 'useCBMEX') == false && propertiesFile.connectToParadigm == true)
                 currentBipTime = NaN;
                 kk = 1;
                 while(isnan(currentBipTime))
