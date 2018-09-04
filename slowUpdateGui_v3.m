@@ -36,13 +36,18 @@ function slowUpdateGui_v3_OpeningFcn(hObject, eventdata, handles, varargin)
     currPage = [1:propertiesFile.numOfElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
     numOfActiveElectrodes = getappdata(findall(0,'Name', 'RTExp_v3'), 'numOfActiveElectrodes');
+    neuronMap = getappdata(findall(0,'Name', 'RTExp_v3'), 'neuronMap');
     setappdata(hObject, 'numOfActiveElectrodes', numOfActiveElectrodes);
+    setappdata(hObject, 'neuronMap', neuronMap);
     setappdata(hObject, 'selected', zeros(numOfActiveElectrodes,1));
     setappdata(hObject, 'histograms', []);
     setappdata(hObject, 'currFilterIndex', 0);
-    setappdata(hObject.Parent, 'filtersView', {});
-    setappdata(hObject.Parent, 'selectedPerView', {});
-
+    setappdata(hObject, 'filtersView', {});
+    setappdata(hObject, 'selectedPerView', {});
+    for inti = 1:propertiesFile.numOfElectrodesPerPage
+        currText = findobj('Tag',['elec',num2str(inti),'Label']);
+        set(currText, 'string', ['Elec: ',num2str(currPage(inti)),'-',neuronMap{currPage(inti),2}]);
+    end
 end
 
 
@@ -57,6 +62,7 @@ end
 % --- Executes on slider movement.
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
+    neuronMap = getappdata(hObject.Parent, 'neuronMap');
     currChoise = get(hObject, 'Value')+1;
     numOfActiveElectrodes = getappdata(hObject.Parent, 'numOfActiveElectrodes');
     if currChoise > ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage)
@@ -68,7 +74,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     for inti = 1:propertiesFile.numOfElectrodesPerPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
-        set(currText, 'string', ['Elec: ',num2str(newElecNum)]);
+        set(currText, 'string', ['Elec: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
         currPage(inti) = newElecNum;
         currPageSelection(inti) = selected(newElecNum);
     end

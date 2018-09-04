@@ -38,9 +38,11 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'selected', selected);
     setappdata(hObject, 'histograms', []);
     setappdata(hObject, 'rasters', []);
+    neuronMap = getappdata(findall(0,'Name', 'RTExp_v3'), 'neuronMap');
+    setappdata(hObject, 'neuronMap', neuronMap);
 
     for inti = 1:min(length(selected), propertiesFile.numOfElectrodesPerPage)
-        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti))]);
+        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti)),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = selected(inti);
     end
     if length(selected) < propertiesFile.numOfElectrodesPerPage
@@ -48,18 +50,6 @@ function filterView_v1_OpeningFcn(hObject, eventdata, handles, varargin)
     else
         setappdata(hObject, 'currPageElecs', currPage);
     end
-%         for inti = 1:(propertiesFile.numOfElectrodesPerPage-length(selected))
-%             set(handles.(['elec',num2str(length(selected)+inti),'Label']), 'string','');
-%             currPage(length(selected)+inti) = 0;
-%             for indexForLabel = 1:propertiesFile.numOfLabelTypes
-%                 currRaster = findall(hObject, 'Tag', ['rasterPlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
-%                 currHist = findall(hObject, 'Tag', ['slowUpdatePlot',num2str(length(selected)+inti),'_',num2str(indexForLabel)]);
-%                 currRaster.Visible = 'off';
-%                 currHist.Visible = 'off';
-%             end
-%         end
-%     end
-%     setappdata(hObject, 'currPageElecs', currPage);
     numOfFilteredElec = length(selected);
     set(handles.sliderForSlowUpdate, 'Max', ceil(numOfFilteredElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
     set(handles.sliderForSlowUpdate, 'SliderStep', [1/get(handles.sliderForSlowUpdate, 'Max'), 1/get(handles.sliderForSlowUpdate, 'Max')*5])
@@ -100,6 +90,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
     currChoise = get(hObject, 'Value')+1;
     selected = getappdata(hObject.Parent, 'selected');
+    neuronMap = getappdata(hObject.Parent, 'neuronMap');
     if currChoise > ceil(length(selected)/propertiesFile.numOfElectrodesPerPage)
         currChoise = ceil(length(selected)/propertiesFile.numOfElectrodesPerPage);
     end
@@ -108,7 +99,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     for inti = 1:min((length(selected)-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)),propertiesFile.numOfElectrodesPerPage)
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = selected(((currChoise-1)*4)+inti);
-        set(currText, 'string', ['Elec: ',num2str(newElecNum)]);
+        set(currText, 'string', ['Elec: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = newElecNum;
     end
     if inti<propertiesFile.numOfElectrodesPerPage
