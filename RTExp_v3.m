@@ -129,16 +129,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPres();
     else
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPresent_Temp(); 
+        if neuronMap == 0
+            neuronMap = cell(numOfActiveElectrodes, 3);
+            neuronMap(:,1) = arrayfun(@num2cell, [1:numOfActiveElectrodes]);
+            neuronMap(:,2) = {'bla'};
+        end
     end
     
     if(numOfActiveElectrodes == 0)
         % TODO: add close here.
     end
-    if neuronMap == 0
-        neuronMap = cell(numOfActiveElectrodes, 3);
-        neuronMap(:,1) = arrayfun(@num2cell, [1:numOfActiveElectrodes]);
-        neuronMap(:,2) = {'bla'};
-    end
+    
     setappdata(hObject.Parent, 'numOfActiveElectrodes', numOfActiveElectrodes);
     setappdata(hObject.Parent, 'neuronMap', neuronMap);
         
@@ -170,7 +171,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     collect_time = 0; %propertiesFile.collectTime;
     index = ones(numOfActiveElectrodes, 1);
     neuronTimeStamps = NaN(propertiesFile.numOfStamps, numOfActiveElectrodes);
-    dataToSave = NaN(1, numOfActiveElectrodes);
+    dataToSave = NaN(1, size(neuronMap,1));
     fastUpdateFlag = propertiesFile.fastUpdateFlag;
     slowUpdateFlag = propertiesFile.slowUpdateFlag;
     firstUpdate = true;
