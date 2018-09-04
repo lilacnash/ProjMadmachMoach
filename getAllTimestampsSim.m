@@ -1,6 +1,6 @@
 function [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestampsSim(fakeTime, neuronTimeStamps, index, lastSample)
 
-    numOfElec = getappdata(findall(0,'Name', 'RTExp_v3'), 'numOfActiveElectrodes');
+    numOfElec = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'numOfActiveElectrodes');
     tempDataToSave = NaN(propertiesFile.numOfStamps, numOfElec);
         
     min = lastSample;

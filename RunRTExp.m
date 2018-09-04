@@ -11,7 +11,8 @@ function [] = RunRTExp()
         connectToParadigmComputer();
     end
     
-    RTExp_v3();
+    
+    RealTimeSpikes();
    
 
 end
