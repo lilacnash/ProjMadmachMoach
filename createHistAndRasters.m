@@ -22,9 +22,9 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
          for ll = 1:numOfLabels
              for aa = 1:numOfElecsToPresent
                  currFig = rasters{aa,ll};
-                 allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel)});
+                 allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))});
                  xAxis{ll, aa} = [allTimes allTimes]';
-                 currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel)))];
+                 currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))))];
                  lengthMatWithZeros = [currTrialsLength; [1:length(currTrialsLength)]];
                  lengthMat = lengthMatWithZeros(:, lengthMatWithZeros(1,:) ~= 0);
                  yAxisForCurrUpdate = ones(2, length(allTimes));
