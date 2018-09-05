@@ -128,9 +128,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
     else
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPresent_Temp(); 
         if neuronMap == 0
-            neuronMap = cell(numOfActiveElectrodes, 3);
-            neuronMap(:,1) = arrayfun(@num2cell, [1:numOfActiveElectrodes]);
-            neuronMap(:,2) = {''};
+            neuronMap = load('neuronMap.mat');
+            neuronMap = neuronMap.neuronMap;
         end
     end
     
@@ -326,9 +325,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
             end
         end
-        if ~isempty(newTrialData)
-            disp(newTrialData);
-        end
+%         if ~isempty(newTrialData)
+%             disp(newTrialData);
+%         end
         stamIndex = stamIndex + randn(1);
         
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...

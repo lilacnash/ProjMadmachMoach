@@ -24,8 +24,8 @@ classdef propertiesFile
       fastHistogramsTitle = 'Fast update electrode number: '
       numOfRows = 0
       numOfCols = 0
-      postBipTime = 0.2
-      preBipTime = 0.2
+      postBipTime = 0.05
+      preBipTime = 0.05
       connectToParadigm = true
       usingUpdateButton = true
       fastHistNum = 4
