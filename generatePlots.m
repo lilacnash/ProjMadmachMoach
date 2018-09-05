@@ -24,7 +24,7 @@ function GUI_object = generatePlots(GUI_object, numOfPlots, numOfPlotsPerCol, nu
                 titlePosition = [LEFT_UPPER_CORNER(1)+(plotContainerWidth*(i-1))+AXES_WIDTH,LEFT_UPPER_CORNER(2)-(plotContainerHeight*(j-1))-TITLE_HEIGHT,TITLE_WIDTH,TITLE_HEIGHT];
                 handlesGUI.fastPlot(n) = axes('Position',position_Axes,'Tag',['fastPlot',num2str(n)], 'Units','normalized');
                 handlesGUI.fastPlotPopupmenu(n) = uicontrol('Style', 'popup','Units','normalized','Position',Position_PopUpMenu,'Tag', ['fastPlotPopupmenu',num2str(n)],'String',{''});
-                handlesGUI.fastPlotTitle(n) = uicontrol('Style', 'text', 'Units','normalized', 'Position', titlePosition, 'Tag', ['fastPlotTitle',num2str(n)],'String','', 'FontSize', TEXT_FONT_SIZE);
+                handlesGUI.fastPlotTitle(n) = uicontrol('Style', 'text', 'Units','normalized', 'Position', titlePosition, 'Tag', ['fastPlotTitle',num2str(n)],'String','', 'FontSize', TEXT_FONT_SIZE, 'BackgroundColor', [0 0.45 0.74], 'ForegroundColor', [0.9 0.9 0.9]);
                 n = n+1;                     
             end   
         end
