@@ -9,7 +9,7 @@ function [fs, history] = fetureSelection(x_train, y_train, cv)
     if(cfg.numberOfFeture == 0)
         [fs, history] = sequentialfs(fun, x_train, y_train,'cv', cv, 'options', opts);    
     else
-        [fs, history] = sequentialfs(fun, x_train, y_train,'cv', cv, 'options', opts, 'nfeatures', cfg.numberOfFeture);   
+        [fs, history] = sequentialfs(fun, x_train, y_train,'cv', cv, 'options', opts, 'nfeatures', cfg.numberOfFeture);
     end
 
 end

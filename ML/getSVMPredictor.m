@@ -16,6 +16,6 @@ function [md, accuracy] = getSVMPredictor(label)
     [md, x_train_w_best_features] = findHyperparameters(x_train, y_train, fs);
     
     %% TEST
-    accuracy = testModel(md, x_test, x_train_w_best_features, fs, y_test);
+    accuracy = testModel(md, x_test, x_train_w_best_features, fs, y_test, y_train);
 
 end
