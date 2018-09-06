@@ -139,14 +139,14 @@ end
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
     disp('figure1_CloseRequestFcn');
-    handles.figure1.UserData.closeFlag = true;
-    currFilterIndex = getappdata(hObject.Parent, 'currFilterIndex');
-    filtersViewList = getappdata(hObject.Parent, 'filtersView');
+    currFilterIndex = getappdata(hObject, 'currFilterIndex');
+    filtersViewList = getappdata(hObject, 'filtersView');
     for inti = 1:currFilterIndex
         if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
             delete(filtersViewList{inti})
         end
     end
+    handles.figure1.UserData.closeFlag = true;
     delete(hObject);
 end
 

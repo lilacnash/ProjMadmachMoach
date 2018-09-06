@@ -388,7 +388,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      
      if getappdata(handles.figure1, 'slowUpdateFlag') == 1
-        delete(slowUpdateGuiFig);
+%         delete(slowUpdateGuiFig);
+        slowUpdateGuiFig.CloseRequestFcn(slowUpdateGuiFig, eventdata);
         setappdata(handles.figure1, 'slowUpdateFlag', 0);
      end
      
