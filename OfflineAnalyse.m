@@ -33,9 +33,11 @@ function OfflineAnalyse_OpeningFcn(hObject, eventdata, handles, varargin)
     % uiwait(handles.figure1);
     
     % Global Variables
-    currPage = [1:propertiesFile.numOfElectrodesPerPage];
-    setappdata(hObject, 'currPageElecs', currPage);
     numOfActiveElectrodes = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'numOfActiveElectrodes');
+    numOfActiveElectrodesPerPage = min(propertiesFile.numOfElectrodesPerPage, numOfActiveElectrodes);
+
+    currPage = [1:numOfActiveElectrodesPerPage];
+    setappdata(hObject, 'currPageElecs', currPage);
     neuronMap = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'neuronMap');
     setappdata(hObject, 'numOfActiveElectrodes', numOfActiveElectrodes);
     setappdata(hObject, 'neuronMap', neuronMap);
@@ -44,9 +46,21 @@ function OfflineAnalyse_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'currFilterIndex', 0);
     setappdata(hObject, 'filtersView', {});
     setappdata(hObject, 'selectedPerView', {});
-    for inti = 1:propertiesFile.numOfElectrodesPerPage
+    setappdata(hObject, 'numOfActiveElectrodesPerPage', numOfActiveElectrodesPerPage);
+    for inti = 1:numOfActiveElectrodesPerPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         set(currText, 'string', ['Elec: ',num2str(currPage(inti)),'-',neuronMap{currPage(inti),2}]);
+    end
+    if numOfActiveElectrodesPerPage < propertiesFile.numOfElectrodesPerPage
+        makeUnrelevantPlotUnvisible(inti, currPage, hObject, handles);
+        for inti = 1:propertiesFile.numOfElectrodesPerPage
+            currCheckbox = handles.(['checkbox', num2str(inti)]);
+            if inti<=numOfActiveElectrodesPerPage
+                set(currCheckbox, 'Visible', 'on');
+            else
+                set(currCheckbox, 'Visible', 'off');
+            end
+        end
     end
 end
 
@@ -68,20 +82,30 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     if currChoise > ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage)
         currChoise = ceil(numOfActiveElectrodes/propertiesFile.numOfElectrodesPerPage);
     end
+    numOfElecsInCurrPage = min((numOfActiveElectrodes-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)), propertiesFile.numOfElectrodesPerPage);
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
     selected = getappdata(currGui, 'selected');
-    for inti = 1:propertiesFile.numOfElectrodesPerPage
+    for inti = 1:numOfElecsInCurrPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
         set(currText, 'string', ['Elec: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
         currPage(inti) = newElecNum;
         currPageSelection(inti) = selected(newElecNum);
     end
-    setappdata(currGui, 'currPageElecs', currPage);
+    if inti<propertiesFile.numOfElectrodesPerPage
+        makeUnrelevantPlotUnvisible(inti, currPage, hObject.Parent, handles);
+    else
+        setappdata(currGui, 'currPageElecs', currPage);
+    end
     for inti = 1:propertiesFile.numOfElectrodesPerPage
-        currCheckbox = findobj('Tag', ['checkbox', num2str(inti)]);
-        set(currCheckbox, 'Value', currPageSelection(inti));
+        currCheckbox = handles.(['checkbox', num2str(inti)]);
+        if inti<=numOfElecsInCurrPage
+            set(currCheckbox, 'Visible', 'on');
+            set(currCheckbox, 'Value', currPageSelection(inti));
+        else
+            set(currCheckbox, 'Visible', 'off');
+        end
     end
     currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
     currUpdateButton.Callback(currUpdateButton, eventdata);

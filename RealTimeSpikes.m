@@ -117,15 +117,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     % Initilize all GUI objects
     % If rows and columns did not come from the properties file  get
     % optiman number
-    if propertiesFile.numOfCols <= 0 || propertiesFile.numOfRows <= 0
-        [numOfRows, numOfCols] = getOptimalRowsAndColsNum(propertiesFile.numOfHistogramsToPresent);
-    end
-    fastPlotsPanel = findobj('Tag', 'fastPlotsPanel');
-    containerPosition = [0.0079    0.0078    0.8540    0.8717];
-    GUI_object = hObject.Parent;
-    generatePlots(GUI_object, propertiesFile.numOfHistogramsToPresent, numOfRows, numOfCols, containerPosition);
-  
-    % Insert data into Listboxes and titles
+    
     if getappdata(handles.figure1, 'useCBMEX') == true
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPres();
     else
@@ -133,8 +125,23 @@ function startExpButton_Callback(hObject, eventdata, handles)
         if neuronMap == 0
             neuronMap = load('neuronMap.mat');
             neuronMap = neuronMap.neuronMap;
+            neuronMap = neuronMap(1:numOfActiveElectrodes, :);
+            
         end
     end
+    
+    numOfActiveElectrodesToPresent = min(numOfActiveElectrodes,propertiesFile.numOfHistogramsToPresent);
+    
+    if propertiesFile.numOfCols <= 0 || propertiesFile.numOfRows <= 0
+        [numOfRows, numOfCols] = getOptimalRowsAndColsNum(numOfActiveElectrodesToPresent);
+    end
+    containerPosition = [0.0079    0.0078    0.8540    0.8717];
+    GUI_object = hObject.Parent;
+    
+    generatePlots(GUI_object, numOfActiveElectrodesToPresent, numOfRows, numOfCols, containerPosition);
+  
+    % Insert data into Listboxes and titles
+    
     
     if(numOfActiveElectrodes == 0)
         % TODO: add close here.
@@ -145,7 +152,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
     listboxString = arrayfun(@num2str, (1:numOfActiveElectrodes), 'UniformOutput', false);
     
-    for inti = 1:propertiesFile.numOfHistogramsToPresent
+    for inti = 1:numOfActiveElectrodesToPresent
         % Insert data to listboxes
         currHandler = findobj('Tag',['fastPlotPopupmenu', num2str(inti)]);
         set(currHandler, 'Value', inti);
@@ -153,7 +160,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         set(currHandler, 'Callback', @popupmanueData_Callback);
         % Insert data into titles
         currHandler = findobj('Tag',['fastPlotTitle', num2str(inti)]);
-        if propertiesFile.numOfHistogramsToPresent <= 16
+        if numOfActiveElectrodesToPresent <= 16
             set(currHandler, 'String', [propertiesFile.fastHistogramsTitle, num2str(inti), ' - ',neuronMap{inti,2}]);
         else
             set(currHandler, 'String', ['Electrode: ', num2str(inti)], 'FontSize', 7);
