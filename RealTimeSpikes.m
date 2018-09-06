@@ -78,8 +78,7 @@ end
 function slowUpdateButton_Callback(hObject, eventdata, handles)
     disp('slowUpdateButton_Callback');
     % slowUpdateGui;
-    if get(handles.startExpButton, 'Value') == 1
-%         setappdata(handles.figure1,'slowUpdateFlag',true);
+    if getappdata(handles.figure1,'startExpButtonPressed') == 1
         setappdata(handles.figure1,'slowUpdateFlag',true);
     else
         errordlg('Please choose the "Start Exp" button before pressing the "Slow Update" option!','Unpermitted Operation');
@@ -92,6 +91,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %===============PRE-PROCESING===============
     %===========================================
     disp('startExpButton_Callback');
+    
+    if getappdata(handles.figure1, 'startExpButtonPressed') == true
+        return;
+    end
     
     global cfg;
     
@@ -377,11 +380,13 @@ function startExpButton_Callback(hObject, eventdata, handles)
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      
+     if getappdata(handles.figure1, 'slowUpdateFlag') == 1
+        delete(slowUpdateGuiFig);
+        setappdata(handles.figure1, 'slowUpdateFlag', 0);
+     end
+     
      % When closing the main GUI exit nicely
      if getappdata(handles.figure1, 'closeFlagOn') == true
-         if getappdata(handles.figure1, 'slowUpdateFlag') == 1
-            delete(slowUpdateGuiFig);
-         end
         delete(handles.figure1);
      end
      
