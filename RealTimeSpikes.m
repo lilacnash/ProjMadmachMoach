@@ -193,6 +193,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     bCollect = true; %do we need to collect
     firstGetTimestamps = true;
     lastSample = 0;
+    barAxes = cell(length(elecToPresent), 1);
 
     set(handles.labelText, 'String', '');
 
@@ -237,23 +238,25 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     if(fastUpdateFlag)
                         [n,xout] = hist(data,nBins);
                         for jj = 1:nGraphs
-                            currFig = findobj('Tag',['fastPlot',num2str(jj)]);
+                            barAxes{jj} = findobj('Tag',['fastPlot',num2str(jj)]);
                             format = 'n(:,%d)';
                             barParam = sprintf(format, jj);
-                            bar(currFig,xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
+                            bar(barAxes{jj},xout,n(:,jj),'YDataSource',barParam, 'XDataSource', 'xout');
                             if nGraphs <= 16
-                                xlabel(currFig, 'time bins (sec) ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
-                                ylabel(currFig, 'count ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
+                                xlabel(barAxes{jj}, 'time bins (sec) ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
+                                ylabel(barAxes{jj}, 'count ', 'FontSize', min([MAX_LEGENT_FONT_SIZE,round((1/nGraphs)*80)]));
                             end
-                            ylim(currFig, [0 30]);
+                            ylim(barAxes{jj}, [0 30]);
                         end
                         fastUpdateFlag = 0;
-                    
+                        linkaxes([barAxes{:,1}], 'xy');
                     else
                         %turn on datalinking
                         if ishandle(handles.figure1)
                             linkdata(handles.figure1, 'on');
                             [n,xout] = hist(data,nBins);
+                            xlim(barAxes{1}, [min(xout) max(xout)]);
+                            ylim(barAxes{1}, [0 MatMax(n)+1]);
                             refreshdata(handles.figure1,'caller');
                             collect_time = et_col + propertiesFile.collectTime;
                         else
@@ -387,7 +390,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      
-     if getappdata(handles.figure1, 'slowUpdateFlag') == 1
+     if ishandle(slowUpdateGuiFig) && slowUpdateGuiFig.UserData.closeFlag == false
 %         delete(slowUpdateGuiFig);
         slowUpdateGuiFig.CloseRequestFcn(slowUpdateGuiFig, eventdata);
         setappdata(handles.figure1, 'slowUpdateFlag', 0);

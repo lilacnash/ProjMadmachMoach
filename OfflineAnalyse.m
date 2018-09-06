@@ -243,17 +243,20 @@ function createPlots_Callback(hObject, eventdata, handles)
     histograms = getappdata(hObject.Parent, 'histograms');
     rasters = getappdata(hObject.Parent, 'rasters');
     firstCreationFlag = false;
-    if isempty(histograms) 
+    if isempty(histograms)
+        histograms = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
+        rasters = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
-                histograms{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag',['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
-                rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                histograms{electrodeIndex, labelsIndex} = handles.(['slowPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                rasters{electrodeIndex, labelsIndex} = handles.(['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
         firstCreationFlag = true;
         setappdata(hObject.Parent, 'histograms', histograms);
         setappdata(hObject.Parent, 'rasters', rasters);
     end
+    Priority(2);
     createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
     
     %Call for the create plots function of each filteres view

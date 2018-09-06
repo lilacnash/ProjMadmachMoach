@@ -1,6 +1,5 @@
 function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui, rasters, firstFlag)
      elecToPresent = getappdata(currGui,'currPageElecs');
-     %nBins = propertiesFile.numOfBins;
      sizeOfBins = (maxVal-minVal)/10;
      numOfLabels = propertiesFile.numOfLabelTypes;
      xBins = [minVal:sizeOfBins:maxVal];
@@ -17,13 +16,15 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
      else
          numOfElecsToPresent = length(elecToPresent);
      end
-     xAxis = cell(numOfLabels, numOfElecsToPresent);
-     yAxis = cell(numOfLabels, numOfElecsToPresent);
+     indexForRasters = 1;
+     indexForHists = 1;
+     nSlow = zeros(length(xBins), propertiesFile.numOfElectrodesPerPage*propertiesFile.numOfLabelTypes);
+     xoutSlow = zeros(length(xBins), propertiesFile.numOfElectrodesPerPage*propertiesFile.numOfLabelTypes);
      if(slowUpdateFlag)
          for aa = 1:numOfElecsToPresent
             for ll = 1:numOfLabels 
                  allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))});
-                 xAxis{ll, aa} = [allTimes allTimes]';
+                 xAxis(indexForRasters:indexForRasters+1, [1:length(allTimes)]) = [allTimes allTimes]';
                  currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))))];
                  lengthMatWithZeros = [currTrialsLength; [1:length(currTrialsLength)]];
                  lengthMat = lengthMatWithZeros(:, lengthMatWithZeros(1,:) ~= 0);
@@ -34,17 +35,17 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      yAxisForCurrUpdate(2, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial)+0.5;
                      yAxisIndex = yAxisIndex+lengthMat(1,activeTrial);
                  end
-                 yAxis{ll, aa} = yAxisForCurrUpdate;
+                 yAxis([indexForRasters:indexForRasters+1], [1:length(allTimes)]) = yAxisForCurrUpdate;
                  if firstFlag == true
-                     xFormat = 'xAxis{%d,%d}';
-                     yFormat = 'yAxis{%d,%d}';
-                     xParam = sprintf(xFormat, ll, aa);
-                     yParam = sprintf(yFormat, ll, aa);
-                     plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, ...
+                     xFormat = 'xAxis([%d:%d],:)';
+                     yFormat = 'yAxis([%d:%d],:)';
+                     xParam = sprintf(xFormat, indexForRasters, indexForRasters+1);
+                     yParam = sprintf(yFormat, indexForRasters, indexForRasters+1);
+                     plot(rasters{aa,ll}, xAxis([indexForRasters,indexForRasters+1],:), yAxis([indexForRasters:indexForRasters+1],:), ...
                          'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
                  else
-                     plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
-%                              refreshdata(rasters{aa,ll}, 'caller');
+%                      plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
+                      refreshdata(rasters{aa,ll}, 'caller');
                  end
                  xlim(rasters{aa,ll}, [minVal maxVal]);
                  ylim(rasters{aa,ll}, [0 (numOfTrialsPerLabel(ll)+1)]);
@@ -57,12 +58,20 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      rasters{aa,ll}.XAxis.Color = [0.94 0.94 0.94];
                  end
                  %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
-                 [nSlow,xoutSlow] = hist(allTimes,xBins);
-                 nSlow = nSlow/numOfTrialsPerLabel(ll); %divide - to get average
-                 bar(histograms{aa,ll},xoutSlow,nSlow); %nSlow(:,1)?
-                 yLimMax(aa) = max(yLimMax(aa), max(nSlow));
+                 [nSlowTemp,xoutSlow(:, indexForHists)] = hist(allTimes,xBins);
+                 nSlow(:,indexForHists) = nSlowTemp/numOfTrialsPerLabel(ll); %divide - to get average
+                 if firstFlag == true
+                     xOutFormat = 'xoutSlow(:,%d)';
+                     nSlowFormat = 'nSlow(:,%d)';
+                     xOutParam = sprintf(xOutFormat, indexForHists);
+                     nSlowParam = sprintf(nSlowFormat, indexForHists);
+                     bar(histograms{aa,ll},xoutSlow(:,indexForHists),nSlow(:,indexForHists), 'XDataSource', xOutParam, 'YDataSource', nSlowParam);
+                 else
+%                      bar(histograms{aa,ll},xoutSlow(:,indexForHists),nSlow(:,indexForHists));
+                     refreshdata(histograms{aa,ll}, 'caller');
+                 end
+                 yLimMax(aa) = max(yLimMax(aa), max(nSlowTemp));
                  xlim(histograms{aa,ll}, [minVal maxVal]);
-%                  ylim(histograms{aa,ll}, [0 20]);
                  histograms{aa,ll}.XAxis.Visible = 'off';
                  
                  if ll > 1
@@ -71,6 +80,8 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      histograms{aa,ll}.YAxis.Color = [0.94 0.94 0.94];
                  end
                  ylim(histograms{aa,ll}, [0 yLimMax(aa)+1]);
+                 indexForRasters = indexForRasters + 2;
+                 indexForHists = indexForHists + 1;
             end
          end
          if numOfElecsToPresent < propertiesFile.numOfElectrodesPerPage
@@ -90,6 +101,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
              end
          end
      end
+%      refreshdata(currGui, 'caller');
 end
 
 

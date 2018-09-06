@@ -150,6 +150,7 @@ function createPlots_Callback(hObject, eventdata, handles)
         setappdata(hObject.Parent, 'histograms', histograms);
         setappdata(hObject.Parent, 'rasters', rasters);
     end
+    Priority(2);
     createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
 end
 
