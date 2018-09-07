@@ -201,6 +201,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
     dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
     
+    % This time - For saving scheduling
+    lastUpdate = now;
     %%
     %while slow and fast figures are open
     while(ishandle(handles.figure1) && getappdata(handles.figure1, 'closeFlagOn') == false && getappdata(handles.figure1, 'stopButtonPressed') == false)
@@ -370,6 +372,17 @@ function startExpButton_Callback(hObject, eventdata, handles)
             predictButton_Callback(handles.predictButton, eventdata);
             handles.predictButton.UserData = dataToSaveForHistAndRaster;
         end
+        if (~isempty(dataToSave) && minute(now-lastUpdate) > 1)
+            currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
+            if ~(exist('output', 'Dir') > 0)
+                 mkdir('output');
+            end
+            save(['output\allDataFrom_',currentDateAndTime,'.mat'],'dataToSave');
+            save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
+            dataToSave = NaN(1, size(neuronMap,1));
+            dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
+            lastUpdate = now;
+        end
     end
     
     %% stoping the recording and saving the data
@@ -384,6 +397,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
              mkdir('output');
         end
         save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');    
+        save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
     end
     
      linkdata off;
