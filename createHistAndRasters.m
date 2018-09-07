@@ -45,8 +45,8 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      plot(rasters{aa,ll}, xAxis([indexForRasters,indexForRasters+1],:), yAxis([indexForRasters:indexForRasters+1],:), ...
                          'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
                  else
-%                      plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
-                      refreshdata(rasters{aa,ll}, 'caller');
+                      plot(rasters{aa,ll}, xAxis{ll, aa}, yAxis{ll, aa}, 'LineStyle', '-', 'Color', 'black');
+%                       refreshdata(rasters{aa,ll}, 'caller');
                  end
                  xlim(rasters{aa,ll}, [minVal maxVal]);
                  ylim(rasters{aa,ll}, [0 (numOfTrialsPerLabel(ll)+1)]);

@@ -437,9 +437,9 @@ end
 function stopButton_Callback(hObject, eventdata, handles)
     disp('stopButton_Callback');
     
-    if getappdata(handles.figure1, 'useCBMEX') == true
-        stopRec();
-    end
+%     if getappdata(handles.figure1, 'useCBMEX') == true
+%         stopRec();
+%     end
     
     setappdata(handles.figure1, 'stopButtonPressed', true);
 end

@@ -49,7 +49,7 @@ function OfflineAnalyse_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'numOfActiveElectrodesPerPage', numOfActiveElectrodesPerPage);
     for inti = 1:numOfActiveElectrodesPerPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
-        set(currText, 'string', ['Elec: ',num2str(currPage(inti)),'-',neuronMap{currPage(inti),2}]);
+        set(currText, 'string', ['Neuron: ',num2str(currPage(inti)),'-',neuronMap{currPage(inti),2}]);
     end
     if numOfActiveElectrodesPerPage < propertiesFile.numOfElectrodesPerPage
         makeUnrelevantPlotUnvisible(inti, currPage, hObject, handles);
@@ -89,7 +89,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     for inti = 1:numOfElecsInCurrPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
-        set(currText, 'string', ['Elec: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
+        set(currText, 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
         currPage(inti) = newElecNum;
         currPageSelection(inti) = selected(newElecNum);
     end

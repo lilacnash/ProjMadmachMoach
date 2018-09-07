@@ -42,7 +42,7 @@ function OfflineFilteredView_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'neuronMap', neuronMap);
 
     for inti = 1:min(length(selected), propertiesFile.numOfElectrodesPerPage)
-        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Elec: ',num2str(selected(inti)),'-',neuronMap{selected(inti),2}]);
+        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Neuron: ',num2str(selected(inti)),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = selected(inti);
     end
     if length(selected) < propertiesFile.numOfElectrodesPerPage
@@ -78,7 +78,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     for inti = 1:min((length(selected)-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)),propertiesFile.numOfElectrodesPerPage)
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = selected(((currChoise-1)*4)+inti);
-        set(currText, 'string', ['Elec: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
+        set(currText, 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = newElecNum;
     end
     if inti<propertiesFile.numOfElectrodesPerPage
