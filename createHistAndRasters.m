@@ -1,5 +1,6 @@
 function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui, rasters, firstFlag)
      elecToPresent = getappdata(currGui,'currPageElecs');
+     histogramsAxes = getappdata(currGui, 'histogramsAxes');
      sizeOfBins = (maxVal-minVal)/10;
      numOfLabels = propertiesFile.numOfLabelTypes;
      xBins = [minVal:sizeOfBins:maxVal];
@@ -65,10 +66,11 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      nSlowFormat = 'nSlow(:,%d)';
                      xOutParam = sprintf(xOutFormat, indexForHists);
                      nSlowParam = sprintf(nSlowFormat, indexForHists);
-                     bar(histograms{aa,ll},xoutSlow(:,indexForHists),nSlow(:,indexForHists), 'XDataSource', xOutParam, 'YDataSource', nSlowParam);
+                     histogramsAxes{indexForHists} = bar(histograms{aa,ll},xoutSlow(:,indexForHists),nSlow(:,indexForHists), 'XDataSource', xOutParam, 'YDataSource', nSlowParam);
                  else
 %                      bar(histograms{aa,ll},xoutSlow(:,indexForHists),nSlow(:,indexForHists));
-                     refreshdata(histograms{aa,ll}, 'caller');
+%                      refreshdata(histograms{aa,ll}, 'caller');
+                        set(histogramsAxes{indexForHists}, 'xdata', xoutSlow(:,indexForHists), 'ydata', nSlow(:,indexForHists));
                  end
                  yLimMax(aa) = max(yLimMax(aa), max(nSlowTemp));
                  xlim(histograms{aa,ll}, [minVal maxVal]);
@@ -100,6 +102,11 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  end
              end
          end
+     end
+     if firstFlag
+        setappdata(currGui, 'histogramsAxes', histogramsAxes);
+     else
+         drawnow;
      end
 %      refreshdata(currGui, 'caller');
 end
