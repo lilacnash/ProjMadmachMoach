@@ -1,9 +1,7 @@
 function [labels, fetures, feturesNames] = prepareDataset(label)
         
     global cfg;
-    
-    cfg = specSVM();
-    
+        
     [labels, feturesSource] = extractLabelsFromFile(label);
     if(isempty(labels))
         return;
@@ -45,7 +43,7 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
                     
                     labels{jj, 1} = lb;
                     fetures{jj, 1} = lb;
-                    fetures{jj, 2} = (str2double(line(1:strfind(line, ' '))))/1000;
+                    fetures{jj, 2} = (str2double(line(1:strfind(line, ' '))))/1000000;
                     break;                  
                end
            end 
@@ -84,8 +82,8 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
            for jj = 1:2:numOfFetures
               
               tempFetures = rawFetures{1, (jj + 1)/2};
-              relavantPeriodSpikesBefore = tempFetures((tempFetures(1,:) >= minTime) & (tempFetures(1,:) <= beepTime));
-              relavantPeriodSpikesAfter = tempFetures((tempFetures(1,:) >= beepTime) & (tempFetures(1,:) <= maxTime));
+              relavantPeriodSpikesBefore = tempFetures((tempFetures(:,1) >= minTime) & (tempFetures(:,1) <= beepTime));
+              relavantPeriodSpikesAfter = tempFetures((tempFetures(:,1) >= beepTime) & (tempFetures(:,1) <= maxTime));
               fetures{ii, jj} = getFiringRate(relavantPeriodSpikesBefore, cfg.binBeforeCue);
               fetures{ii, jj+1} = getFiringRate(relavantPeriodSpikesAfter, cfg.binAfterCue);
                
@@ -118,7 +116,7 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
               if ~isempty(relevantIndexes)
                 numOfUsedColumns = numOfUsedColumns + 1;
                 tempVec = cluster_class(relevantIndexes, 2);
-                rawFetures{1, numOfUsedColumns} = tempVec;
+                rawFetures{1, numOfUsedColumns} = tempVec/1000;
                 feturesNames{1, (numOfUsedColumns*2)} = sprintf('%s_%d_%s', matFiles(ii).name, k, 'A');
                 feturesNames{1, (numOfUsedColumns*2)-1} = sprintf('%s_%d_%s', matFiles(ii).name, k, 'B');
               end                

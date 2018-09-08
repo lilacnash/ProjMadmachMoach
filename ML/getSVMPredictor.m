@@ -1,5 +1,7 @@
-function [md, accuracy] = getSVMPredictor(label)
-
+function [md, stats] = getSVMPredictor(label)
+    
+    global cfg;
+    
     %% PREPARE DATA
     [labels, fetures, feturesNames] = prepareDataset(label);
     
@@ -16,6 +18,6 @@ function [md, accuracy] = getSVMPredictor(label)
     [md, x_train_w_best_features] = findHyperparameters(x_train, y_train, fs);
     
     %% TEST
-    accuracy = testModel(md, x_test, x_train_w_best_features, fs, y_test, y_train);
+    stats = testModel(md, x_test, x_train_w_best_features, fs, y_test, y_train);
 
 end
