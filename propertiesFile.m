@@ -21,7 +21,7 @@ classdef propertiesFile
       numOfLabelTypes = 5 %a=1,e=2,u=3,o=4,i=5
       numOfElectrodesPerPage = 4
       numOfHistogramsToPresent = 4
-      fastHistogramsTitle = 'Fast update electrode number: '
+      fastHistogramsTitle = 'Neuron number: '
       numOfRows = 0
       numOfCols = 0
       postBipTime = 0.05

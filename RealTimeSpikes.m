@@ -278,15 +278,16 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         
+        % For testing Only, bips simulation - when not using paradigm
         if propertiesFile.connectToParadigm == false
            labels = {'a','e','i','o','u'};
-           if second(now-lastUpdate) > 7
+           if second(now-lastUpdate) > 15
                newLabelAndBipTimeMatrix = {labels{randi([1 length(labels)])}, rand(1, 1, 'double')*(MatMax(neuronTimeStamps)-MatMin(neuronTimeStamps))};
            else
                continue;
            end
         else
-            
+        % When using paradigm    
             if (cfg.server_data_socket.BytesAvailable > 0)
                 [newLabelAndBipTimeMatrix, empty] = getLogs();
                 if empty
@@ -320,6 +321,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             
+            % When times are not synchronized
             if propertiesFile.connectToParadigm == true
                 currentBipTime = NaN;
                 kk = 1;
@@ -340,10 +342,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
             end
         end
-%         if ~isempty(newTrialData)
-%             disp(newTrialData);
-%         end
         
+        % Updates all relevant infomration to the Offline Analyzed View
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
                 (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true))
             slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
@@ -399,6 +399,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
         save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
     end
     
+     % close sockets
+     if propertiesFile.connectToParadigm && cfg.useParadigm
+         CloseSockets();
+     end
+    
      linkdata off;
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);
@@ -414,10 +419,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
         delete(handles.figure1);
      end
      
-     % close sockets
-     if cfg.useParadigm
-         CloseSockets();
-     end
 end
 
 function useCBMEX_Callback(hObject, eventdata, handles)
