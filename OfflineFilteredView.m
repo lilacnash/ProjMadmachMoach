@@ -32,7 +32,7 @@ function OfflineFilteredView_OpeningFcn(hObject, eventdata, handles, varargin)
     % UIWAIT makes OfflineFilteredView wait for user response (see UIRESUME)
     % uiwait(handles.figure1);
     
-    % Global Variables
+    %% Global Variables and initilization
     UserData = get(hObject, 'UserData');
     selected = UserData.numOfElecs;
     setappdata(hObject, 'selected', selected);
@@ -40,11 +40,13 @@ function OfflineFilteredView_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'rasters', []);
     neuronMap = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'neuronMap');
     setappdata(hObject, 'neuronMap', neuronMap);
-
+    % Updates titles
     for inti = 1:min(length(selected), propertiesFile.numOfElectrodesPerPage)
         set(handles.(['elec',num2str(inti),'Label']), 'string', ['Neuron: ',num2str(selected(inti)),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = selected(inti);
     end
+    
+    % If there are less neurons than the one in the view
     if length(selected) < propertiesFile.numOfElectrodesPerPage
         makeUnrelevantPlotUnvisible(length(selected), currPage, hObject, handles);
     else
@@ -64,7 +66,7 @@ function varargout = OfflineFilteredView_OutputFcn(hObject, eventdata, handles)
 end
 
 
-% --- Executes on slider movement.
+% Updates the relevant page to this view
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
     currChoise = get(hObject, 'Value')+1;
@@ -75,22 +77,25 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     end
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
+    % Update the titles and global variables
     for inti = 1:min((length(selected)-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)),propertiesFile.numOfElectrodesPerPage)
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = selected(((currChoise-1)*4)+inti);
         set(currText, 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = newElecNum;
     end
+    % If there are less neurons than the one in the view
     if inti<propertiesFile.numOfElectrodesPerPage
         makeUnrelevantPlotUnvisible(inti, currPage, hObject.Parent, handles);
     else
         setappdata(currGui, 'currPageElecs', currPage);
     end  
+    % Sending action to update the view
     currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
     currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
-% --- Executes during object creation, after setting all properties.
+% Creation of the slider
 function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_CreateFcn');
     if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -98,12 +103,12 @@ function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     end
 end
 
-
+% Page number label
 function slowPlotsSliderResultLabel_Callback(hObject, eventdata, handles)
     disp('slowPlotsSliderResultLabel_Callback');
 end
 
-% --- Executes during object creation, after setting all properties.
+% Page number label - creation
 function slowPlotsSliderResultLabel_CreateFcn(hObject, eventdata, handles)
     disp('slowPlotsSliderResultLabel_CreateFcn');
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -120,11 +125,9 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     delete(hObject);
 end
 
-% --- Executes on button press in viewSelectedButton.
+% Unrelevant for this view
 function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
-    elec = (getappdata(hObject.Parent, 'selected'));
-    find(elec == 1)
 end
 
 
@@ -139,11 +142,15 @@ function createPlots_Callback(hObject, eventdata, handles)
     histograms = getappdata(hObject.Parent, 'histograms');
     rasters = getappdata(hObject.Parent, 'rasters');
     firstCreationFlag = false;
+    % Saves all UI graphs objects in a cell matrix - due to matlab bug with
+    % deleting them
     if isempty(histograms) 
+        histograms = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
+        rasters = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
         for electrodeIndex = 1:propertiesFile.numOfElectrodesPerPage
             for labelsIndex = 1:propertiesFile.numOfLabelTypes
-                histograms{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag',['slowUpdatePlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
-                rasters{electrodeIndex, labelsIndex} = findall(hObject.Parent, 'Tag', ['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                histograms{electrodeIndex, labelsIndex} = handles.(['slowUpdatePlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
+                rasters{electrodeIndex, labelsIndex} = handles.(['rasterPlot',num2str(electrodeIndex),'_',num2str(labelsIndex)]);
             end
         end
         firstCreationFlag = true;
@@ -151,11 +158,12 @@ function createPlots_Callback(hObject, eventdata, handles)
         setappdata(hObject.Parent, 'rasters', rasters);
     end
     Priority(2);
+    % Calling for update of this view
     createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
 end
 
 
-% --- Executes on button press in updateButton.
+% Sending the root GUI action to update all views
 function updateButton_Callback(hObject, eventdata, handles)
     bigFather = findall(0,'Name', 'RealTimeSpikes');
     if ~isempty(bigFather)

@@ -24,7 +24,9 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
      if(slowUpdateFlag)
          for aa = 1:numOfElecsToPresent
             for ll = 1:numOfLabels 
+                % Flat all times in relevant graph to one vector
                  allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))});
+                 % Preparing all data to the raster plot
                  xAxis(indexForRasters:indexForRasters+1, [1:length(allTimes)]) = [allTimes allTimes]';
                  currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))))];
                  lengthMatWithZeros = [currTrialsLength; [1:length(currTrialsLength)]];
@@ -52,6 +54,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  xlim(rasters{aa,ll}, [minVal maxVal]);
                  ylim(rasters{aa,ll}, [0 (numOfTrialsPerLabel(ll)+1)]);
                  rasters{aa,ll}.YAxis.Visible = 'off';
+                 % UI preferances to the graphs on the view
                  if aa < numOfElecsToPresent
                      rasters{aa,ll}.XAxis.Visible = 'off';
                  else
@@ -76,7 +79,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  yLimMax(aa) = max(yLimMax(aa), max(nSlowTemp));
                  xlim(histograms{aa,ll}, [minVal maxVal]);
                  histograms{aa,ll}.XAxis.Visible = 'off';
-                 
+                 % UI preferances to the graphs on the view
                  if ll > 1
                      histograms{aa,ll}.YAxis.Visible = 'off';
                  else
@@ -87,6 +90,8 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  indexForHists = indexForHists + 1;
             end
          end
+         % if number of neurons in this view or page is less than the one
+         % in the UI - getting the UI objects off
          if numOfElecsToPresent < propertiesFile.numOfElectrodesPerPage
              for ll = 1:numOfLabels 
                  for inti = 1:(propertiesFile.numOfElectrodesPerPage-numOfElecsToPresent)
@@ -104,6 +109,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
              end
          end
      end
+     % Updates the histograms with draw now - not on creation
      if firstFlag
         setappdata(currGui, 'histogramsAxes', histogramsAxes);
      else

@@ -36,6 +36,7 @@ function OfflineAnalyse_OpeningFcn(hObject, eventdata, handles, varargin)
     numOfActiveElectrodes = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'numOfActiveElectrodes');
     numOfActiveElectrodesPerPage = min(propertiesFile.numOfElectrodesPerPage, numOfActiveElectrodes);
 
+    %% Opening configurations
     currPage = [1:numOfActiveElectrodesPerPage];
     setappdata(hObject, 'currPageElecs', currPage);
     neuronMap = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'neuronMap');
@@ -47,10 +48,13 @@ function OfflineAnalyse_OpeningFcn(hObject, eventdata, handles, varargin)
     setappdata(hObject, 'filtersView', {});
     setappdata(hObject, 'selectedPerView', {});
     setappdata(hObject, 'numOfActiveElectrodesPerPage', numOfActiveElectrodesPerPage);
+    % Initilizing the titles
     for inti = 1:numOfActiveElectrodesPerPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         set(currText, 'string', ['Neuron: ',num2str(currPage(inti)),'-',neuronMap{currPage(inti),2}]);
     end
+    % If number of neurons is less than the one in the view, taking
+    % unrelevant UI objects off
     if numOfActiveElectrodesPerPage < propertiesFile.numOfElectrodesPerPage
         makeUnrelevantPlotUnvisible(inti, currPage, hObject, handles);
         for inti = 1:propertiesFile.numOfElectrodesPerPage
@@ -73,7 +77,7 @@ end
 
 
 
-% --- Executes on slider movement.
+% Updates the relevant page to this view
 function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_Callback');
     neuronMap = getappdata(hObject.Parent, 'neuronMap');
@@ -86,6 +90,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     set(handles.slowPlotsSliderResultLabel, 'String', currChoise);
     currGui = hObject.Parent;
     selected = getappdata(currGui, 'selected');
+    % Update the titles and global variables
     for inti = 1:numOfElecsInCurrPage
         currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
@@ -93,11 +98,13 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
         currPage(inti) = newElecNum;
         currPageSelection(inti) = selected(newElecNum);
     end
+    % If there are less neurons than the one in the view
     if inti<propertiesFile.numOfElectrodesPerPage
         makeUnrelevantPlotUnvisible(inti, currPage, hObject.Parent, handles);
     else
         setappdata(currGui, 'currPageElecs', currPage);
     end
+    % Initilize checkboxes according to the page number
     for inti = 1:propertiesFile.numOfElectrodesPerPage
         currCheckbox = handles.(['checkbox', num2str(inti)]);
         if inti<=numOfElecsInCurrPage
@@ -107,11 +114,12 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
             set(currCheckbox, 'Visible', 'off');
         end
     end
+    % Sending action to update the view
     currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
     currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
-% --- Executes during object creation, after setting all properties.
+% Creation of the slider
 function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     disp('sliderForSlowUpdate_CreateFcn');
     numOfActiveElectrodes = getappdata(findall(0,'Name', 'RealTimeSpikes'), 'numOfActiveElectrodes');
@@ -122,12 +130,12 @@ function sliderForSlowUpdate_CreateFcn(hObject, eventdata, handles)
     set(hObject, 'SliderStep', [1/get(hObject, 'Max'), 1/get(hObject, 'Max')*5])
 end
 
-
+% Page number label
 function slowPlotsSliderResultLabel_Callback(hObject, eventdata, handles)
     disp('slowPlotsSliderResultLabel_Callback');
 end
 
-% --- Executes during object creation, after setting all properties.
+% Page number label - creation
 function slowPlotsSliderResultLabel_CreateFcn(hObject, eventdata, handles)
     disp('slowPlotsSliderResultLabel_CreateFcn');
     if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -141,6 +149,7 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     disp('figure1_CloseRequestFcn');
     currFilterIndex = getappdata(hObject, 'currFilterIndex');
     filtersViewList = getappdata(hObject, 'filtersView');
+    % Closes all opened filtered views
     for inti = 1:currFilterIndex
         if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
             delete(filtersViewList{inti})
@@ -194,7 +203,7 @@ function checkbox4_Callback(hObject, eventdata, handles)
     setappdata(currGui, 'selected', selected);
 end
 
-% --- Executes on button press in viewSelectedButton.
+% Sending selected neurons to a filtered view
 function viewSelectedButton_Callback(hObject, eventdata, handles)
     disp('viewSelectedButton_Callback');
     elec = (getappdata(hObject.Parent, 'selected'));
@@ -243,6 +252,8 @@ function createPlots_Callback(hObject, eventdata, handles)
     histograms = getappdata(hObject.Parent, 'histograms');
     rasters = getappdata(hObject.Parent, 'rasters');
     firstCreationFlag = false;
+    % Saves all UI graphs objects in a cell matrix - due to matlab bug with
+    % deleting them
     if isempty(histograms)
         histograms = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
         rasters = cell(propertiesFile.numOfElectrodesPerPage, propertiesFile.numOfLabelTypes);
@@ -257,6 +268,7 @@ function createPlots_Callback(hObject, eventdata, handles)
         setappdata(hObject.Parent, 'rasters', rasters);
     end
     Priority(2);
+    % Calling for update of this view
     createHistAndRasters(-parameters.preBipTime, parameters.postBipTime, parameters.slowUpdateFlag, parameters.numOfTrialsPerLabel, parameters.dataToSaveForHistAndRaster, histograms, hObject.Parent, rasters, firstCreationFlag);
     
     %Call for the create plots function of each filteres view
@@ -278,7 +290,7 @@ function createPlots_Callback(hObject, eventdata, handles)
 end
 
 
-% --- Executes on button press in updateButton.
+% Sending the root GUI action to update all views
 function updateButton_Callback(hObject, eventdata, handles)
     bigFather = findall(0,'Name', 'RealTimeSpikes');
     if ~isempty(bigFather)
