@@ -399,6 +399,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
         save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
     end
     
+     % close sockets
+     if propertiesFile.connectToParadigm && cfg.useParadigm
+         CloseSockets();
+     end
+    
      linkdata off;
      setappdata(handles.figure1, 'stopButtonPressed', false);
      setappdata(handles.figure1, 'startExpButtonPressed', false);
@@ -414,10 +419,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
         delete(handles.figure1);
      end
      
-     % close sockets
-     if cfg.useParadigm
-         CloseSockets();
-     end
 end
 
 function useCBMEX_Callback(hObject, eventdata, handles)

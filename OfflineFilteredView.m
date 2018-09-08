@@ -55,8 +55,7 @@ function OfflineFilteredView_OpeningFcn(hObject, eventdata, handles, varargin)
     numOfFilteredElec = length(selected);
     set(handles.sliderForSlowUpdate, 'Max', ceil(numOfFilteredElec/propertiesFile.numOfElectrodesPerPage), 'Min', 0);
     set(handles.sliderForSlowUpdate, 'SliderStep', [1/get(handles.sliderForSlowUpdate, 'Max'), 1/get(handles.sliderForSlowUpdate, 'Max')*5])
-    createPlotsFunc = findall(hObject,'Tag', 'createPlots');
-    createPlotsFunc.Callback(createPlotsFunc, eventdata);
+    handles.createPlots.Callback(handles.createPlots, eventdata);
 end
 
 % --- Outputs from this function are returned to the command line.
@@ -79,9 +78,8 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     currGui = hObject.Parent;
     % Update the titles and global variables
     for inti = 1:min((length(selected)-((currChoise-1)*propertiesFile.numOfElectrodesPerPage)),propertiesFile.numOfElectrodesPerPage)
-        currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = selected(((currChoise-1)*4)+inti);
-        set(currText, 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
+        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{selected(inti),2}]);
         currPage(inti) = newElecNum;
     end
     % If there are less neurons than the one in the view
@@ -91,8 +89,7 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
         setappdata(currGui, 'currPageElecs', currPage);
     end  
     % Sending action to update the view
-    currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
-    currUpdateButton.Callback(currUpdateButton, eventdata);
+    handles.updateButton.Callback(handles.updateButton, eventdata);
 end
 
 % Creation of the slider

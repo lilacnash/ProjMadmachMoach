@@ -92,9 +92,8 @@ function sliderForSlowUpdate_Callback(hObject, eventdata, handles)
     selected = getappdata(currGui, 'selected');
     % Update the titles and global variables
     for inti = 1:numOfElecsInCurrPage
-        currText = findobj('Tag',['elec',num2str(inti),'Label']);
         newElecNum = ((currChoise-1)*4)+inti;
-        set(currText, 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
+        set(handles.(['elec',num2str(inti),'Label']), 'string', ['Neuron: ',num2str(newElecNum),'-',neuronMap{newElecNum,2}]);
         currPage(inti) = newElecNum;
         currPageSelection(inti) = selected(newElecNum);
     end
@@ -223,8 +222,6 @@ function viewSelectedButton_Callback(hObject, eventdata, handles)
         filtersView{currFilterIndex} = newFilterView;
         setappdata(hObject.Parent, 'filtersView', filtersView);
     end
-    currUpdateButton = findall(hObject.Parent, 'Tag', 'updateButton');
-    currUpdateButton.Callback(currUpdateButton, eventdata);
 end
 
 % --- Executes on button press in closeAllFilteredViewsButton.
