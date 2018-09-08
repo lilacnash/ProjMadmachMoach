@@ -98,7 +98,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
     
     global cfg;
     
-    stamIndex = 1; %delete after connecting to Guy
     connection = -1;
     instrument = -1;
     
@@ -280,11 +279,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         
         if propertiesFile.connectToParadigm == false
-            newLabelAndBipTimeMatrix = {'a', 0.001;
-                                        'e', 0.002;
-                                        'u', 0.003;
-                                        'o', 0.04;
-                                        'i', 0.05};
+           labels = {'a','e','i','o','u'};
+           if second(now-lastUpdate) > 7
+               newLabelAndBipTimeMatrix = {labels{randi([1 length(labels)])}, rand(1, 1, 'double')*(MatMax(neuronTimeStamps)-MatMin(neuronTimeStamps))};
+           else
+               continue;
+           end
         else
             
             if (cfg.server_data_socket.BytesAvailable > 0)
@@ -304,7 +304,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
         for ii = 1:size(newLabelAndBipTimeMatrix,1)
             letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
-            currentBipTime = (newLabelAndBipTimeMatrix{ii,2}+stamIndex) - myOffset;
+            currentBipTime = (newLabelAndBipTimeMatrix{ii,2}) - myOffset;
             switch (letterOfCurrLabel)
                 case 'a'
                     currentLabel = 1;
@@ -343,7 +343,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
 %         if ~isempty(newTrialData)
 %             disp(newTrialData);
 %         end
-        stamIndex = stamIndex + randn(1);
         
         if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
                 (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true))
