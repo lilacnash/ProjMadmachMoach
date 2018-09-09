@@ -26,10 +26,11 @@ classdef propertiesFile
       numOfCols = 0
       postBipTime = 0.05
       preBipTime = 0.05
-      connectToParadigm = true
+      connectToParadigm = false
       usingUpdateButton = true
       fastHistNum = 4
       predictionOnline = false
+      saveInterval = 2; % In minutes
 
       
       %Data store configurations
