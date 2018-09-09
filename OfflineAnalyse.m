@@ -232,7 +232,7 @@ function closeAllFilteredViewsButton_Callback(hObject, eventdata, handles)
     for inti = 1:currFilterIndex
         % Adding relevant data to the UserData object of the relevant view
         if ishandle(filtersViewList{inti}) && filtersViewList{inti}.UserData.open == true
-            delete(filtersViewList{inti})
+            delete(filtersViewList{inti});
         end
     end
 end

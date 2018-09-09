@@ -45,6 +45,8 @@ setappdata(handles.figure1, 'elecToPresent', []);
 setappdata(handles.figure1, 'listboxString', {''});
 set(handles.fastUpdatePlotsStaticLabel, 'String', 'Real Time Spikes');
 
+% set(handles.forceCloseButton, 'Visible', 'off');
+
 end
 
 
@@ -58,18 +60,17 @@ end
 %%
 %===============GUI-CALLBACKS===========
 %=======================================
-
+% Callbak to all popupmenu
 function popupmanueData_Callback (hObject, eventdata)
     disp('popupmanueData_Callback');
-    RTExpObject = hObject.Parent;
     neuronMap = getappdata(hObject.Parent, 'neuronMap');
-    elecToPresent = getappdata(RTExpObject, 'elecToPresent');
+    elecToPresent = getappdata(hObject.Parent, 'elecToPresent');
     elecNumRegex = regexp(get(hObject, 'Tag'), '\d+', 'match');
     elecNum = str2num(elecNumRegex{1});
     newChoise = get(hObject, 'Value');
-    listboxString = getappdata(RTExpObject, 'listboxString');
+    listboxString = getappdata(hObject.Parent, 'listboxString');
     elecToPresent(elecNum) = str2num(listboxString{newChoise});
-    setappdata(RTExpObject, 'elecToPresent', elecToPresent);
+    setappdata(hObject.Parent, 'elecToPresent', elecToPresent);
     titleObj = findobj('Tag', ['fastPlotTitle', num2str(elecNum)]);
     set(titleObj, 'String', [propertiesFile.fastHistogramsTitle, num2str(newChoise), ' - ',neuronMap{newChoise,2}]);
 end
@@ -278,7 +279,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         
-        % For testing Only, bips simulation - when not using paradigm
+        %% For testing Only, bips simulation - when not using paradigm
         if propertiesFile.connectToParadigm == false
            labels = {'a','e','i','o','u'};
            if second(now-lastUpdate) > 15
@@ -287,7 +288,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
                continue;
            end
         else
-        % When using paradigm    
+            
+        %% When using paradigm    
             if (cfg.server_data_socket.BytesAvailable > 0)
                 [newLabelAndBipTimeMatrix, empty] = getLogs();
                 if empty
@@ -321,7 +323,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
             numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
             
-            % When times are not synchronized
+            %% For testing only
             if propertiesFile.connectToParadigm == true
                 currentBipTime = NaN;
                 kk = 1;
@@ -336,7 +338,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                 fakeTrailNum = fakeTrailNum + 1;
             end
             
-            %save relevant timestamps from new trials
+            %% save relevant timestamps from new trials
             for ee = 1:numOfActiveElectrodes 
                 dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
                 newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
@@ -371,7 +373,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
             predictButton_Callback(handles.predictButton, eventdata);
             handles.predictButton.UserData = dataToSaveForHistAndRaster;
         end
-        if (~isempty(dataToSave) && minute(now-lastUpdate) > 1)
+        % Saving data
+        if (~isempty(dataToSave) && minute(now-lastUpdate) > propertiesFile.saveInterval)
             currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
             if ~(exist('output', 'Dir') > 0)
                  mkdir('output');
