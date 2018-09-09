@@ -279,10 +279,13 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         
+        %% need to update now  even if we dont have new trials (page switch)
+        needToUpdate =  (~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
+                (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true)));
         %% For testing Only, bips simulation - when not using paradigm
         if propertiesFile.connectToParadigm == false
            labels = {'a','e','i','o','u'};
-           if second(now-lastUpdate) > 15
+           if second(now-lastUpdate) > 15 || needToUpdate
                newLabelAndBipTimeMatrix = {labels{randi([1 length(labels)])}, rand(1, 1, 'double')*(MatMax(neuronTimeStamps)-MatMin(neuronTimeStamps))};
            else
                continue;
@@ -290,9 +293,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
         else
             
         %% When using paradigm    
-            if (cfg.server_data_socket.BytesAvailable > 0)
+            if (cfg.server_data_socket.BytesAvailable > 0) || needToUpdate
                 [newLabelAndBipTimeMatrix, empty] = getLogs();
-                if empty
+                if empty && ~needToUpdate
                     continue;
                 else
                     hObject.Parent.UserData.update = true;
@@ -305,49 +308,50 @@ function startExpButton_Callback(hObject, eventdata, handles)
         labelsData(labelsDataIndex+1:labelsDataIndex+length(newLabelAndBipTimeMatrix(:,1)), 1:length(newLabelAndBipTimeMatrix(1,:))) = newLabelAndBipTimeMatrix;
         labelsDataIndex = length(labelsData(:, 1));
         
-        for ii = 1:size(newLabelAndBipTimeMatrix,1)
-            letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
-            currentBipTime = (newLabelAndBipTimeMatrix{ii,2}) - myOffset;
-            switch (letterOfCurrLabel)
-                case 'a'
-                    currentLabel = 1;
-                case 'e'
-                    currentLabel = 2;
-                case 'i'
-                    currentLabel = 3;
-                case 'o'
-                    currentLabel = 4;
-                case 'u'
-                    currentLabel = 5;
-            end
-            
-            numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
-            
-            %% For testing only
-            if propertiesFile.connectToParadigm == true
-                currentBipTime = NaN;
-                kk = 1;
-                while(isnan(currentBipTime))
-                    currentBipTime = dataToSave(30*fakeTrailNum, kk);
-                    kk = kk+1;
-                    if kk > propertiesFile.numOfElec
-                        currentBipTime = 30*fakeTrailNum/10;
-                        break;
-                    end
+        if ~isempty(newLabelAndBipTimeMatrix{1,1})
+            for ii = 1:size(newLabelAndBipTimeMatrix,1)
+                letterOfCurrLabel = newLabelAndBipTimeMatrix{ii,1};
+                currentBipTime = (newLabelAndBipTimeMatrix{ii,2}) - myOffset;
+                switch (letterOfCurrLabel)
+                    case 'a'
+                        currentLabel = 1;
+                    case 'e'
+                        currentLabel = 2;
+                    case 'i'
+                        currentLabel = 3;
+                    case 'o'
+                        currentLabel = 4;
+                    case 'u'
+                        currentLabel = 5;
                 end
-                fakeTrailNum = fakeTrailNum + 1;
-            end
-            
-            %% save relevant timestamps from new trials
-            for ee = 1:numOfActiveElectrodes 
-                dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
-                newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
+
+                numOfTrialsPerLabel(currentLabel) = numOfTrialsPerLabel(currentLabel) + 1;
+
+                %% For testing only
+                if propertiesFile.connectToParadigm == true
+                    currentBipTime = NaN;
+                    kk = 1;
+                    while(isnan(currentBipTime))
+                        currentBipTime = dataToSave(30*fakeTrailNum, kk);
+                        kk = kk+1;
+                        if kk > propertiesFile.numOfElec
+                            currentBipTime = 30*fakeTrailNum/10;
+                            break;
+                        end
+                    end
+                    fakeTrailNum = fakeTrailNum + 1;
+                end
+
+                %% save relevant timestamps from new trials
+                for ee = 1:numOfActiveElectrodes 
+                    dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
+                    newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
+                end
             end
         end
         
         % Updates all relevant infomration to the Offline Analyzed View
-        if ~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
-                (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true))
+        if needToUpdate
             slowGuiObject = getappdata(handles.figure1, 'slowUpdateGuiFig');
             slowUpdateGuiFig.UserData.preBipTime = propertiesFile.preBipTime;
             slowUpdateGuiFig.UserData.postBipTime = propertiesFile.postBipTime;
