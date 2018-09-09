@@ -8,10 +8,11 @@ function cfg = specSVM()
     
     cfg.bippoffset = 0.05;
     
-    cfg.binBeforeCue = 1000000;%1000;
-    cfg.binAfterCue = 200000;%200;
+    cfg.binBeforeCue = 1;
+    cfg.binAfterCue = 0.2;
     
     cfg.maxNumOfClusters = 5;
+    cfg.labels = ['A', 'E', 'I', 'O', 'U'];
     
     cfg.FiringRateCalculation = 'meanFiringRate';
     
@@ -19,7 +20,7 @@ function cfg = specSVM()
     
     cfg.drewHyperPlane = true;
     
-    cfg.numberOfFeture = 2;
+    cfg.numberOfFeture = 4; %use 0 for using all fetures
 
 
 end
