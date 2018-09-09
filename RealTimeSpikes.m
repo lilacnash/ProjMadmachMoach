@@ -417,6 +417,18 @@ function startExpButton_Callback(hObject, eventdata, handles)
         setappdata(handles.figure1, 'slowUpdateFlag', 0);
      end
      
+     % deleting all dynamic UI objects if close gui was not pressed
+     if getappdata(handles.figure1, 'closeFlagOn') == false
+         for inti = 1:numOfActiveElectrodesToPresent
+            % Insert data to listboxes
+            currHandler = findobj('Tag',['fastPlotPopupmenu', num2str(inti)]);
+            delete(currHandler);
+            currHandler = findobj('Tag',['fastPlotTitle', num2str(inti)]);
+            delete(currHandler);
+            delete(barAxes{inti});
+         end
+     end
+    
      % When closing the main GUI exit nicely
      if getappdata(handles.figure1, 'closeFlagOn') == true
         delete(handles.figure1);
