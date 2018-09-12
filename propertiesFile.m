@@ -4,7 +4,25 @@ classdef propertiesFile
    % properties (SetAccess = private)
    
    properties (Constant)
-    
+       
+      %% log file
+      LOG_PREFIX = 'experiment_log'
+      
+      %% data storing
+      outputDir = 'output'
+      allDataName = 'allDataFrom_'
+      trialsDataName = 'TrialsDataFrom_'
+      
+      %% comunication
+      % DATA COMPUTER
+      DATA_COMPUTER_IP = '127.0.0.1'
+      DATA_COMPUTER_PORT = 4015
+      DATA_COMPUTER_TIMEOUT = 0      % dont wait, just read from queue.
+      
+      % PARADIGM COMPUTER
+      PARADIGM_COMPUTER_IP = '127.0.0.1'
+      PARADIGM_COMPUTER_PORT = 3015
+
       %% general
       numOfElec = 128
       numOfChannels = 128
@@ -15,7 +33,7 @@ classdef propertiesFile
       %% Histograms and rasters
       binSize = (100/300)
       fastHistogramsTitle = 'Neuron number: '
-      postBipTime = 0.05
+      postBipTime = 0.001
       preBipTime = 0.05
       
       %% Labels
@@ -48,7 +66,7 @@ classdef propertiesFile
       %% prediction
       predictionOnline = true
       predictionPostBipTime = 0.2
-      predictionPreBipTime = 1
+      predictionPreBipTime = 0.001
       labelsForRandomPrediction = {'A','E','I','O','U'}
       predictorPath = 'ML/predictors.mat'
       predictorType = 'SVM'

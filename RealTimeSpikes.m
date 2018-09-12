@@ -46,8 +46,6 @@ setappdata(handles.figure1, 'elecToPresent', []);
 setappdata(handles.figure1, 'listboxString', {''});
 set(handles.fastUpdatePlotsStaticLabel, 'String', 'Real Time Spikes');
 
-% set(handles.forceCloseButton, 'Visible', 'off');
-
 end
 
 
@@ -79,7 +77,6 @@ end
 
 function slowUpdateButton_Callback(hObject, eventdata, handles)
     disp('slowUpdateButton_Callback');
-    % slowUpdateGui;
     if getappdata(handles.figure1,'startExpButtonPressed') == 1
         setappdata(handles.figure1,'slowUpdateFlag',true);
     else
@@ -101,14 +98,11 @@ function startExpButton_Callback(hObject, eventdata, handles)
     
     global cfg;
     
-    connection = -1;
-    instrument = -1;
-    
-    % propertiesFile.interface = 0; %0 (Automatic), 1 (Central), 2 (UDP)
     if getappdata(handles.figure1, 'useCBMEX') == true
         % open neuroport
         cbmex('close');
         [connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
+        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: neuroport is open. connection: %d instrument: %d\n', GetSecs, connection, instrument);
         startRecording();
     end
     
@@ -117,8 +111,8 @@ function startExpButton_Callback(hObject, eventdata, handles)
     
     %% Initilize the GUI plots according to the properties
     % Initilize all GUI objects
-    % If rows and columns did not come from the properties file  get
-    % optiman number
+    % If rows and columns did not come from the properties file get
+    % optimal number
     
     if getappdata(handles.figure1, 'useCBMEX') == true
         [numOfActiveElectrodes, neuronMap] = getNumOfElecToPres();
@@ -187,7 +181,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
     
     fakeTrailNum = 1; %for simulation time sync
 
-    fprintf('>>>>>>>>>>> in RT_Exp:TRAINING started\n');
+    fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: TRAINING started\n', GetSecs);
 
     %%
     %init clocks
@@ -411,15 +405,23 @@ function startExpButton_Callback(hObject, eventdata, handles)
             givePrediction = false;
         end
         
-        % Saving data
+        %% Saving data
         if (~isempty(dataToSave) && minute(now-lastUpdate) > propertiesFile.saveInterval)
             currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
-            if ~(exist('output', 'Dir') > 0)
-                 mkdir('output');
+            if ~(exist(propertiesFile.outputDir, 'Dir') > 0)
+                 mkdir(propertiesFile.outputDir);
             end
-            save(['output\allDataFrom_',currentDateAndTime,'.mat'],'dataToSave');
-            save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
+            allDataName = [propertiesFile.outputDir,'/',propertiesFile.allDataName,'.mat'];
+            trailDataName = [propertiesFile.outputDir,'/',propertiesFile.trialsDataName,'.mat'];
+            
+            save([allDataName,currentDateAndTime,'.mat'],'dataToSave');
+            save([trailDataName,currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
+            
+            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes:data saved\n', GetSecs);
+            
             dataToSave = NaN(1, size(neuronMap,1));
+            indexFetchDataToSave = cell(1, size(neuronMap,1));
+            indexFetchDataToSave(1,:) = {1};
             %dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
             lastUpdate = now;
         end
@@ -428,20 +430,26 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %% stoping the recording and saving the data
     if getappdata(handles.figure1, 'useCBMEX') == true 
         cbmex('close');
+        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: cbmex closed\n', GetSecs);
     end
     
-    %TODO::save labelsData as well
+    %% save data on exit
     if ~(isempty(dataToSave))
         currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
-        if ~(exist('output', 'Dir') > 0)
-             mkdir('output');
+        if ~(exist(propertiesFile.outputDir, 'Dir') > 0)
+             mkdir(propertiesFile.outputDir);
         end
-        save(['output\dataFrom_',currentDateAndTime,'.mat'],'dataToSave');    
-        save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
+        allDataName = [propertiesFile.outputDir,'/',propertiesFile.allDataName,'.mat'];
+        trailDataName = [propertiesFile.outputDir,'/',propertiesFile.trialsDataName,'.mat'];
+            
+        save([allDataName,currentDateAndTime,'.mat'],'dataToSave');    
+        save([trailDataName,currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
+        
+        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: data saved\n', GetSecs);
     end
     
      % close sockets
-     if propertiesFile.connectToParadigm && cfg.useParadigm
+     if propertiesFile.connectToParadigm
          CloseSockets();
      end
     
@@ -450,7 +458,6 @@ function startExpButton_Callback(hObject, eventdata, handles)
      setappdata(handles.figure1, 'startExpButtonPressed', false);
      
      if getappdata(handles.figure1, 'slowUpdateFlag') == true && ishandle(slowUpdateGuiFig) && slowUpdateGuiFig.UserData.closeFlag == false
-%         delete(slowUpdateGuiFig);
         slowUpdateGuiFig.CloseRequestFcn(slowUpdateGuiFig, eventdata);
         setappdata(handles.figure1, 'slowUpdateFlag', 0);
      end
@@ -521,37 +528,43 @@ end
 % --- Executes on button press in predictButton.
 function predictButton_Callback(hObject, eventdata, handles)
    
+    global cfg;
+
     persistent predictor;
     prediction = '0';
     
-    if (getappdata(handles.figure1, 'startExpButtonPressed') == true)
+    if(getappdata(handles.figure1, 'startExpButtonPressed') == true)
         
-        if(isempty(predictor))   
-            
-            if(~strcmp(propertiesFile.predictorType, 'SIMULATION'))          
-               try
-                   predictor = load(propertiesFile.predictorPath);
-               catch
-                   errordlg('Could not find a predictor in specified path, will use random prediction','File does not exist');
-                   prediction = generateRandomPrediction();
-               end              
-            else
-                prediction = generateRandomPrediction();
-            end          
+        if(~isempty(handles.predictButton.UserData))
+        
+            if(isempty(predictor))   
+
+                if(~strcmp(propertiesFile.predictorType, 'SIMULATION'))          
+                   try
+                       predictor = load(propertiesFile.predictorPath);
+                   catch
+                       errordlg('Could not find a predictor in specified path, will use random prediction','File does not exist');
+                       prediction = generateRandomPrediction();
+                   end              
+                else
+                    prediction = generateRandomPrediction();
+                end          
+            end
+
+            if(strcmp(prediction, '0'))
+                switch (propertiesFile.predictorType)
+                    case 'SVM'
+                        prediction = svmPrediction(predictor.predictors, handles.predictButton.UserData);
+                    case 'NEURAL_NETWORK'
+                        % add more options here 
+                end  
+            end
+
+            playPrediction(prediction); 
+            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: Prediction: %s\n', GetSecs, prediction);
+        else
+            errordlg('No data to predict yet, please wait for trail','Unpermitted Operation');
         end
-        
-        if(strcmp(prediction, '0'))
-            switch (propertiesFile.predictorType)
-                case 'SVM'
-                    prediction = svmPrediction(predictor.predictors, handles.predictButton.UserData);
-                case 'NEURAL_NETWORK'
-                    % add more options here 
-            end  
-        end
-        
-        playPrediction(prediction); 
-        fprintf('>>>>>>>>>>> in RT_Exp: Predict: %s\n', prediction);
-        
     else
         errordlg('Please mark "with prediction" checkbox and start the expiriment first','Unpermitted Operation');
     end

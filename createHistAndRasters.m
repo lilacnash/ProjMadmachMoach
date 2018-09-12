@@ -1,10 +1,12 @@
 function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabel, dataToSaveForHistAndRaster, histograms, currGui, rasters, firstFlag)
+
      elecToPresent = getappdata(currGui,'currPageElecs');
      histogramsAxes = getappdata(currGui, 'histogramsAxes');
      sizeOfBins = (maxVal-minVal)/10;
      numOfLabels = propertiesFile.numOfLabelTypes;
      xBins = [minVal:sizeOfBins:maxVal];
      yLimMax = zeros(propertiesFile.numOfElectrodesPerPage,1);
+     
      % Get the number of electrodes to present for the update loop of the
      % histograms and rasters
      if find(elecToPresent == 0) > 0
@@ -17,15 +19,21 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
      else
          numOfElecsToPresent = length(elecToPresent);
      end
+     
      indexForRasters = 1;
      indexForHists = 1;
      nSlow = zeros(length(xBins), propertiesFile.numOfElectrodesPerPage*propertiesFile.numOfLabelTypes);
      xoutSlow = zeros(length(xBins), propertiesFile.numOfElectrodesPerPage*propertiesFile.numOfLabelTypes);
+     
      if(slowUpdateFlag)
+         
          for aa = 1:numOfElecsToPresent
-            for ll = 1:numOfLabels 
-                % Flat all times in relevant graph to one vector
+             
+            for ll = 1:numOfLabels  
+                
+                 % Flat all times in relevant graph to one vector
                  allTimes = vertcat(dataToSaveForHistAndRaster{elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))});
+                 
                  % Preparing all data to the raster plot
                  xAxis(indexForRasters:indexForRasters+1, [1:length(allTimes)]) = [allTimes allTimes]';
                  currTrialsLength = [cellfun(@length, dataToSaveForHistAndRaster(elecToPresent(aa),((ll-1)*propertiesFile.numOfTrials+1):((ll-1)*propertiesFile.numOfTrials+1+numOfTrialsPerLabel(ll))))];
@@ -33,12 +41,15 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  lengthMat = lengthMatWithZeros(:, lengthMatWithZeros(1,:) ~= 0);
                  yAxisForCurrUpdate = ones(2, length(allTimes));
                  yAxisIndex = 1;
+                 
                  for activeTrial = 1:size(lengthMat,2)
                      yAxisForCurrUpdate(1, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial);
                      yAxisForCurrUpdate(2, yAxisIndex:(yAxisIndex+lengthMat(1,activeTrial)-1)) = lengthMat(2,activeTrial)+0.5;
                      yAxisIndex = yAxisIndex+lengthMat(1,activeTrial);
                  end
+                 
                  yAxis([indexForRasters:indexForRasters+1], [1:length(allTimes)]) = yAxisForCurrUpdate;
+                 
                  if firstFlag == true
                      xFormat = 'xAxis([%d:%d],:)';
                      yFormat = 'yAxis([%d:%d],:)';
@@ -47,6 +58,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      plot(rasters{aa,ll}, xAxis([indexForRasters,indexForRasters+1],:), yAxis([indexForRasters:indexForRasters+1],:), ...
                          'LineStyle', '-', 'Color', 'black', 'YDataSource', yParam, 'XDataSource', xParam);
                  else
+                     
                       plot(rasters{aa,ll},xAxis([indexForRasters,indexForRasters+1],:), yAxis([indexForRasters:indexForRasters+1],:), ... 
                           'LineStyle', '-', 'Color', 'black');
 %                       refreshdata(rasters{aa,ll}, 'caller');
@@ -54,6 +66,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  xlim(rasters{aa,ll}, [minVal maxVal]);
                  ylim(rasters{aa,ll}, [0 (numOfTrialsPerLabel(ll)+1)]);
                  rasters{aa,ll}.YAxis.Visible = 'off';
+                 
                  % UI preferances to the graphs on the view
                  if aa < numOfElecsToPresent
                      rasters{aa,ll}.XAxis.Visible = 'off';
@@ -62,9 +75,11 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                      rasters{aa,ll}.XAxis.FontSize = 8;
                      rasters{aa,ll}.XAxis.Color = [0.94 0.94 0.94];
                  end
+                 
                  %create histogram  for electrode aa (averaged hist of all 'll' trials until now)
                  [nSlowTemp,xoutSlow(:, indexForHists)] = hist(allTimes,xBins);
                  nSlow(:,indexForHists) = nSlowTemp/numOfTrialsPerLabel(ll); %divide - to get average
+                 
                  if firstFlag == true
                      xOutFormat = 'xoutSlow(:,%d)';
                      nSlowFormat = 'nSlow(:,%d)';
@@ -76,9 +91,11 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
 %                      refreshdata(histograms{aa,ll}, 'caller');
                         set(histogramsAxes{indexForHists}, 'xdata', xoutSlow(:,indexForHists), 'ydata', nSlow(:,indexForHists));
                  end
+                 
                  yLimMax(aa) = max(yLimMax(aa), max(nSlowTemp));
                  xlim(histograms{aa,ll}, [minVal maxVal]);
                  histograms{aa,ll}.XAxis.Visible = 'off';
+                 
                  % UI preferances to the graphs on the view
                  if ll > 1
                      histograms{aa,ll}.YAxis.Visible = 'off';
@@ -90,6 +107,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
                  indexForHists = indexForHists + 1;
             end
          end
+         
          % if number of neurons in this view or page is less than the one
          % in the UI - getting the UI objects off
          if numOfElecsToPresent < propertiesFile.numOfElectrodesPerPage
@@ -109,6 +127,7 @@ function createHistAndRasters(minVal, maxVal, slowUpdateFlag, numOfTrialsPerLabe
              end
          end
      end
+     
      % Updates the histograms with draw now - not on creation
      if firstFlag
         setappdata(currGui, 'histogramsAxes', histogramsAxes);
