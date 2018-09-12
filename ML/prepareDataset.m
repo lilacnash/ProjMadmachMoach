@@ -51,6 +51,7 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
         
     end
 
+
     function numOfLines = getNumOfLines(fd)
         
         numOfLines = 0;
@@ -126,6 +127,7 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
        feturesNames = feturesNames(:, 1:numOfUsedColumns*2);
     end
 
+
     function firingRate = getFiringRate(periodSpikes, binTime)
        
         if(strcmp(cfg.FiringRateCalculation, 'meanFiringRate'))
@@ -133,7 +135,7 @@ function [labels, fetures, feturesNames] = prepareDataset(label)
                 firingRate = 0;
                 return;
             end
-            firingRate = length(periodSpikes(1,:))*(1/(binTime/1000));
+            firingRate = length(periodSpikes(:,1))*(1/(binTime/1000));
         end   
     end
     

@@ -10,11 +10,6 @@ function [stats] = testModel(md, x_test,x_train_w_best_feature, fs, y_test, y_tr
     fp = sum(prediction == 1 & prediction ~= y_test);
     t = sum(y_test == 1);
     
-    %disp(prediction); %TODO:delete
-    
-    %disp(y_test); %TODO:delete
-    
-    
     stats.accuracy = (sum(prediction == y_test)/length(y_test))*100;
     
     stats.precision = (tp/(tp + fp))*100;

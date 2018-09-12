@@ -20,7 +20,9 @@ function cfg = specSVM()
     
     cfg.drewHyperPlane = true;
     
-    cfg.numberOfFeture = 4; %use 0 for using all fetures
+    cfg.numberOfFeture = 2; %use 0 for using all fetures
+    
+    cfg.predictorFileName = 'predictors.mat';
 
 
 end

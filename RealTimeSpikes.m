@@ -1,4 +1,4 @@
-%%
+
 %===============INIT-GUI===============
 %======================================
 function varargout = RealTimeSpikes(varargin)
@@ -22,6 +22,7 @@ else
 end
 % End initialization code - DO NOT EDIT
 end
+
 
 % Executes just before RealTimeSpikes is made visible.
 function RealTimeSpikes_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -88,6 +89,7 @@ end
 
 
 function startExpButton_Callback(hObject, eventdata, handles)
+
     %%
     %===============PRE-PROCESING===============
     %===========================================
@@ -199,6 +201,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
 
     labelsDataIndex = 0;
     dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
+    indexFetchDataToSave = cell(1, size(neuronMap,1));
+    indexFetchDataToSave(1,:) = {1};
+    lastLabelTime = 0;
+    dataForPrediction = cell(1, numOfActiveElectrodes*2); 
     numOfTrialsPerLabel = zeros(1,propertiesFile.numOfLabelTypes);
     
     % This time - For saving scheduling
@@ -220,7 +226,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     end
 
                 else
-                    [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %TODO: delete this
+                    [neuronTimeStamps, index, lastSample, tempDataToSave] = getAllTimestampsSim(et_col, neuronTimeStamps, index, lastSample); %for simulation only
                     dataToSave = [dataToSave; tempDataToSave];
 
                     if firstGetTimestamps == true
@@ -279,9 +285,10 @@ function startExpButton_Callback(hObject, eventdata, handles)
         
         myOffset = getappdata(handles.figure1,'offsetFirstGetTimestamps');
         
-        %% need to update now  even if we dont have new trials (page switch)
+        %% need to update now even if we dont have new trials (page switch)
         needToUpdate =  (~firstUpdate && ishandle(getappdata(handles.figure1, 'slowUpdateGuiFig')) && slowUpdateGuiFig.UserData.closeFlag == false && ...
                 (propertiesFile.usingUpdateButton == false || (propertiesFile.usingUpdateButton == true && hObject.Parent.UserData.update == true)));
+        
         %% For testing Only, bips simulation - when not using paradigm
         if propertiesFile.connectToParadigm == false
            labels = {'a','e','i','o','u'};
@@ -341,12 +348,37 @@ function startExpButton_Callback(hObject, eventdata, handles)
                     end
                     fakeTrailNum = fakeTrailNum + 1;
                 end
-
+                
+                predictionMinTime = currentBipTime - propertiesFile.predictionPreBipTime;
+                predictionMaxTime = currentBipTime + propertiesFile.predictionPostBipTime;
+                minTime = currentBipTime - propertiesFile.preBipTime;
+                maxTime = currentBipTime + propertiesFile.postBipTime;
+                labelIndex = (currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel);
+                
                 %% save relevant timestamps from new trials
-                for ee = 1:numOfActiveElectrodes 
-                    dataToSaveForHistAndRaster{ee,(currentLabel-1)*propertiesFile.numOfTrials + numOfTrialsPerLabel(currentLabel)} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime; %normalized for histogram x axis
-                    newTrialData{ee} = dataToSave((dataToSave(:,ee) >= (currentBipTime-propertiesFile.preBipTime) & (dataToSave(:,ee) <= (currentBipTime+propertiesFile.postBipTime))),ee) - currentBipTime;
+                for ee = 1:numOfActiveElectrodes
+                    if(lastLabelTime <= currentBipTime - propertiesFile.preBipTime)
+                        ind = indexFetchDataToSave{1, ee};
+                    else
+                        ind = 1;
+                    end
+                    dataToSaveForHistAndRaster{ee, labelIndex} = dataToSave((dataToSave(ind:end, ee) >= minTime) & (dataToSave(ind:end, ee) <= maxTime), ee) - currentBipTime; %normalized for histogram x axis
+                    
+                    %% get data for prediction
+                    if(propertiesFile.predictionOnline)
+                        if(lastLabelTime <= currentBipTime - propertiesFile.predictionPreBipTime)
+                            ind = indexFetchDataToSave{1, ee};
+                        else
+                            ind = 1;
+                        end
+                        dataForPrediction{(ee*2)-1} = getFiringRate(dataToSave((dataToSave(ind:end,ee) >= predictionMinTime) & (dataToSave(ind:end,ee) <= currentBipTime), ee), propertiesFile.preBipTime);
+                        dataForPrediction{ee*2} = getFiringRate(dataToSave((dataToSave(ind:end,ee) >= currentBipTime) & (dataToSave(ind:end,ee) <= predictionMaxTime), ee), propertiesFile.postBipTime);
+                        givePrediction = true;
+                        handles.predictButton.UserData = dataForPrediction;
+                    end
+                    indexFetchDataToSave{1, ee} = length(dataToSave(:, ee));
                 end
+                lastLabelTime = currentBipTime;
             end
         end
         
@@ -373,10 +405,12 @@ function startExpButton_Callback(hObject, eventdata, handles)
         end
         
         % When prediction flag is false, prediction works only with button
-        if propertiesFile.predictionOnline && getappdata(handles.figure1, 'usePrediction') == true
-            predictButton_Callback(handles.predictButton, eventdata);
-            handles.predictButton.UserData = dataToSaveForHistAndRaster;
+        % when there is new data to predict from (trail)
+        if (propertiesFile.predictionOnline && getappdata(handles.figure1, 'usePrediction') == true && givePrediction)
+            predictButton_Callback(handles.predictButton, eventdata, handles);
+            givePrediction = false;
         end
+        
         % Saving data
         if (~isempty(dataToSave) && minute(now-lastUpdate) > propertiesFile.saveInterval)
             currentDateAndTime = replace(replace(datestr(datetime('Now')),' ','_'),':','-');
@@ -386,7 +420,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
             save(['output\allDataFrom_',currentDateAndTime,'.mat'],'dataToSave');
             save(['output\TrialsDataFrom_',currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
             dataToSave = NaN(1, size(neuronMap,1));
-            dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
+            %dataToSaveForHistAndRaster = cell(numOfActiveElectrodes, (propertiesFile.numOfLabelTypes * propertiesFile.numOfTrials));
             lastUpdate = now;
         end
     end
@@ -440,6 +474,7 @@ function startExpButton_Callback(hObject, eventdata, handles)
      
 end
 
+
 function useCBMEX_Callback(hObject, eventdata, handles)
     disp('useCBMEX_Callback');
     setappdata(handles.figure1, 'useCBMEX', xor(getappdata(handles.figure1, 'useCBMEX'),true));
@@ -476,6 +511,58 @@ function forceCloseButton_Callback(hObject, eventdata, handles)
     delete(handles.figure1);
 end
 
+% --- Executes on button press in predictionCheckbox.
+function predictionCheckbox_Callback(hObject, eventdata, handles)
+    disp('predictionCheckbox_Callback');
+    setappdata(handles.figure1, 'usePrediction', xor(getappdata(handles.figure1, 'usePrediction'),true));
+end
+
+
+% --- Executes on button press in predictButton.
+function predictButton_Callback(hObject, eventdata, handles)
+   
+    persistent predictor;
+    prediction = '0';
+    
+    if (getappdata(handles.figure1, 'startExpButtonPressed') == true)
+        
+        if(isempty(predictor))   
+            
+            if(~strcmp(propertiesFile.predictorType, 'SIMULATION'))          
+               try
+                   predictor = load(propertiesFile.predictorPath);
+               catch
+                   errordlg('Could not find a predictor in specified path, will use random prediction','File does not exist');
+                   prediction = generateRandomPrediction();
+               end              
+            else
+                prediction = generateRandomPrediction();
+            end          
+        end
+        
+        if(strcmp(prediction, '0'))
+            switch (propertiesFile.predictorType)
+                case 'SVM'
+                    prediction = svmPrediction(predictor.predictors, handles.predictButton.UserData);
+                case 'NEURAL_NETWORK'
+                    % add more options here 
+            end  
+        end
+        
+        playPrediction(prediction); 
+        fprintf('>>>>>>>>>>> in RT_Exp: Predict: %s\n', prediction);
+        
+    else
+        errordlg('Please mark "with prediction" checkbox and start the expiriment first','Unpermitted Operation');
+    end
+    
+end
+
+
+function getLogs_Callback(hObject, eventdata, handles)
+    getLogs();
+end
+
 
 %%
 %===============GUI-OTHER===========
@@ -494,25 +581,3 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
     end
 end
 
-
-% --- Executes on button press in predictionCheckbox.
-function predictionCheckbox_Callback(hObject, eventdata, handles)
-    disp('predictionCheckbox_Callback');
-    setappdata(handles.figure1, 'usePrediction', xor(getappdata(handles.figure1, 'usePrediction'),true));
-end
-
-
-% --- Executes on button press in predictButton.
-function predictButton_Callback(hObject, eventdata, handles)
-    if getappdata(handles.figure1, 'usePrediction') == true && getappdata(handles.figure1, 'startExpButtonPressed') == true
-        labels = {'a','e','i','o','u'};
-        prediction = labels{randi([1 length(labels)])};
-        playPrediction(prediction);
-    else
-        errordlg('Please mark the "with prediction" checkbox and start the expiriment first','Unpermitted Operation');
-    end
-end
-
-function getLogs_Callback(hObject, eventdata, handles)
-    getLogs();
-end

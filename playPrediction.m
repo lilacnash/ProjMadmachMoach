@@ -1,14 +1,14 @@
 function [ ] = playPrediction( prediction )
     switch (prediction)
-        case 'a'
+        case 'A'
             [y,Fs] = audioread('Tal_Omer_final_project_2017-11-16_modified\exp_software\audio\A.wav');
-        case 'e'
+        case 'E'
             [y,Fs] = audioread('Tal_Omer_final_project_2017-11-16_modified\exp_software\audio\E.wav');
-        case 'i'
+        case 'I'
             [y,Fs] = audioread('Tal_Omer_final_project_2017-11-16_modified\exp_software\audio\I.wav');
-        case 'o'
+        case 'O'
             [y,Fs] = audioread('Tal_Omer_final_project_2017-11-16_modified\exp_software\audio\O.wav');
-        case 'u'
+        case 'U'
             [y,Fs] = audioread('Tal_Omer_final_project_2017-11-16_modified\exp_software\audio\U.wav');
     end
     sound(y, Fs);

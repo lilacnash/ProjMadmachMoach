@@ -1,4 +1,4 @@
-function [md, stats] = getSVMPredictor(label)
+function [md, fs, stats] = getSVMPredictor(label)
     
     global cfg;
     

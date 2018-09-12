@@ -10,8 +10,7 @@ function [] = RunRTExp()
     if cfg.useParadigm
         connectToParadigmComputer();
     end
-    
-    
+   
     RealTimeSpikes();
    
 

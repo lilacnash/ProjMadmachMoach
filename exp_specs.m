@@ -63,6 +63,9 @@ function cfg = exp_specs()
     cfg.BRAIN_CONTROL_U = 'U';
     cfg.BRAIN_CONTROL_I = 'I';
     cfg.BRAIN_CONTROL_O = 'O';
+    
+    %% PREDICTOR
+    cfg.predictor = false;
 
 
 end
