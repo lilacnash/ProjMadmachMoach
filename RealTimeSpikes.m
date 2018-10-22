@@ -102,7 +102,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
         % open neuroport
         cbmex('close');
         [connection, instrument] = cbmex('open', 'inst-addr', '192.168.137.128', 'inst-port', 51001, 'central-addr', '255.255.255.255', 'central-port', 51002);
-        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: neuroport is open. connection: %d instrument: %d\n', GetSecs, connection, instrument);
+        if propertiesFile.connectToParadigm
+            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: neuroport is open. connection: %d instrument: %d\n', GetSecs, connection, instrument);
+        end
         startRecording();
     end
     
@@ -180,8 +182,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     firstUpdate = true;
     
     fakeTrailNum = 1; %for simulation time sync
-
-    fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: TRAINING started\n', GetSecs);
+    if propertiesFile.connectToParadigm
+        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: TRAINING started\n', GetSecs);
+    end
 
     %%
     %init clocks
@@ -417,7 +420,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
             save([allDataName,currentDateAndTime,'.mat'],'dataToSave');
             save([trailDataName,currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
             
-            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes:data saved\n', GetSecs);
+            if propertiesFile.connectToParadigm
+                fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes:data saved\n', GetSecs);
+            end
             
             dataToSave = NaN(1, size(neuronMap,1));
             indexFetchDataToSave = cell(1, size(neuronMap,1));
@@ -430,7 +435,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
     %% stoping the recording and saving the data
     if getappdata(handles.figure1, 'useCBMEX') == true 
         cbmex('close');
-        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: cbmex closed\n', GetSecs);
+        if propertiesFile.connectToParadigm
+            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: cbmex closed\n', GetSecs);
+        end
     end
     
     %% save data on exit
@@ -444,8 +451,9 @@ function startExpButton_Callback(hObject, eventdata, handles)
             
         save([allDataName,currentDateAndTime,'.mat'],'dataToSave');    
         save([trailDataName,currentDateAndTime,'.mat'],'dataToSaveForHistAndRaster');
-        
-        fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: data saved\n', GetSecs);
+        if propertiesFile.connectToParadigm
+            fprintf(cfg.logfile, '>>>>>>>>>>> %f in RealTimeSpikes: data saved\n', GetSecs);
+        end
     end
     
      % close sockets

@@ -65,8 +65,8 @@ classdef propertiesFile
       
       %% prediction
       predictionOnline = true
-      predictionPostBipTime = 0.2
-      predictionPreBipTime = 0.001
+      predictionPostBipTime = 2 %change to the correct value
+      predictionPreBipTime = 2 %change to the correct value
       labelsForRandomPrediction = {'A','E','I','O','U'}
       predictorPath = 'ML/predictors.mat'
       predictorType = 'SVM'

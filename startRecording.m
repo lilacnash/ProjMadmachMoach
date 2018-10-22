@@ -7,7 +7,8 @@ function startRecording()
     cbmex('fileconfig', fileName, 'label', 1);
     
     [active_state, config_vector_out] = cbmex('trialconfig', 1,'double');
-    
-    fprintf(cfg.logfile, '>>>>>>>>>>> in startRecording: created new data file. data collective state: %d\n', active_state);
+    if propertiesFile.connectToParadigm
+        fprintf(cfg.logfile, '>>>>>>>>>>> in startRecording: created new data file. data collective state: %d\n', active_state);
+    end
     
 end
